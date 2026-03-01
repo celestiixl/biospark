@@ -15,8 +15,8 @@ export default function Card({
 }) {
   const base =
     variant === "sm"
-      ? "rounded-2xl border bg-white p-5 shadow-sm"
-      : "rounded-[28px] border bg-white/95 p-6 shadow-sm";
+      ? "ia-card p-5"
+      : "ia-card p-6";
 
   return <div className={cx(base, className)}>{children}</div>;
 }
