@@ -5,7 +5,7 @@ function cx(...parts: Array<string | undefined | false>) {
 }
 
 export default function PageShell({ children }: { children: React.ReactNode }) {
-  return <div style={{ minHeight: '100dvh', background: 'rgb(var(--ia-bg))' }}>{children}</div>;
+  return <div style={{ minHeight: '100dvh' }}>{children}</div>;
 }
 
 export function PageContent({
