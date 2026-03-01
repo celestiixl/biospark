@@ -1,9 +1,9 @@
-"use client";
+  "use client";
 
-import BilingualText from "@/components/student/BilingualText";
-import { useEffect, useMemo, useState } from "react";
-import { useLang } from "@/lib/useLang";
-
+  import BilingualText from "@/components/student/BilingualText";
+  import { GlossaryText } from "@/components/glossary";
+  import { useEffect, useMemo, useState } from "react";
+  import { useLang } from "@/lib/useLang";
 export type MCQItem = {
   id: string;
   stem: string;
@@ -12,6 +12,13 @@ export type MCQItem = {
   retryLimit?: number;
   rationale?: string;
   tags?: string[];
+  glossary?: Array<{
+    key: string;
+    surface: string;
+    es: string;
+    en: string;
+    partOfSpeech?: string;
+  }>;
 };
 
 export default function MCQ({
@@ -110,7 +117,15 @@ export default function MCQ({
   return (
     <div className="space-y-4">
       <div className="text-lg font-semibold">
-        {<BilingualText text={item.stem} showSupport={lang === "es"} />}
+        {item.glossary && item.glossary.length > 0 ? (
+          <GlossaryText
+            text={item.stem}
+            glossary={item.glossary}
+            defaultLang={lang === "es" ? "es" : "en"}
+          />
+        ) : (
+          <BilingualText text={item.stem} showSupport={lang === "es"} />
+        )}
       </div>
 
       <fieldset className="space-y-2">

@@ -9,6 +9,13 @@ export type ItemBase = {
   rationale?: string;
   lang?: "en" | "es";
   metadata?: Record<string, unknown>;
+  glossary?: Array<{
+    key: string;
+    surface: string;
+    es: string;
+    en: string;
+    partOfSpeech?: string;
+  }>;
 };
 
 export type ItemMCQ = ItemBase & {
