@@ -90,7 +90,12 @@ export default function TeacherDashboardPage() {
                 </div>
               </Card>
 
-              <Card variant="accent" accentColor="green" className="p-5" animate>
+              <Card
+                variant="accent"
+                accentColor="green"
+                className="p-5"
+                animate
+              >
                 <h2 className="text-xl font-semibold">AI Grading Assistant</h2>
                 <p className="mt-2 text-text-muted">
                   You have <span className="font-semibold">—</span> constructed

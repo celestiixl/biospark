@@ -21,7 +21,7 @@ export default function StatCard({
 }) {
   const shouldReduceMotion = useReducedMotion();
   const [displayValue, setDisplayValue] = React.useState<string | number>(
-    typeof value === "number" ? 0 : value ?? "",
+    typeof value === "number" ? 0 : (value ?? ""),
   );
 
   React.useEffect(() => {
@@ -48,7 +48,9 @@ export default function StatCard({
             <div className="text-sm font-semibold text-text">{label}</div>
             {icon}
           </div>
-          <div className="text-2xl font-semibold tracking-tight text-text">{displayValue}</div>
+          <div className="text-2xl font-semibold tracking-tight text-text">
+            {displayValue}
+          </div>
           {cta ? <div className="pt-1">{cta}</div> : null}
         </div>
       ) : null}

@@ -69,7 +69,13 @@ export function ChoiceButton({
         <span>{children ?? text}</span>
       </span>
       <span aria-hidden className="text-base">
-        {state === "correct" ? "✓" : state === "incorrect" ? "✕" : checked ? "●" : "○"}
+        {state === "correct"
+          ? "✓"
+          : state === "incorrect"
+            ? "✕"
+            : checked
+              ? "●"
+              : "○"}
       </span>
     </motion.button>
   );

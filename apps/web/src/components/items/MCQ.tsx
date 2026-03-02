@@ -125,41 +125,41 @@ export default function MCQ({
       <fieldset className="space-y-2">
         <legend className="sr-only">Answer choices</legend>
         <div role={isMulti ? "group" : "radiogroup"} className="space-y-2">
-        {item.choices.map((c, idx) => {
-          const checked = selected.includes(c.id);
-          const isCorrect = item.correctIds.includes(c.id);
+          {item.choices.map((c, idx) => {
+            const checked = selected.includes(c.id);
+            const isCorrect = item.correctIds.includes(c.id);
 
-          const state = done
-            ? isCorrect
-              ? "correct"
+            const state = done
+              ? isCorrect
+                ? "correct"
+                : checked
+                  ? "incorrect"
+                  : "idle"
               : checked
-                ? "incorrect"
-                : "idle"
-            : checked
-              ? "selected"
-              : "idle";
+                ? "selected"
+                : "idle";
 
-          return (
-            <ChoiceButton
-              key={c.id}
-              id={c.id}
-              label={String.fromCharCode(65 + idx)}
-              checked={checked}
-              state={state}
-              roleType={isMulti ? "checkbox" : "radio"}
-              onSelect={toggle}
-              className={done ? "opacity-90" : undefined}
-            >
-              <span className="leading-6">
-                <BilingualText
-                  text={c.text}
-                  showSupport={lang === "es"}
-                  glossary={item.glossary ?? []}
-                />
-              </span>
-            </ChoiceButton>
-          );
-        })}
+            return (
+              <ChoiceButton
+                key={c.id}
+                id={c.id}
+                label={String.fromCharCode(65 + idx)}
+                checked={checked}
+                state={state}
+                roleType={isMulti ? "checkbox" : "radio"}
+                onSelect={toggle}
+                className={done ? "opacity-90" : undefined}
+              >
+                <span className="leading-6">
+                  <BilingualText
+                    text={c.text}
+                    showSupport={lang === "es"}
+                    glossary={item.glossary ?? []}
+                  />
+                </span>
+              </ChoiceButton>
+            );
+          })}
         </div>
       </fieldset>
 

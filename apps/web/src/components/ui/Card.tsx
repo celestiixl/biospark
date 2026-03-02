@@ -45,8 +45,12 @@ export default function Card({
 
   return (
     <motion.div
-      initial={animate && !shouldReduceMotion ? { opacity: 0, y: 12 } : undefined}
-      animate={animate && !shouldReduceMotion ? { opacity: 1, y: 0 } : undefined}
+      initial={
+        animate && !shouldReduceMotion ? { opacity: 0, y: 12 } : undefined
+      }
+      animate={
+        animate && !shouldReduceMotion ? { opacity: 1, y: 0 } : undefined
+      }
       transition={{ duration: 0.2, ease: "easeOut" }}
       whileHover={shouldReduceMotion ? undefined : { scale: 1.01 }}
       className={cn(
