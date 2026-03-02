@@ -8,7 +8,13 @@ import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
 
 import SpecimenGrid from "@/components/student/SpecimenGrid";
-import { PageContent, PageBanner, Card, Section, MasteryRing } from "@/components/ui";
+import {
+  PageContent,
+  PageBanner,
+  Card,
+  Section,
+  MasteryRing,
+} from "@/components/ui";
 
 function clamp01(n: number) {
   if (!Number.isFinite(n)) return 0;
@@ -279,9 +285,7 @@ export default function StudentDashboard() {
         {/* MAIN CONTENT SURFACE */}
         <Card>
           {/* Biome banner */}
-          <div
-            className="mb-5 flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-white/20 bg-linear-to-r from-violet-500 via-purple-400 to-amber-400 p-5"
-          >
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-white/20 bg-linear-to-r from-violet-500 via-purple-400 to-amber-400 p-5">
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-white/85">
                 Biome Health
@@ -293,9 +297,7 @@ export default function StudentDashboard() {
                 </span>
               </div>
               <div className="mt-1 text-sm text-white/90">{biome.desc}</div>
-              <div
-                className="mt-3 inline-flex items-center rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs font-semibold text-white"
-              >
+              <div className="mt-3 inline-flex items-center rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs font-semibold text-white">
                 segments passed: {segments.length}
               </div>
             </div>
