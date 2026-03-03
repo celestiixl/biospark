@@ -9,9 +9,21 @@ import { useMemo, useState, useEffect } from "react";
 
 import MasteryDonut from "@/components/student/MasteryDonut";
 import SpecimenGrid from "@/components/student/SpecimenGrid";
-import LearningHub from "@/components/student/LearningHub";
-import { PageContent, Card, Section } from "@/components/ui";
+import {
+  PageContent,
+  Card,
+  Section,
+  BentoGrid,
+  BentoCell,
+  SpotlightCard,
+  BlurText,
+  ShinyText,
+  CountUp,
+} from "@/components/ui";
 
+import LinearProgress from "@mui/joy/LinearProgress";
+import Chip from "@mui/joy/Chip";
+import Button from "@mui/joy/Button";
 
 function clamp01(n: number) {
   if (!Number.isFinite(n)) return 0;
@@ -29,8 +41,10 @@ function getBiomeHealth(segments: Segment[]) {
       biome: "Polluted Waters",
       desc: "Food web is unstable.",
       pct: Math.round(p * 100),
-      banner: "bg-neutral-50/60 backdrop-blur-sm",
+      tone: "neutral" as const,
+      banner: "bg-neutral-50",
       badge: "border-neutral-200 text-neutral-800",
+      joyColor: "neutral" as const,
     };
   }
   if (p < 0.5) {
@@ -39,8 +53,10 @@ function getBiomeHealth(segments: Segment[]) {
       biome: "Sparse Grassland",
       desc: "Some stability, gaps remain.",
       pct: Math.round(p * 100),
-      banner: "bg-amber-50/60 backdrop-blur-sm",
+      tone: "warning" as const,
+      banner: "bg-amber-50",
       badge: "border-amber-200 text-amber-900",
+      joyColor: "warning" as const,
     };
   }
   if (p < 0.75) {
@@ -49,8 +65,10 @@ function getBiomeHealth(segments: Segment[]) {
       biome: "Balanced Forest",
       desc: "Most relationships are solid.",
       pct: Math.round(p * 100),
-      banner: "bg-green-50/60 backdrop-blur-sm",
+      tone: "success" as const,
+      banner: "bg-green-50",
       badge: "border-green-200 text-green-900",
+      joyColor: "success" as const,
     };
   }
   return {
@@ -58,8 +76,10 @@ function getBiomeHealth(segments: Segment[]) {
     biome: "Thriving Reef",
     desc: "Ecosystem is strong and resilient.",
     pct: Math.round(p * 100),
-    banner: "bg-cyan-50/60 backdrop-blur-sm",
+    tone: "primary" as const,
+    banner: "bg-cyan-50",
     badge: "border-cyan-200 text-cyan-900",
+    joyColor: "primary" as const,
   };
 }
 
@@ -140,6 +160,11 @@ export default function StudentDashboard() {
     return s ?? null;
   }, [segments]);
 
+  const masteredCount = useMemo(
+    () => segments.filter((s) => (s.value ?? 0) >= 0.75).length,
+    [segments]
+  );
+
   return (
     <main className="min-h-dvh text-slate-900">
       {/* FULL-WIDTH HEADER BAND */}
@@ -147,9 +172,12 @@ export default function StudentDashboard() {
         <div className="mx-auto max-w-6xl px-6 py-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-semibold tracking-tight text-white">
-                Student Dashboard
-              </h1>
+              <BlurText
+                text="Student Dashboard"
+                className="text-4xl font-semibold tracking-tight text-white"
+                delay={70}
+                animateBy="words"
+              />
               <div className="mt-2 flex flex-wrap items-center gap-3 text-white/90">
                 <span>Your personal mastery tracker.</span>
                 <button
@@ -186,11 +214,27 @@ export default function StudentDashboard() {
               <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Biome Health
               </div>
-              <div className="mt-1 text-lg font-semibold text-slate-900">
-                {biome.level} • {biome.biome}{" "}
-                <span className="ml-2 text-sm font-semibold text-slate-600">({biome.pct}%)</span>
+              <div className="mt-1 flex items-baseline gap-2">
+                <ShinyText
+                  text={`${biome.level} • ${biome.biome}`}
+                  color="rgb(15,23,42)"
+                  shineColor="#2563eb"
+                  speed={3}
+                  className="text-lg font-semibold"
+                />
+                <span className="text-sm font-semibold text-slate-600">({biome.pct}%)</span>
               </div>
               <div className="mt-1 text-sm text-slate-600">{biome.desc}</div>
+              {/* Joy UI progress bar */}
+              <div className="mt-3 w-48">
+                <LinearProgress
+                  determinate
+                  value={biome.pct}
+                  color={biome.joyColor}
+                  size="sm"
+                  sx={{ "--LinearProgress-radius": "9999px" }}
+                />
+              </div>
               <div className={`mt-3 inline-flex items-center rounded-full border bg-white/95 px-3 py-1 text-xs font-semibold ${biome.badge}`}>
                 segments passed: {segments.length}
               </div>
@@ -210,7 +254,7 @@ export default function StudentDashboard() {
           <div className="mb-4 flex items-center gap-2">
             <button
               type="button"
-              onClick={() => { setTab("overview"); if (typeof window !== "undefined") window.localStorage.setItem("studentDashboard.activeTab", "overview"); }}
+              onClick={() => { setTab("overview"); if (typeof window !== "undefined") window.localStorage.setItem("studentDashboard.activeTab", "overview"); } }
               className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                 tab === "overview" ? "bg-slate-900 text-white" : "bg-white text-slate-900 hover:bg-slate-50"
               }`}
@@ -219,7 +263,7 @@ export default function StudentDashboard() {
             </button>
             <button
               type="button"
-              onClick={() => { setTab("specimens"); if (typeof window !== "undefined") window.localStorage.setItem("studentDashboard.activeTab", "specimens"); }}
+              onClick={() => { setTab("specimens"); if (typeof window !== "undefined") window.localStorage.setItem("studentDashboard.activeTab", "specimens"); } }
               className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                 tab === "specimens" ? "bg-slate-900 text-white" : "bg-white text-slate-900 hover:bg-slate-50"
               }`}
@@ -241,7 +285,7 @@ export default function StudentDashboard() {
           <Section className="/0 p-6 ia-card-soft ">
             {tab === "overview" ? (
               <>
-                <MasteryDonut segments={segments } />
+                <MasteryDonut segments={segments} />
                 <div className="mt-4 text-center text-sm text-slate-500">
                   Hover a slice to see the TEKS.
                 </div>
@@ -256,33 +300,167 @@ export default function StudentDashboard() {
             ) : (
               <LearningHub streak={3} accuracy={74} />
             )}
-            </Section>
+          </Section>
 
-          {/* Bottom cards — shown only on overview/specimens tabs */}
-          {tab !== "learning" && (
-            <section className="mt-5 grid gap-4 md:grid-cols-3">
-              <Card variant="sm">
+          {/* Bento stats row */}
+          <BentoGrid cols={3} className="mt-5">
+            {/* Next best step — wide */}
+            <BentoCell span="2x1">
+              <SpotlightCard
+                className="h-full rounded-2xl border bg-white p-5 shadow-sm"
+                spotlightColor="rgba(14,165,233,0.18)"
+              >
                 <div className="text-sm font-semibold text-slate-800">Next best step</div>
-                <div className="mt-2 text-sm text-slate-600">Focus on RC4 practice sets (lowest mastery).</div>
-                <div className="mt-4 flex gap-2">
-                  <Link className="ia-btn-primary text-sm" href="/practice?rc=RC4%20%E2%80%A2%20Biological%20Processes%20%26%20Systems">Practice RC4</Link>
-                  <Link className="ia-btn text-sm" href="/practice?rc=RC1%20%E2%80%A2%20Cell%20Structure%20%26%20Function">Practice RC1</Link>
+                <div className="mt-2 text-sm text-slate-600">
+                  Focus on RC4 practice sets — your lowest mastery category.
                 </div>
-              </Card>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button
+                    component={Link}
+                    href="/practice?rc=RC4%20%E2%80%A2%20Biological%20Processes%20%26%20Systems"
+                    variant="solid"
+                    color="primary"
+                    size="sm"
+                  >
+                    Practice RC4
+                  </Button>
+                  <Button
+                    component={Link}
+                    href="/practice?rc=RC1%20%E2%80%A2%20Cell%20Structure%20%26%20Function"
+                    variant="outlined"
+                    color="neutral"
+                    size="sm"
+                  >
+                    Practice RC1
+                  </Button>
+                </div>
+              </SpotlightCard>
+            </BentoCell>
 
-              <Card variant="sm">
-                <div className="text-sm font-semibold text-slate-800" data-focus-hide="1">Streak</div>
-                <div className="mt-2 text-2xl font-semibold">3 days</div>
-                <div className="mt-1 text-sm text-slate-600">Keep going.</div>
-              </Card>
+            {/* Segments mastered */}
+            <BentoCell>
+              <SpotlightCard
+                className="h-full rounded-2xl border bg-white p-5 shadow-sm"
+                spotlightColor="rgba(16,185,129,0.2)"
+              >
+                <div className="text-sm font-semibold text-slate-800">Segments Mastered</div>
+                <div className="mt-2 flex items-end gap-1">
+                  <CountUp
+                    to={masteredCount}
+                    duration={1.4}
+                    className="text-3xl font-semibold tabular-nums text-emerald-600"
+                  />
+                  <span className="mb-0.5 text-lg text-slate-400">/{segments.length}</span>
+                </div>
+                <div className="mt-3">
+                  <LinearProgress
+                    determinate
+                    value={Math.round((masteredCount / segments.length) * 100)}
+                    color="success"
+                    size="sm"
+                    sx={{ "--LinearProgress-radius": "9999px" }}
+                  />
+                </div>
+                <div className="mt-2 text-xs text-slate-500">75%+ threshold per segment</div>
+              </SpotlightCard>
+            </BentoCell>
 
-              <Card variant="sm">
-                <div className="text-sm font-semibold text-slate-800" data-focus-hide="1">Accuracy</div>
-                <div className="mt-2 text-2xl font-semibold">74%</div>
-                <div className="mt-1 text-sm text-slate-600">Last 20 checks (demo).</div>
-              </Card>
-            </section>
-          )}
+            {/* Streak */}
+            <BentoCell>
+              <SpotlightCard
+                className="h-full rounded-2xl border bg-white p-5 shadow-sm"
+                spotlightColor="rgba(245,158,11,0.2)"
+              >
+                <div className="text-sm font-semibold text-slate-800" data-focus-hide="1">
+                  Daily Streak
+                </div>
+                <div className="mt-2 flex items-baseline gap-1">
+                  <CountUp
+                    to={3}
+                    duration={1.2}
+                    className="text-3xl font-semibold tabular-nums text-amber-500"
+                  />
+                  <span className="text-base text-slate-500">days</span>
+                </div>
+                <Chip
+                  color="warning"
+                  variant="soft"
+                  size="sm"
+                  sx={{ mt: 1.5 }}
+                >
+                  🔥 Keep it up
+                </Chip>
+              </SpotlightCard>
+            </BentoCell>
+
+            {/* Accuracy */}
+            <BentoCell>
+              <SpotlightCard
+                className="h-full rounded-2xl border bg-white p-5 shadow-sm"
+                spotlightColor="rgba(139,92,246,0.2)"
+              >
+                <div className="text-sm font-semibold text-slate-800" data-focus-hide="1">
+                  Accuracy
+                </div>
+                <div className="mt-2 flex items-baseline gap-0.5">
+                  <CountUp
+                    to={74}
+                    duration={1.6}
+                    className="text-3xl font-semibold tabular-nums text-violet-500"
+                  />
+                  <span className="text-lg text-slate-400">%</span>
+                </div>
+                <div className="mt-3">
+                  <LinearProgress
+                    determinate
+                    value={74}
+                    sx={{
+                      "--LinearProgress-radius": "9999px",
+                      "--LinearProgress-progressColor":
+                        "linear-gradient(90deg, #a78bfa, #7c3aed)",
+                    }}
+                    size="sm"
+                  />
+                </div>
+                <div className="mt-2 text-xs text-slate-500">Last 20 checks (demo)</div>
+              </SpotlightCard>
+            </BentoCell>
+
+            {/* Biome health */}
+            <BentoCell>
+              <SpotlightCard
+                className="h-full rounded-2xl border bg-white p-5 shadow-sm"
+                spotlightColor="rgba(20,184,166,0.2)"
+              >
+                <div className="text-sm font-semibold text-slate-800">Biome Score</div>
+                <div className="mt-2 flex items-baseline gap-0.5">
+                  <CountUp
+                    to={biome.pct}
+                    duration={1.5}
+                    className="text-3xl font-semibold tabular-nums text-teal-500"
+                  />
+                  <span className="text-lg text-slate-400">%</span>
+                </div>
+                <div className="mt-3">
+                  <LinearProgress
+                    determinate
+                    value={biome.pct}
+                    color={biome.joyColor}
+                    size="sm"
+                    sx={{ "--LinearProgress-radius": "9999px" }}
+                  />
+                </div>
+                <Chip
+                  color={biome.joyColor}
+                  variant="soft"
+                  size="sm"
+                  sx={{ mt: 1.5 }}
+                >
+                  {biome.level}
+                </Chip>
+              </SpotlightCard>
+            </BentoCell>
+          </BentoGrid>
         </Card>
       </PageContent>
     </main>
