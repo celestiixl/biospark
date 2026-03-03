@@ -34,7 +34,9 @@ function ensureDailyStreak(profile: StudentProfile): StudentProfile {
     const last = window.localStorage.getItem(LAST_LOGIN_KEY);
     if (last === today) return profile;
 
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000)
+      .toISOString()
+      .slice(0, 10);
     const streak = last === yesterday ? profile.streak + 1 : 1;
     window.localStorage.setItem(LAST_LOGIN_KEY, today);
     return { ...profile, streak };
@@ -50,7 +52,9 @@ function masteryPercent(correct: number, total: number): number {
 
 function getBadgeUpdates(profile: StudentProfile): string[] {
   const badgeSet = new Set(profile.badges);
-  const hasAnyCorrect = Object.values(profile.topicAccuracy).some((row) => row.correct > 0);
+  const hasAnyCorrect = Object.values(profile.topicAccuracy).some(
+    (row) => row.correct > 0,
+  );
   const cell = profile.topicAccuracy["Cell Biology"];
   const cellPct = cell ? masteryPercent(cell.correct, cell.total) : 0;
 
@@ -69,11 +73,15 @@ function pickNextChallenge(
   difficulty: 1 | 2 | 3,
   excludeId?: string,
 ): Challenge {
-  const sameTopic = allChallenges.filter((c) => c.topic === topic && c.id !== excludeId);
+  const sameTopic = allChallenges.filter(
+    (c) => c.topic === topic && c.id !== excludeId,
+  );
   const exact = sameTopic.filter((c) => c.difficulty === difficulty);
   if (exact.length) return exact[Math.floor(Math.random() * exact.length)];
 
-  const close = sameTopic.filter((c) => Math.abs(c.difficulty - difficulty) <= 1);
+  const close = sameTopic.filter(
+    (c) => Math.abs(c.difficulty - difficulty) <= 1,
+  );
   if (close.length) return close[Math.floor(Math.random() * close.length)];
 
   const fallback = allChallenges.filter((c) => c.id !== excludeId);
@@ -102,9 +110,13 @@ export default function StudentLearningHubPage() {
     saveStudentProfile(profile);
   }, [profile, ready]);
 
-  const { getDifficultyForTopic, registerAttempt, topicSummaries } = useAdaptiveEngine(profile);
+  const { getDifficultyForTopic, registerAttempt, topicSummaries } =
+    useAdaptiveEngine(profile);
 
-  const topics = useMemo(() => Array.from(new Set(CHALLENGES.map((c) => c.topic))), []);
+  const topics = useMemo(
+    () => Array.from(new Set(CHALLENGES.map((c) => c.topic))),
+    [],
+  );
   const [topicIndex, setTopicIndex] = useState(0);
   const activeTopic = topics[topicIndex % topics.length] ?? "Cell Biology";
 
@@ -114,7 +126,9 @@ export default function StudentLearningHubPage() {
 
   useEffect(() => {
     const difficulty = getDifficultyForTopic(activeTopic);
-    setChallenge((prev) => pickNextChallenge(CHALLENGES, activeTopic, difficulty, prev.id));
+    setChallenge((prev) =>
+      pickNextChallenge(CHALLENGES, activeTopic, difficulty, prev.id),
+    );
   }, [activeTopic]);
 
   const masteryRows = useMemo(() => {
@@ -138,7 +152,10 @@ export default function StudentLearningHubPage() {
 
   function handleResult(correct: boolean, xpGained: number) {
     setProfile((prev) => {
-      const topicStats = prev.topicAccuracy[challenge.topic] ?? { correct: 0, total: 0 };
+      const topicStats = prev.topicAccuracy[challenge.topic] ?? {
+        correct: 0,
+        total: 0,
+      };
       const nextTopicStats = {
         correct: topicStats.correct + (correct ? 1 : 0),
         total: topicStats.total + 1,
@@ -173,7 +190,9 @@ export default function StudentLearningHubPage() {
     setTopicIndex((prev) => prev + 1);
     const nextTopic = topics[(topicIndex + 1) % topics.length] ?? activeTopic;
     const difficulty = getDifficultyForTopic(nextTopic);
-    setChallenge((prev) => pickNextChallenge(CHALLENGES, nextTopic, difficulty, prev.id));
+    setChallenge((prev) =>
+      pickNextChallenge(CHALLENGES, nextTopic, difficulty, prev.id),
+    );
   }
 
   function quickStart() {
@@ -181,7 +200,9 @@ export default function StudentLearningHubPage() {
   }
 
   if (!ready) {
-    return <main className="p-6 text-slate-900">Loading BioSpark Quest...</main>;
+    return (
+      <main className="p-6 text-slate-900">Loading BioSpark Quest...</main>
+    );
   }
 
   return (
@@ -205,11 +226,17 @@ export default function StudentLearningHubPage() {
               onSelect={handleModeSelect}
             />
 
-            <div ref={challengeRef} className="ia-vh-scroll min-h-0 overflow-y-auto pr-1">
+            <div
+              ref={challengeRef}
+              className="ia-vh-scroll min-h-0 overflow-y-auto pr-1"
+            >
               <ChallengeCard
                 challenge={challenge}
                 mode={profile.preferredMode}
-                whyMatters={CHALLENGE_WHY_MATTERS[challenge.id] ?? "Biology connects directly to your health and community decisions."}
+                whyMatters={
+                  CHALLENGE_WHY_MATTERS[challenge.id] ??
+                  "Biology connects directly to your health and community decisions."
+                }
                 onResult={handleResult}
                 onNext={nextChallenge}
               />
@@ -225,9 +252,16 @@ export default function StudentLearningHubPage() {
               <BadgeShelf earnedBadges={profile.badges} />
               <div className="rounded-2xl border border-slate-200 bg-white p-4 text-xs text-slate-600">
                 <div className="font-semibold text-slate-900">Quest Titles</div>
-                <div className="mt-1">Cell Apprentice → DNA Decoder → Ecosystem Ranger → Genome Guardian → Apex Predator</div>
-                <div className="mt-3 font-semibold text-slate-900">Unlock Milestones</div>
-                <div className="mt-1">{BADGE_MILESTONES.map((b) => b.label).join(" • ")}</div>
+                <div className="mt-1">
+                  Cell Apprentice → DNA Decoder → Ecosystem Ranger → Genome
+                  Guardian → Apex Predator
+                </div>
+                <div className="mt-3 font-semibold text-slate-900">
+                  Unlock Milestones
+                </div>
+                <div className="mt-1">
+                  {BADGE_MILESTONES.map((b) => b.label).join(" • ")}
+                </div>
               </div>
             </div>
 
@@ -239,8 +273,12 @@ export default function StudentLearningHubPage() {
       {showLevelBurst && (
         <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center">
           <div className="ia-level-burst text-center">
-            <div className="text-3xl font-extrabold text-emerald-600">Level Up!</div>
-            <div className="mt-1 text-sm font-semibold text-slate-900">{levelTitle(profile.level)}</div>
+            <div className="text-3xl font-extrabold text-emerald-600">
+              Level Up!
+            </div>
+            <div className="mt-1 text-sm font-semibold text-slate-900">
+              {levelTitle(profile.level)}
+            </div>
           </div>
         </div>
       )}
