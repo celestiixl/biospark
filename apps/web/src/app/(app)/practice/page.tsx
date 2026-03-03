@@ -20,14 +20,43 @@ import type { Item } from "@/types/item";
 import { bioInteractives } from "@/data/bio9_interactives";
 import { bio9Items } from "@/data/biology9";
 import { STAAR_BIO } from "@/data/staar_bio";
+import { updateRecord } from "@/lib/spacedRepetition";
 
 export const dynamic = "force-dynamic";
 
 type Status = "unseen" | "correct" | "wrong";
 
+function clampQuality(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(5, Math.round(n)));
+}
+
+function qualityFromScore(score: number, max: number): number {
+  if (!Number.isFinite(max) || max <= 0) return 0;
+  const pct = Math.max(0, Math.min(1, score / max));
+  return clampQuality(pct * 5);
+}
+
+function normalizeTeksId(raw: string): string {
+  const base = String(raw || "").trim().toUpperCase().replace(/\s+/g, "");
+  return base.replace(/^([A-Z]+\.\d+)\.([A-Z0-9]+)$/i, "$1$2");
+}
+
+function extractTeksIds(item: any): string[] {
+  if (!Array.isArray(item?.teks)) return [];
+  return Array.from(
+    new Set(
+      item.teks
+        .map((t: unknown) => normalizeTeksId(String(t || "")))
+        .filter(Boolean),
+    ),
+  );
+}
+
 export default function PracticeByCategory() {
   const [checkedThisItem, setCheckedThisItem] = useState(false);
   const [attemptsById, setAttemptsById] = useState<Record<string, number>>({});
+  const [statusByIndex, setStatusByIndex] = useState<Record<number, Status>>({});
 
   const supports = useSupports();
   const router = useRouter();
@@ -148,13 +177,23 @@ export default function PracticeByCategory() {
     setCurrent(0);
   }, [rcParam]);
 
-  const statusByIndex: Record<number, Status> = useMemo(() => {
-    const map: Record<number, Status> = {};
-    mergedItems.forEach((_, i) => (map[i] = "unseen")); // (wire attempts later)
-    return map;
-  }, [mergedItems]);
+  useEffect(() => {
+    setStatusByIndex({});
+  }, [rcParam, mergedItems.length]);
 
-  const percent = 0; // (hook up real progress later)
+  const percent = useMemo(() => {
+    if (!mergedItems.length) return 0;
+    const seen = Object.values(statusByIndex).filter((s) => s !== "unseen").length;
+    return Math.round((seen / mergedItems.length) * 100);
+  }, [statusByIndex, mergedItems.length]);
+  const completedCount = useMemo(
+    () => Object.values(statusByIndex).filter((s) => s !== "unseen").length,
+    [statusByIndex],
+  );
+  const correctCount = useMemo(
+    () => Object.values(statusByIndex).filter((s) => s === "correct").length,
+    [statusByIndex],
+  );
   const safeIndex = Math.max(0, Math.min(current, mergedItems.length - 1));
   const safeItem = mergedItems[safeIndex];
 
@@ -176,8 +215,8 @@ export default function PracticeByCategory() {
   }, [safeIndex]);
 
   return (
-    <AppShell activeKey="practice">
-      <div className="ia-container py-6 space-y-6 text-[15px] leading-normal">
+    <AppShell activeKey="practice" fullBleed>
+      <div className="w-full py-4 space-y-5 text-[15px] leading-normal">
         <div className="sticky top-0 z-50 bg-white/85 backdrop-blur border-b border-slate-200">
           <div className="flex items-center justify-between">
             <ExamBar
@@ -191,62 +230,85 @@ export default function PracticeByCategory() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 py-5 pb-10 space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="ml-auto flex items-center gap-2">
-              <AccommodationsButton compact={true} label="Accommodations" />
+        <div className="w-full px-2 py-4 pb-8 space-y-5 lg:px-3">
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-linear-to-r from-violet-100/70 via-white to-amber-100/70" />
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="relative z-10">
+                <h1 className="text-2xl font-bold text-slate-900">
+                  Practice: {rcParam || rcLabels[0]}
+                </h1>
+                <div className="mt-1 text-xs text-slate-500">
+                  TEKS-aligned item flow with immediate feedback and rationale.
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                    Mode: {mode === "learn" ? "Learn" : "Exam"}
+                  </span>
+                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                    Completed: {completedCount}/{Math.max(1, mergedItems.length)}
+                  </span>
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    Correct: {correctCount}
+                  </span>
+                </div>
+              </div>
+
+              <div className="relative z-10 flex items-center gap-2">
+                <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {safeIndex + 1}/{Math.max(1, mergedItems.length)}
+                </div>
+                <AccommodationsButton compact={true} label="Accommodations" />
+              </div>
             </div>
-            <h1 className="text-2xl font-bold">
-              Practice: {rcParam || rcLabels[0]}
-            </h1>
-            <ProgressBar percent={percent} label="Assignment progress" />
-          </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <label className="inline-flex items-center gap-2 text-sm text-slate-700">
-              <input
-                type="checkbox"
-                className="h-4 w-4 accent-emerald-600"
-                checked={effectiveShowSupport}
-                disabled={mode !== "learn"}
-                onChange={(e) => supports.setShowSupport(e.target.checked)}
-              />
-              Show Spanish support
-              <span className="text-slate-400">
-                (helper line under English)
-              </span>
-            </label>
-
-            <div className="flex items-center gap-2 text-sm text-slate-700">
-              <span className="text-slate-500">Support language:</span>
-              <select
-                className="rounded-md border border-slate-300 bg-white/80 px-2 py-1 text-slate-900"
-                value={supports.state.supportLanguage}
-                onChange={(e) =>
-                  supports.setSupportLanguage(e.target.value as any)
-                }
-                disabled={!effectiveShowSupport}
-              >
-                <option value="es">Español</option>
-                <option value="vi">Tiếng Việt</option>
-                <option value="zh">中文</option>
-              </select>
+            <div className="relative z-10 mt-4">
+              <ProgressBar percent={percent} label="Assignment progress" />
             </div>
-          </div>
 
-          {/* RC picker */}
-          <div className="flex flex-wrap gap-2">
-            {rcLabels.map((rc) => (
-              <button
-                key={rc}
-                onClick={() =>
-                  router.replace(`/practice?rc=${encodeURIComponent(rc)}`)
-                }
-                className={`pill ${rc === (rcParam || rcLabels[0]) ? "border-emerald-400 text-emerald-700" : ""}`}
-              >
-                {rc}
-              </button>
-            ))}
+            <div className="relative z-10 mt-4 flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2">
+              <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-emerald-600"
+                  checked={effectiveShowSupport}
+                  disabled={mode !== "learn"}
+                  onChange={(e) => supports.setShowSupport(e.target.checked)}
+                />
+                Show Spanish support
+                <span className="text-slate-400">(helper line under English)</span>
+              </label>
+
+              <div className="flex items-center gap-2 text-sm text-slate-700">
+                <span className="text-slate-500">Support language:</span>
+                <select
+                  className="rounded-md border border-slate-300 bg-white/80 px-2 py-1 text-slate-900"
+                  value={supports.state.supportLanguage}
+                  onChange={(e) =>
+                    supports.setSupportLanguage(e.target.value as any)
+                  }
+                  disabled={!effectiveShowSupport}
+                >
+                  <option value="es">Español</option>
+                  <option value="vi">Tiếng Việt</option>
+                  <option value="zh">中文</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="relative z-10 mt-4 flex flex-wrap gap-2">
+              {rcLabels.map((rc) => (
+                <button
+                  key={rc}
+                  onClick={() =>
+                    router.replace(`/practice?rc=${encodeURIComponent(rc)}`)
+                  }
+                  className={`pill ${rc === (rcParam || rcLabels[0]) ? "border-emerald-400 text-emerald-700" : ""}`}
+                >
+                  {rc}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Nav + Item */}
@@ -334,6 +396,16 @@ export default function PracticeByCategory() {
                         );
 
                         const correct = r.score === r.max;
+                        const quality = qualityFromScore(r.score, r.max);
+                        const teksIds = extractTeksIds(safeItem);
+
+                        if (teksIds.length) {
+                          try {
+                            teksIds.forEach((teksId) => {
+                              updateRecord(teksId, quality);
+                            });
+                          } catch {}
+                        }
 
                         // Explanation gating:
                         // - Exam: never show
@@ -353,6 +425,11 @@ export default function PracticeByCategory() {
                           attemptsLeft,
                           canShowExplanation,
                         });
+
+                        setStatusByIndex((prev) => ({
+                          ...prev,
+                          [safeIndex]: correct ? "correct" : "wrong",
+                        }));
 
                         setCheckedThisItem(true);
                         setDrawerOpen(true);

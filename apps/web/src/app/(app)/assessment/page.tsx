@@ -180,21 +180,20 @@ export default function AssessmentDashboardEntry() {
           <ul className="mt-3 space-y-2 text-sm text-slate-800">
             <li className="flex gap-2">
               <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Inline Choice: show in pills + builder + runner (no hook errors)
+              ✅ Inline Choice is live across builder, runner, and checking flow
             </li>
             <li className="flex gap-2">
               <span className="mt-2 h-1.5 w-1.5 rounded-full bg-teal-500" />
-              Role-based login routing (student/teacher) + remember my view
+              🔄 Persist role selection (Student/Teacher) until sign-out
             </li>
             <li className="flex gap-2">
               <span className="mt-2 h-1.5 w-1.5 rounded-full bg-amber-500" />
-              Accommodations: text-to-speech, extended time, reduced answer
-              choices
+              ⏭️ Expand supports: text-to-speech, extended time, reduced choices
             </li>
           </ul>
           <div className="mt-4 text-xs text-slate-600">
-            Tip: once we add auth, this page becomes the smart gate that routes
-            by role automatically.
+            Tip: after authentication is connected, this page can auto-route each
+            user to Student or Teacher based on their account role.
           </div>
         </Surface>
       </div>

@@ -3,7 +3,7 @@
 import BilingualText from "@/components/student/BilingualText";
 import GlossaryText from "@/components/GlossaryText";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type DragEvent } from "react";
 import { useLang } from "@/lib/useLang";
 
 type Card = { id: string; text: string };
@@ -133,6 +133,37 @@ export default function DragDrop({
     return safe?.cards.find((c) => c.id === id) ?? null;
   }
 
+  function startCardDrag(
+    e: DragEvent<HTMLDivElement>,
+    cardId: string,
+    label: string,
+  ) {
+    setDragId(cardId);
+    e.dataTransfer.setData("text/plain", cardId);
+    e.dataTransfer.effectAllowed = "move";
+
+    const ghost = document.createElement("div");
+    ghost.textContent = label;
+    ghost.style.position = "fixed";
+    ghost.style.top = "-1000px";
+    ghost.style.left = "-1000px";
+    ghost.style.padding = "8px 14px";
+    ghost.style.borderRadius = "9999px";
+    ghost.style.border = "1px solid rgb(148 163 184)";
+    ghost.style.background = "white";
+    ghost.style.color = "rgb(51 65 85)";
+    ghost.style.fontSize = "14px";
+    ghost.style.fontWeight = "600";
+    ghost.style.boxShadow = "0 4px 16px rgba(15, 23, 42, 0.15)";
+    ghost.style.pointerEvents = "none";
+    document.body.appendChild(ghost);
+
+    e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2);
+    requestAnimationFrame(() => {
+      if (ghost.parentNode) ghost.parentNode.removeChild(ghost);
+    });
+  }
+
   function scoreNow() {
     if (!safe) return;
     const total = safe.cards.length;
@@ -183,7 +214,7 @@ export default function DragDrop({
 
       {/* Word Bank */}
       <div
-        className="overflow-hidden sticky top-2 z-10 sm:static ia-card-soft"
+        className="sticky top-2 z-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm sm:static"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => {
           e.preventDefault();
@@ -191,7 +222,7 @@ export default function DragDrop({
           if (id) dropToWordBank(id);
         }}
       >
-        <div className="flex items-center justify-between bg-slate-100 px-3 py-2 border-b">
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-3 py-2">
           <div className="flex items-center gap-2">
             <span className="inline-block h-2 w-2 rounded-full bg-slate-400" />
             <div className="text-sm font-semibold text-slate-800">
@@ -203,11 +234,11 @@ export default function DragDrop({
           </div>
         </div>
 
-        <div className="p-3">
+        <div className="bg-white p-3">
           {bank.length === 0 ? (
             <div className="text-sm text-slate-500">All cards placed.</div>
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
               {bank.map((id) => {
                 const c = cardById(id);
                 if (!c) return null;
@@ -215,13 +246,10 @@ export default function DragDrop({
                   <div
                     key={id}
                     draggable
-                    onDragStart={(e) => {
-                      setDragId(id);
-                      e.dataTransfer.setData("text/plain", id);
-                      e.dataTransfer.effectAllowed = "move";
-                    }}
+                    onDragStart={(e) => startCardDrag(e, id, c.text)}
+                    onDragEnd={() => setDragId(null)}
                     className={[
-                      "cursor-grab select-none w-full rounded-xl border bg-white/70 px-3 py-2 text-sm shadow-sm",
+                      "inline-flex max-w-full cursor-grab select-none rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm",
                       "hover:bg-slate-50 active:cursor-grabbing",
                       dragId === id ? "ring-2 ring-emerald-300" : "",
                     ].join(" ")}
@@ -242,7 +270,7 @@ export default function DragDrop({
       </div>
 
       {/* Categories */}
-      <div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
         <div className="text-xs font-semibold text-slate-700 mb-2">
           Categories
         </div>
@@ -251,7 +279,7 @@ export default function DragDrop({
           {safe.zones.map((z) => (
             <div
               key={z.id}
-              className="overflow-hidden min-h-47.5 ia-card-soft"
+              className="min-h-47.5 overflow-hidden rounded-2xl border border-slate-200 bg-white"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -259,7 +287,7 @@ export default function DragDrop({
                 if (id) dropToZone(z.id, id);
               }}
             >
-              <div className="flex items-center justify-between bg-slate-100 px-3 py-2 border-b">
+              <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-3 py-2">
                 <div className="flex items-center gap-2">
                   <span className="inline-block h-2 w-2 rounded-full bg-slate-400" />
                   <div className="text-sm font-semibold text-slate-800">
@@ -273,13 +301,13 @@ export default function DragDrop({
               </div>
 
               <div className="p-3">
-                <div className="min-h-30 rounded-xl border border-dashed border-slate-300 p-3">
+                <div className="min-h-30 rounded-xl border border-dashed border-slate-300 bg-slate-50/40 p-3">
                   {(placement[z.id] ?? []).length === 0 ? (
                     <div className="text-sm text-slate-500">
                       Drop cards here.
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
                       {(placement[z.id] ?? []).map((id) => {
                         const c = cardById(id);
                         if (!c) return null;
@@ -287,13 +315,10 @@ export default function DragDrop({
                           <div
                             key={id}
                             draggable
-                            onDragStart={(e) => {
-                              setDragId(id);
-                              e.dataTransfer.setData("text/plain", id);
-                              e.dataTransfer.effectAllowed = "move";
-                            }}
+                            onDragStart={(e) => startCardDrag(e, id, c.text)}
+                            onDragEnd={() => setDragId(null)}
                             className={[
-                              "cursor-grab select-none w-full rounded-xl border bg-white/70 px-3 py-2 text-sm shadow-sm",
+                              "inline-flex max-w-full cursor-grab select-none rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm",
                               "hover:bg-slate-50 active:cursor-grabbing",
                               dragId === id ? "ring-2 ring-emerald-300" : "",
                             ].join(" ")}

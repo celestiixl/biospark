@@ -385,6 +385,39 @@ export default function StudentDashboard() {
           </Section>
 
           {/* Bottom cards */}
+          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold text-slate-800">
+                  Assigned work
+                </div>
+                <div className="mt-1 text-xs text-slate-600">
+                  Open your teacher-assigned work, learning blocks, and quizzes.
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href="/student/assignments"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  Assignments
+                </Link>
+                <Link
+                  href="/student/assignments?kind=assignment"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  Learning Blocks
+                </Link>
+                <Link
+                  href="/student/assignments?kind=assessment"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  Quizzes
+                </Link>
+              </div>
+            </div>
+          </section>
+
           <section className="mt-5 grid gap-4 md:grid-cols-3">
             <Card variant="sm">
               <div className="text-sm font-semibold text-slate-800">

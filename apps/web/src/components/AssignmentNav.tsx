@@ -13,22 +13,19 @@ export default function AssignmentNav({
 }) {
   const items = Array.from({ length: total }, (_, i) => i);
   return (
-    <div className="pt-2 overflow-visible">
-      <div className="flex flex-wrap gap-2 pt-1 overflow-visible pt-2 overflow-visible pt-2 overflow-visible pt-2">
+    <div className="pt-1">
+      <div className="flex flex-wrap gap-2">
         {items.map((i) => {
           const status = statusByIndex[i] ?? "unseen";
           const base =
-            "w-9 h-9 flex items-center justify-center rounded-full border text-sm font-medium transition";
+            "flex h-9 w-9 items-center justify-center rounded-full border text-sm font-medium transition";
           const palette =
             status === "correct"
               ? "bg-emerald-50 text-emerald-800 border-emerald-300"
               : status === "wrong"
                 ? "bg-rose-50 text-rose-700 border-rose-300"
                 : "bg-white text-neutral-800 border-neutral-300 hover:bg-neutral-50";
-          const ring =
-            i === current
-              ? "shadow-[0_0_0_3px_rgba(255,255,255,1),0_0_0_6px_rgba(16,185,129,.9)]"
-              : "";
+          const ring = i === current ? "ring-2 ring-emerald-400 ring-offset-2" : "";
           return (
             <button
               key={i}

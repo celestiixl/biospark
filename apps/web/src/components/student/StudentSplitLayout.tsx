@@ -16,11 +16,11 @@ export function StudentSplitLayout({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
       {/* LEFT */}
-      <section className="min-h-0 border border-slate-200 ia-card-soft">
-        <div className="flex h-[calc(100vh-170px)] flex-col">
-          <header className="shrink-0 border-b border-slate-200 px-4 py-3">
+      <section className="min-h-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex h-[calc(100dvh-260px)] min-h-140 flex-col">
+          <header className="shrink-0 border-b border-slate-200 bg-slate-50/80 px-4 py-3">
             <div className="text-sm font-semibold text-slate-900">
               {leftTitle}
             </div>
@@ -28,16 +28,16 @@ export function StudentSplitLayout({
               Read, zoom, annotate, reference
             </div>
           </header>
-          <div className="min-h-0   p-4 overflow-visible pr-4 pb-6">
+          <div className="min-h-0 flex-1 overflow-auto bg-white p-4 pb-6">
             {left}
           </div>
         </div>
       </section>
 
       {/* RIGHT */}
-      <section className="min-h-0 border border-slate-200 ia-card-soft">
-        <div className="flex h-[calc(100vh-170px)] flex-col">
-          <header className="shrink-0 border-b border-slate-200 px-4 py-3">
+      <section className="min-h-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex h-[calc(100dvh-260px)] min-h-140 flex-col">
+          <header className="shrink-0 border-b border-slate-200 bg-slate-50/80 px-4 py-3">
             <div className="text-sm font-semibold text-slate-900">
               {rightTitle}
             </div>
@@ -46,7 +46,7 @@ export function StudentSplitLayout({
             </div>
           </header>
 
-          <div className="min-h-0 flex-1  p-4 pr-4 pb-6">
+          <div className="min-h-0 flex-1 overflow-auto bg-white p-4 pb-6">
             {right}
           </div>
 
