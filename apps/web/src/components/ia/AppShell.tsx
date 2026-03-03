@@ -7,23 +7,45 @@ import { Sidebar } from "./Sidebar";
 export function AppShell({
   activeKey,
   children,
+  fullBleed = false,
 }: {
   activeKey?: "assessment" | "student_lab" | "items" | "practice" | "teacher";
   children: React.ReactNode;
+  fullBleed?: boolean;
 }) {
+  const headerClass = fullBleed
+    ? "w-full px-4 py-4 flex items-center"
+    : "mx-auto max-w-screen-2xl px-6 py-5 flex items-center";
+  const bodyClass = fullBleed
+    ? "grid w-full grid-cols-1 gap-3 px-2 py-3 lg:grid-cols-[220px_minmax(0,1fr)]"
+    : "mx-auto grid w-full max-w-screen-2xl grid-cols-1 gap-6 px-6 py-6 lg:grid-cols-[280px_1fr]";
+
   return (
-    <div className="ia-bg ia-grid min-h-dvh">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[42vh] bg-[radial-gradient(520px_260px_at_18%_18%,rgba(20,184,166,0.06),transparent),radial-gradient(520px_260px_at_78%_22%,rgba(245,158,11,0.05),transparent),radial-gradient(640px_320px_at_52%_80%,rgba(139,92,246,0.04),transparent)]" />
+    <div className="min-h-dvh bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))]">
       <div className="ia-header w-full">
-        <div className="mx-auto max-w-screen-2xl px-6 py-5 flex items-center">
+        <div className={headerClass}>
           <Topbar />
         </div>
       </div>
-      <div className="mx-auto grid w-full max-w-screen-2xl grid-cols-1 gap-6 px-6 py-6 lg:grid-cols-[280px_1fr]">
+      <div className={bodyClass}>
         <aside>
           <Sidebar activeKey={activeKey} />
         </aside>
-        <main className="space-y-6"><div className="min-h-dvh ia-bg relative ia-grid"><div className="relative z-10 px-6 pt-8 pb-16"><div className="mx-auto max-w-350">{children}</div></div></div></main>
+        <main className="space-y-6">
+          <div className="relative min-h-dvh">
+            <div
+              className={
+                fullBleed
+                  ? "relative z-10 pb-8 pt-1"
+                  : "relative z-10 px-6 pb-16 pt-8"
+              }
+            >
+              <div className={fullBleed ? "w-full" : "mx-auto max-w-350"}>
+                {children}
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );

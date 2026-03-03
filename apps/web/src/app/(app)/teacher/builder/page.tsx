@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { PageContent } from "@/components/ui";
+import GlossaryText from "@/components/GlossaryText";
 import {
   TEKS_CATALOG,
   inferReportingCategoryFromTeks,
@@ -10,6 +11,8 @@ import {
 import TeksTooltip from "@/components/common/TeksTooltip";
 import InlineChoiceBuilder from "@/components/teacher/InlineChoiceBuilder";
 import CERBuilder from "@/components/teacher/CERBuilder";
+import { BuilderTypeTabs } from "@/components/features/builder/BuilderTypeTabs";
+import type { GlossaryEntry } from "@/types/item";
 
 type ItemType = "mcq" | "dragdrop" | "hotspot" | "inline_choice" | "cer";
 
@@ -43,48 +46,6 @@ function Pill(props: { children: React.ReactNode }) {
 
 function PreviewCard(props: { children: React.ReactNode }) {
   return <div className="p-4 ia-card-soft ">{props.children}</div>;
-
-  function renderInlineChoicePreview(
-    text: string,
-    opts: Record<string, string[]>,
-  ) {
-    const parts: Array<{ t: "text" | "blank"; v: string }> = [];
-    const re = /\[\[([^\]]+)\]\]/g;
-    let last = 0;
-    let m: RegExpExecArray | null;
-
-    while ((m = re.exec(text)) !== null) {
-      const start = m.index;
-      const end = re.lastIndex;
-      if (start > last) parts.push({ t: "text", v: text.slice(last, start) });
-      parts.push({ t: "blank", v: (m[1] || "").trim() });
-      last = end;
-    }
-    if (last < text.length) parts.push({ t: "text", v: text.slice(last) });
-
-    return (
-      <div className="text-base text-slate-900 leading-relaxed whitespace-pre-wrap">
-        {parts.map((p, i) => {
-          if (p.t === "text") return <span key={i}>{p.v}</span>;
-          const list = (opts?.[p.v] || [p.v]).filter(Boolean);
-          return (
-            <span key={i} className="inline-flex items-center">
-              <select className="mx-1 rounded-lg border bg-whitepx-2 py-1 text-sm shadow-sm">
-                <option value="" disabled selected>
-                  Select…
-                </option>
-                {list.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
-                  </option>
-                ))}
-              </select>
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
 }
 
 export default function TeacherBuilderPage() {
@@ -98,6 +59,12 @@ export default function TeacherBuilderPage() {
 
   // common fields
   const [prompt, setPrompt] = useState("");
+  const [glossary, setGlossary] = useState<GlossaryEntry[]>([]);
+  const [glossarySurface, setGlossarySurface] = useState("");
+  const [glossaryEsSurface, setGlossaryEsSurface] = useState("");
+  const [glossaryEs, setGlossaryEs] = useState("");
+  const [glossaryEn, setGlossaryEn] = useState("");
+  const [glossaryPos, setGlossaryPos] = useState("");
 
   // INLINE_CHOICE_BUILDER_BLOCK
   const [clozeText, setClozeText] = useState<string>(
@@ -113,21 +80,84 @@ export default function TeacherBuilderPage() {
     ],
   });
 
-  function addBlank(label: string) {
-    const k = label.trim();
-    if (!k) return;
-    setClozeOptions((prev) => (prev[k] ? prev : { ...prev, [k]: [k] }));
+  function toInlineChoiceBlanks(options: Record<string, string[]>) {
+    return Object.entries(options).map(([blankId, list]) => ({
+      id: blankId,
+      options: (list || []).map((label, index) => ({
+        id: String.fromCharCode(65 + index),
+        label,
+      })),
+    }));
   }
 
-  function setOptionList(blank: string, csv: string) {
-    const list = csv
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    setClozeOptions((prev) => ({
+  function fromInlineChoiceBlanks(
+    blanks: Array<{ id: string; options?: Array<{ label?: string }> }>,
+  ) {
+    const next: Record<string, string[]> = {};
+    for (const blank of blanks) {
+      const key = String(blank?.id || "").trim();
+      if (!key) continue;
+      const labels = (blank.options || [])
+        .map((option) => String(option?.label || "").trim())
+        .filter(Boolean);
+      next[key] = labels.length ? labels : [key];
+    }
+    return next;
+  }
+
+  function toGlossaryKey(surface: string) {
+    const normalized = surface
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "_");
+    return normalized || uid("gloss");
+  }
+
+  function addGlossaryEntry() {
+    const surface = glossarySurface.trim();
+    const es = glossaryEs.trim();
+    const en = glossaryEn.trim();
+    if (!surface || !es || !en) return;
+
+    const key = toGlossaryKey(surface);
+    if (glossary.some((g) => g.key === key)) return;
+
+    setGlossary((prev) => [
       ...prev,
-      [blank]: list.length ? list : [blank],
-    }));
+      {
+        key,
+        surface,
+        esSurface: glossaryEsSurface.trim() || undefined,
+        es,
+        en,
+        partOfSpeech: glossaryPos.trim() || undefined,
+      },
+    ]);
+    setGlossarySurface("");
+    setGlossaryEsSurface("");
+    setGlossaryEs("");
+    setGlossaryEn("");
+    setGlossaryPos("");
+  }
+
+  function patchGlossary(key: string, patch: Partial<GlossaryEntry>) {
+    setGlossary((prev) =>
+      prev.map((g) => (g.key === key ? { ...g, ...patch } : g)),
+    );
+  }
+
+  function removeGlossary(key: string) {
+    setGlossary((prev) => prev.filter((g) => g.key !== key));
+  }
+
+  async function insertGlossaryToken(entry: GlossaryEntry) {
+    const token = `[[${entry.surface}|key=${entry.key}]]`;
+    try {
+      await navigator.clipboard.writeText(token);
+    } catch {
+      // ignore clipboard failures
+    }
   }
   // TEKS tags
   const [primaryTeks, setPrimaryTeks] = useState<string>("BIO.8B");
@@ -200,6 +230,7 @@ export default function TeacherBuilderPage() {
       id: uid("q"),
       type,
       prompt,
+      glossary: glossary.length ? glossary : undefined,
       teks: teksList,
       rc,
       languageSupports: supports,
@@ -249,6 +280,7 @@ export default function TeacherBuilderPage() {
   }, [
     type,
     prompt,
+    glossary,
     teksList,
     rc,
     supports,
@@ -259,6 +291,9 @@ export default function TeacherBuilderPage() {
     answerKey,
     imageUrl,
     cerItem,
+    clozeText,
+    clozeOptions,
+    hotspotImage,
   ]);
 
   const [showSavePanel, setShowSavePanel] = useState(false);
@@ -288,753 +323,909 @@ export default function TeacherBuilderPage() {
   return (
     <PageContent className="py-6">
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Teacher Question Builder
-          </h1>
-          <p className="mt-1 text-sm text-slate-600">
-            Build items quickly, tag TEKS, and preview exactly what students
-            will see.
-          </p>
-
-          <button
-            type="button"
-            onClick={() => setType("inline_choice")}
-            className={`flex-1 rounded-full border px-6 py-3 text-lg font-semibold transition ${
-              type === "inline_choice"
-                ? "border-emerald-300 bg-emerald-50 text-emerald-900"
-                : "border-slate-200 bg-whitetext-slate-900 hover:bg-slate-50"
-            }`}
-          >
-            Inline Choice
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            className="rounded-xl border bg-whitepx-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50"
-            onClick={() => setShowSavePanel((v) => !v)}
-            type="button"
-          >
-            {showSavePanel ? "Hide" : "Save / Copy Item"}
-          </button>
-          <button
-            className="rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
-            onClick={copyItem}
-            type="button"
-          >
-            Copy JSON
-          </button>
-        </div>
-      </div>
-
-      <div className="grid gap-6 xl:gap-8 xl:grid-cols-[1.15fr_0.85fr]">
-        {/* LEFT: Builder */}
-        <div className="space-y-6">
-          <div className="rounded-3xl border bg-white p-5 shadow-sm">
-            {/* Item type segmented control */}
-            <SectionTitle
-              title="Item type"
-              subtitle="Choose the interaction style students will use."
-            />
-            <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
-              {(
-                [
-                  ["mcq", "Multiple Choice"],
-                  ["dragdrop", "Card Sort"],
-                  ["hotspot", "Hotspot"],
-                  ["cer", "CER Builder"],
-                ] as const
-              ).map(([k, label]) => {
-                const active = type === k;
-                return (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => setType(k)}
-                    className={[
-                      "rounded-2xl border px-3 py-2 text-sm font-semibold",
-                      active
-                        ? "border-emerald-300 bg-emerald-50 text-emerald-900"
-                        : "border-slate-200 bg-whitetext-slate-800 hover:bg-slate-50",
-                    ].join(" ")}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Prompt */}
-            <div className="mt-6">
-              <SectionTitle
-                title="Prompt"
-                subtitle="Student-facing directions. Keep it short and visual when possible."
-              />
-              <textarea
-                className="mt-2 w-full border border-slate-200 p-3 text-sm text-slate-900 focus:border-slate-300 focus:outline-none ia-card-soft "
-                rows={4}
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Example: Sort each statement into the correct category."
-              />
-            </div>
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">
+              Teacher Question Builder
+            </h1>
+            <p className="mt-1 text-sm text-slate-600">
+              Build items quickly, tag TEKS, and preview exactly what students
+              will see.
+            </p>
           </div>
 
-          {/* TEKS tagging */}
-          <div className="rounded-3xl border bg-white p-5 shadow-sm">
-            <SectionTitle
-              title="TEKS tags"
-              subtitle="Primary TEKS is required. Secondary is optional for search/reporting."
-            />
-
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="text-xs font-semibold text-slate-700">
-                  Primary TEKS
-                </label>
-                <select
-                  className="mt-1 w-full border border-slate-200 p-2 text-sm ia-card-soft "
-                  value={primaryTeks}
-                  onChange={(e) => setPrimaryTeks(e.target.value)}
-                >
-                  {teksOptions.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.id} · {t.title}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-1 text-xs text-slate-500">
-                  <TeksTooltip code={primaryTeks} />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-slate-700">
-                  Secondary TEKS (optional)
-                </label>
-                <select
-                  className="mt-1 w-full border border-slate-200 p-2 text-sm ia-card-soft "
-                  value={secondaryTeks}
-                  onChange={(e) => setSecondaryTeks(e.target.value)}
-                >
-                  <option value="">None</option>
-                  {teksOptions.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.id} · {t.title}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-1 text-xs text-slate-500">
-                  {secondaryTeks ? <TeksTooltip code={secondaryTeks} /> : "—"}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <Pill>{rc}</Pill>
-              <Pill>{primaryTeks}</Pill>
-              {secondaryTeks ? <Pill>{secondaryTeks}</Pill> : null}
-            </div>
+          <div className="flex items-center gap-2">
+            <button
+              className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50"
+              onClick={() => setShowSavePanel((v) => !v)}
+              type="button"
+            >
+              {showSavePanel ? "Hide" : "Save / Copy Item"}
+            </button>
+            <button
+              className="rounded-xl bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+              onClick={copyItem}
+              type="button"
+            >
+              Copy JSON
+            </button>
           </div>
+        </div>
 
-          {/* Type-specific builder */}
-          {type === "mcq" ? (
+        <div className="grid gap-6 xl:gap-8 xl:grid-cols-[1.15fr_0.85fr]">
+          {/* LEFT: Builder */}
+          <div className="space-y-6">
             <div className="rounded-3xl border bg-white p-5 shadow-sm">
+              {/* Item type segmented control */}
               <SectionTitle
-                title="Answer choices"
-                subtitle="Pick the correct answer. Students see A/B/C/D style choices."
+                title="Item type"
+                subtitle="Choose the interaction style students will use."
               />
-
-              <div className="mt-4 space-y-2">
-                {mcqChoices.map((c, i) => (
-                  <div key={c.id} className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={mcqCorrectId === c.id}
-                      onChange={() => setMcqCorrectId(c.id)}
-                      aria-label={`Mark choice ${i + 1} correct`}
-                    />
-                    <input
-                      className="w-full border border-slate-200 p-2 text-sm focus:border-slate-300 focus:outline-none ia-card-soft "
-                      value={c.text}
-                      onChange={(e) =>
-                        setMcqChoices((prev) =>
-                          prev.map((x) =>
-                            x.id === c.id ? { ...x, text: e.target.value } : x,
-                          ),
-                        )
-                      }
-                      placeholder={`Choice ${String.fromCharCode(65 + i)}`}
-                    />
-                    <button
-                      type="button"
-                      className="rounded-xl border bg-whitepx-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                      onClick={() => {
-                        setMcqChoices((prev) => {
-                          if (prev.length <= 2) return prev;
-                          const next = prev.filter((x) => x.id !== c.id);
-                          if (mcqCorrectId === c.id)
-                            setMcqCorrectId(next[0]?.id ?? "0");
-                          return next;
-                        });
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-
               <div className="mt-3">
-                <button
-                  type="button"
-                  className="rounded-xl border bg-whitepx-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                  onClick={() =>
-                    setMcqChoices((prev) => [
-                      ...prev,
-                      { id: uid("ch"), text: "" },
-                    ])
-                  }
-                >
-                  + Add choice
-                </button>
+                <BuilderTypeTabs value={type} onValueChange={setType} />
               </div>
-            </div>
-          ) : null}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Pill>Selected: {type.replace("_", " ")}</Pill>
+                {type === "inline_choice" ? <Pill>Inline Choice</Pill> : null}
+              </div>
 
-          {type === "dragdrop" ? (
-            <div className="p-5 space-y-6 ia-card-soft ">
-              <div>
+              {/* Prompt */}
+              <div className="mt-6">
                 <SectionTitle
-                  title="Categories (buckets)"
-                  subtitle="These are the columns students drag cards into."
+                  title="Prompt"
+                  subtitle="Student-facing directions. Keep it short and visual when possible."
                 />
-                <div className="mt-3 space-y-2">
-                  {buckets.map((b) => (
-                    <div key={b.id} className="flex items-center gap-2">
-                      <input
-                        className="w-full border border-slate-200 p-2 text-sm ia-card-soft "
-                        value={b.label}
-                        onChange={(e) => setBucketLabel(b.id, e.target.value)}
-                        placeholder="Category name"
-                      />
-                      <button
-                        type="button"
-                        className="rounded-xl border bg-whitepx-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                        onClick={() => {
-                          setBuckets((prev) =>
-                            prev.filter((x) => x.id !== b.id),
-                          );
-                          setAnswerKey((prev) => {
-                            const next = { ...prev };
-                            for (const cardId of Object.keys(next)) {
-                              if (next[cardId] === b.id) delete next[cardId];
+                <textarea
+                  className="mt-2 w-full border border-slate-200 p-3 text-sm text-slate-900 focus:border-slate-300 focus:outline-none ia-card-soft "
+                  rows={4}
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Example: Sort each statement into the correct category."
+                />
+              </div>
+
+              <div className="mt-6 rounded-2xl border bg-white p-4">
+                <SectionTitle
+                  title="Glossary"
+                  subtitle="To link a word in the passage, wrap it like [[word|key=wordKey]]."
+                />
+
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <input
+                    className="w-full border border-slate-200 p-2 text-sm ia-card-soft"
+                    value={glossarySurface}
+                    onChange={(e) => setGlossarySurface(e.target.value)}
+                    placeholder="In-passage term (e.g., photosynthesis)"
+                  />
+                  <input
+                    className="w-full border border-slate-200 p-2 text-sm ia-card-soft"
+                    value={glossaryEsSurface}
+                    onChange={(e) => setGlossaryEsSurface(e.target.value)}
+                    placeholder="Spanish term shown in popover (optional)"
+                  />
+                  <input
+                    className="w-full border border-slate-200 p-2 text-sm ia-card-soft"
+                    value={glossaryPos}
+                    onChange={(e) => setGlossaryPos(e.target.value)}
+                    placeholder="Part of speech (optional)"
+                  />
+                  <input
+                    className="w-full border border-slate-200 p-2 text-sm ia-card-soft"
+                    value={glossaryEs}
+                    onChange={(e) => setGlossaryEs(e.target.value)}
+                    placeholder="Spanish meaning/definition"
+                  />
+                  <input
+                    className="w-full border border-slate-200 p-2 text-sm ia-card-soft"
+                    value={glossaryEn}
+                    onChange={(e) => setGlossaryEn(e.target.value)}
+                    placeholder="English meaning/translation"
+                  />
+                </div>
+
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                    onClick={addGlossaryEntry}
+                    disabled={
+                      !glossarySurface.trim() ||
+                      !glossaryEs.trim() ||
+                      !glossaryEn.trim()
+                    }
+                  >
+                    + Add glossary entry
+                  </button>
+                </div>
+
+                {glossary.length ? (
+                  <div className="mt-3 space-y-2">
+                    {glossary.map((g) => (
+                      <div
+                        key={g.key}
+                        className="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                      >
+                        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                          <div className="text-xs font-semibold text-slate-600">
+                            key: {g.key}
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                              onClick={() => insertGlossaryToken(g)}
+                            >
+                              Insert token
+                            </button>
+                            <button
+                              type="button"
+                              className="rounded-lg border border-rose-200 bg-white px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                              onClick={() => removeGlossary(g.key)}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          <input
+                            className="w-full border border-slate-200 p-2 text-sm bg-white"
+                            value={g.surface}
+                            onChange={(e) =>
+                              patchGlossary(g.key, { surface: e.target.value })
                             }
-                            return next;
-                          });
-                        }}
-                        disabled={buckets.length <= 2}
-                        title={
-                          buckets.length <= 2
-                            ? "Keep at least 2 categories"
-                            : "Remove category"
-                        }
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  className="mt-3 rounded-xl border bg-whitepx-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                  onClick={() =>
-                    setBuckets((prev) => [
-                      ...prev,
-                      { id: uid("b"), label: "New category" },
-                    ])
-                  }
-                >
-                  + Add category
-                </button>
-              </div>
-
-              <div>
-                <SectionTitle
-                  title="Cards"
-                  subtitle="These are the statements students will drag."
-                />
-                <div className="mt-3 space-y-2">
-                  {cards.map((c) => (
-                    <div
-                      key={c.id}
-                      className="grid grid-cols-1 gap-2 md:grid-cols-[1fr,220px,90px]"
-                    >
-                      <input
-                        className="w-full border border-slate-200 p-2 text-sm ia-card-soft "
-                        value={c.text}
-                        onChange={(e) => setCardText(c.id, e.target.value)}
-                        placeholder="Card text (keep it short)"
-                      />
-
-                      <select
-                        className="w-full border border-slate-200 p-2 text-sm ia-card-soft "
-                        value={answerKey[c.id] ?? ""}
-                        onChange={(e) => setCardBucket(c.id, e.target.value)}
-                      >
-                        <option value="">Answer key: choose category…</option>
-                        {buckets.map((b) => (
-                          <option key={b.id} value={b.id}>
-                            {b.label}
-                          </option>
-                        ))}
-                      </select>
-
-                      <button
-                        type="button"
-                        className="rounded-xl border bg-whitepx-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                        onClick={() => {
-                          setCards((prev) => prev.filter((x) => x.id !== c.id));
-                          setAnswerKey((prev) => {
-                            const next = { ...prev };
-                            if (next[c.id]) delete next[c.id];
-                            return next;
-                          });
-                        }}
-                        disabled={cards.length <= 2}
-                        title={
-                          cards.length <= 2
-                            ? "Keep at least 2 cards"
-                            : "Remove card"
-                        }
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  className="mt-3 rounded-xl border bg-whitepx-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                  onClick={() =>
-                    setCards((prev) => [...prev, { id: uid("c"), text: "" }])
-                  }
-                >
-                  + Add card
-                </button>
-
-                <div className="mt-3 text-xs text-slate-500">
-                  Tip: The “Answer key” dropdown is what makes this
-                  auto-gradeable.
-                </div>
+                            placeholder="In-passage term"
+                          />
+                          <input
+                            className="w-full border border-slate-200 p-2 text-sm bg-white"
+                            value={g.esSurface ?? ""}
+                            onChange={(e) =>
+                              patchGlossary(g.key, {
+                                esSurface: e.target.value || undefined,
+                              })
+                            }
+                            placeholder="Spanish term"
+                          />
+                          <input
+                            className="w-full border border-slate-200 p-2 text-sm bg-white"
+                            value={g.partOfSpeech ?? ""}
+                            onChange={(e) =>
+                              patchGlossary(g.key, {
+                                partOfSpeech: e.target.value || undefined,
+                              })
+                            }
+                            placeholder="Part of speech"
+                          />
+                          <input
+                            className="w-full border border-slate-200 p-2 text-sm bg-white"
+                            value={g.es}
+                            onChange={(e) =>
+                              patchGlossary(g.key, { es: e.target.value })
+                            }
+                            placeholder="Spanish"
+                          />
+                          <input
+                            className="w-full border border-slate-200 p-2 text-sm bg-white"
+                            value={g.en}
+                            onChange={(e) =>
+                              patchGlossary(g.key, { en: e.target.value })
+                            }
+                            placeholder="English"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
-          ) : null}
 
-          {type === "hotspot" ? (
+            {/* TEKS tagging */}
             <div className="rounded-3xl border bg-white p-5 shadow-sm">
               <SectionTitle
-                title="Hotspot image"
-                subtitle="Upload a local image OR paste a URL. (Local upload stays in your browser session unless you later add saving.)"
+                title="TEKS tags"
+                subtitle="Primary TEKS is required. Secondary is optional for search/reporting."
               />
 
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                {/* Local file upload */}
-                <div className="rounded-2xl border bg-white p-3 shadow-sm">
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div>
                   <label className="text-xs font-semibold text-slate-700">
-                    Upload image (local file)
+                    Primary TEKS
                   </label>
-                  <input
-                    id="hotspotFileInput"
-                    type="file"
-                    accept="image/*"
-                    className="sr-only"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (!f) return;
-
-                      // revoke old url if exists
-                      setHotspotLocalUrl((prev) => {
-                        if (prev) URL.revokeObjectURL(prev);
-                        return prev;
-                      });
-
-                      const url = URL.createObjectURL(f);
-                      setHotspotLocalUrl(url);
-                      setHotspotFileName(f.name);
-                    }}
-                  />
-                  <label
-                    htmlFor="hotspotFileInput"
-                    className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-xl border bg-whitepx-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50"
+                  <select
+                    className="mt-1 w-full border border-slate-200 p-2 text-sm ia-card-soft "
+                    value={primaryTeks}
+                    onChange={(e) => setPrimaryTeks(e.target.value)}
                   >
-                    Choose file
-                  </label>
+                    {teksOptions.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.id} · {t.title}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-1 text-xs text-slate-500">
+                    <TeksTooltip code={primaryTeks} />
+                  </div>
+                </div>
 
-                  <div className="mt-2 text-xs text-slate-600">
-                    {hotspotLocalUrl ? (
-                      <>
-                        Using local file:{" "}
-                        <span className="font-semibold">
-                          {hotspotFileName || "uploaded"}
-                        </span>{" "}
+                <div>
+                  <label className="text-xs font-semibold text-slate-700">
+                    Secondary TEKS (optional)
+                  </label>
+                  <select
+                    className="mt-1 w-full border border-slate-200 p-2 text-sm ia-card-soft "
+                    value={secondaryTeks}
+                    onChange={(e) => setSecondaryTeks(e.target.value)}
+                  >
+                    <option value="">None</option>
+                    {teksOptions.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.id} · {t.title}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-1 text-xs text-slate-500">
+                    {secondaryTeks ? <TeksTooltip code={secondaryTeks} /> : "—"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <Pill>{rc}</Pill>
+                <Pill>{primaryTeks}</Pill>
+                {secondaryTeks ? <Pill>{secondaryTeks}</Pill> : null}
+              </div>
+            </div>
+
+            {/* Type-specific builder */}
+            {type === "mcq" ? (
+              <div className="rounded-3xl border bg-white p-5 shadow-sm">
+                <SectionTitle
+                  title="Answer choices"
+                  subtitle="Pick the correct answer. Students see A/B/C/D style choices."
+                />
+
+                <div className="mt-4 space-y-2">
+                  {mcqChoices.map((c, i) => (
+                    <div key={c.id} className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        checked={mcqCorrectId === c.id}
+                        onChange={() => setMcqCorrectId(c.id)}
+                        aria-label={`Mark choice ${i + 1} correct`}
+                      />
+                      <input
+                        className="w-full border border-slate-200 p-2 text-sm focus:border-slate-300 focus:outline-none ia-card-soft "
+                        value={c.text}
+                        onChange={(e) =>
+                          setMcqChoices((prev) =>
+                            prev.map((x) =>
+                              x.id === c.id
+                                ? { ...x, text: e.target.value }
+                                : x,
+                            ),
+                          )
+                        }
+                        placeholder={`Choice ${String.fromCharCode(65 + i)}`}
+                      />
+                      <button
+                        type="button"
+                        className="rounded-xl border bg-white px-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                        onClick={() => {
+                          setMcqChoices((prev) => {
+                            if (prev.length <= 2) return prev;
+                            const next = prev.filter((x) => x.id !== c.id);
+                            if (mcqCorrectId === c.id)
+                              setMcqCorrectId(next[0]?.id ?? "0");
+                            return next;
+                          });
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    className="rounded-xl border bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                    onClick={() =>
+                      setMcqChoices((prev) => [
+                        ...prev,
+                        { id: uid("ch"), text: "" },
+                      ])
+                    }
+                  >
+                    + Add choice
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {type === "dragdrop" ? (
+              <div className="p-5 space-y-6 ia-card-soft ">
+                <div>
+                  <SectionTitle
+                    title="Categories (buckets)"
+                    subtitle="These are the columns students drag cards into."
+                  />
+                  <div className="mt-3 space-y-2">
+                    {buckets.map((b) => (
+                      <div key={b.id} className="flex items-center gap-2">
+                        <input
+                          className="w-full border border-slate-200 p-2 text-sm ia-card-soft "
+                          value={b.label}
+                          onChange={(e) => setBucketLabel(b.id, e.target.value)}
+                          placeholder="Category name"
+                        />
                         <button
                           type="button"
-                          className="ml-2 rounded-lg border bg-whitepx-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                          className="rounded-xl border bg-white px-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                           onClick={() => {
-                            setHotspotLocalUrl((prev) => {
-                              if (prev) URL.revokeObjectURL(prev);
-                              return "";
+                            setBuckets((prev) =>
+                              prev.filter((x) => x.id !== b.id),
+                            );
+                            setAnswerKey((prev) => {
+                              const next = { ...prev };
+                              for (const cardId of Object.keys(next)) {
+                                if (next[cardId] === b.id) delete next[cardId];
+                              }
+                              return next;
                             });
-                            setHotspotFileName("");
                           }}
+                          disabled={buckets.length <= 2}
+                          title={
+                            buckets.length <= 2
+                              ? "Keep at least 2 categories"
+                              : "Remove category"
+                          }
                         >
                           Remove
                         </button>
-                      </>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="mt-3 rounded-xl border bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                    onClick={() =>
+                      setBuckets((prev) => [
+                        ...prev,
+                        { id: uid("b"), label: "New category" },
+                      ])
+                    }
+                  >
+                    + Add category
+                  </button>
+                </div>
+
+                <div>
+                  <SectionTitle
+                    title="Cards"
+                    subtitle="These are the statements students will drag."
+                  />
+                  <div className="mt-3 space-y-2">
+                    {cards.map((c) => (
+                      <div
+                        key={c.id}
+                        className="grid grid-cols-1 gap-2 md:grid-cols-[1fr,220px,90px]"
+                      >
+                        <input
+                          className="w-full border border-slate-200 p-2 text-sm ia-card-soft "
+                          value={c.text}
+                          onChange={(e) => setCardText(c.id, e.target.value)}
+                          placeholder="Card text (keep it short)"
+                        />
+
+                        <select
+                          className="w-full border border-slate-200 p-2 text-sm ia-card-soft "
+                          value={answerKey[c.id] ?? ""}
+                          onChange={(e) => setCardBucket(c.id, e.target.value)}
+                        >
+                          <option value="">Answer key: choose category…</option>
+                          {buckets.map((b) => (
+                            <option key={b.id} value={b.id}>
+                              {b.label}
+                            </option>
+                          ))}
+                        </select>
+
+                        <button
+                          type="button"
+                          className="rounded-xl border bg-white px-2 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                          onClick={() => {
+                            setCards((prev) =>
+                              prev.filter((x) => x.id !== c.id),
+                            );
+                            setAnswerKey((prev) => {
+                              const next = { ...prev };
+                              if (next[c.id]) delete next[c.id];
+                              return next;
+                            });
+                          }}
+                          disabled={cards.length <= 2}
+                          title={
+                            cards.length <= 2
+                              ? "Keep at least 2 cards"
+                              : "Remove card"
+                          }
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="mt-3 rounded-xl border bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                    onClick={() =>
+                      setCards((prev) => [...prev, { id: uid("c"), text: "" }])
+                    }
+                  >
+                    + Add card
+                  </button>
+
+                  <div className="mt-3 text-xs text-slate-500">
+                    Tip: The “Answer key” dropdown is what makes this
+                    auto-gradeable.
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {type === "inline_choice" ? (
+              <div className="rounded-3xl border bg-white p-5 shadow-sm">
+                <SectionTitle
+                  title="Inline Choice Builder"
+                  subtitle="Write passage text with [[blankId]] markers, then define options per blank."
+                />
+                <div className="mt-4">
+                  <InlineChoiceBuilder
+                    item={{
+                      clozeText,
+                      blanks: toInlineChoiceBlanks(clozeOptions),
+                    }}
+                    onPatch={(patch) => {
+                      if (typeof patch?.clozeText === "string") {
+                        setClozeText(patch.clozeText);
+                      }
+                      if (Array.isArray(patch?.blanks)) {
+                        setClozeOptions(fromInlineChoiceBlanks(patch.blanks));
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            {type === "hotspot" ? (
+              <div className="rounded-3xl border bg-white p-5 shadow-sm">
+                <SectionTitle
+                  title="Hotspot image"
+                  subtitle="Upload a local image OR paste a URL. (Local upload stays in your browser session unless you later add saving.)"
+                />
+
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  {/* Local file upload */}
+                  <div className="rounded-2xl border bg-white p-3 shadow-sm">
+                    <label className="text-xs font-semibold text-slate-700">
+                      Upload image (local file)
+                    </label>
+                    <input
+                      id="hotspotFileInput"
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+
+                        // revoke old url if exists
+                        setHotspotLocalUrl((prev) => {
+                          if (prev) URL.revokeObjectURL(prev);
+                          return prev;
+                        });
+
+                        const url = URL.createObjectURL(f);
+                        setHotspotLocalUrl(url);
+                        setHotspotFileName(f.name);
+                      }}
+                    />
+                    <label
+                      htmlFor="hotspotFileInput"
+                      className="mt-2 inline-flex cursor-pointer items-center justify-center rounded-xl border bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm hover:bg-slate-50"
+                    >
+                      Choose file
+                    </label>
+
+                    <div className="mt-2 text-xs text-slate-600">
+                      {hotspotLocalUrl ? (
+                        <>
+                          Using local file:{" "}
+                          <span className="font-semibold">
+                            {hotspotFileName || "uploaded"}
+                          </span>{" "}
+                          <button
+                            type="button"
+                            className="ml-2 rounded-lg border bg-white px-2 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                            onClick={() => {
+                              setHotspotLocalUrl((prev) => {
+                                if (prev) URL.revokeObjectURL(prev);
+                                return "";
+                              });
+                              setHotspotFileName("");
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-rose-600 font-semibold">
+                          No file selected.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* URL input */}
+                  <div className="rounded-2xl border bg-white p-3 shadow-sm">
+                    <label className="text-xs font-semibold text-slate-700">
+                      Or paste image URL
+                    </label>
+                    <input
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white p-2 text-sm shadow-sm focus:border-slate-300 focus:outline-none"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="Example: https://... or /images/cell.png"
+                    />
+                    <div className="mt-2 text-xs text-slate-600">
+                      Tip: If you upload a local file, it overrides the URL
+                      preview.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preview */}
+                <div className="mt-4">
+                  <div className="text-xs font-semibold text-slate-700">
+                    Preview
+                  </div>
+                  <div className="mt-2 aspect-video w-full overflow-hidden rounded-2xl border bg-white shadow-sm">
+                    {hotspotImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={hotspotImage}
+                        alt="Hotspot preview"
+                        className="h-full w-full object-contain"
+                      />
                     ) : (
-                      <span className="text-rose-600 font-semibold">
-                        No file selected.
-                      </span>
+                      <div className="grid h-full place-items-center text-xs text-slate-500">
+                        Add an image to preview here
+                      </div>
                     )}
                   </div>
-                </div>
 
-                {/* URL input */}
-                <div className="rounded-2xl border bg-white p-3 shadow-sm">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Or paste image URL
-                  </label>
-                  <input
-                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white p-2 text-sm shadow-sm focus:border-slate-300 focus:outline-none"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="Example: https://... or /images/cell.png"
-                  />
-                  <div className="mt-2 text-xs text-slate-600">
-                    Tip: If you upload a local file, it overrides the URL
-                    preview.
+                  <div className="mt-2 text-xs text-slate-500">
+                    Next step (we can patch next): click-to-place hotspots on
+                    the image and auto-generate region coords.
                   </div>
                 </div>
               </div>
+            ) : null}
 
-              {/* Preview */}
-              <div className="mt-4">
-                <div className="text-xs font-semibold text-slate-700">
-                  Preview
-                </div>
-                <div className="mt-2 aspect-video w-full overflow-hidden rounded-2xl border bg-white shadow-sm">
-                  {hotspotImage ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={hotspotImage}
-                      alt="Hotspot preview"
-                      className="h-full w-full object-contain"
-                    />
-                  ) : (
-                    <div className="grid h-full place-items-center text-xs text-slate-500">
-                      Add an image to preview here
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-2 text-xs text-slate-500">
-                  Next step (we can patch next): click-to-place hotspots on the
-                  image and auto-generate region coords.
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {/* CER Builder */}
-          {type === "cer" ? (
-            <div className="rounded-3xl border bg-white p-5 shadow-sm">
-              <SectionTitle
-                title="CER Item Builder"
-                subtitle="Configure the Claim-Evidence-Reasoning item type."
-              />
-              <div className="mt-4">
-                <CERBuilder
-                  item={cerItem}
-                  onPatch={(patch) =>
-                    setCerItem((prev: any) => ({ ...prev, ...patch }))
-                  }
+            {/* CER Builder */}
+            {type === "cer" ? (
+              <div className="rounded-3xl border bg-white p-5 shadow-sm">
+                <SectionTitle
+                  title="CER Item Builder"
+                  subtitle="Configure the Claim-Evidence-Reasoning item type."
                 />
+                <div className="mt-4">
+                  <CERBuilder
+                    item={cerItem}
+                    onPatch={(patch) =>
+                      setCerItem((prev: any) => ({ ...prev, ...patch }))
+                    }
+                  />
+                </div>
               </div>
-            </div>
-          ) : null}
+            ) : null}
 
-          {/* Supports */}
-          <div className="rounded-3xl border bg-white p-5 shadow-sm">
-            <SectionTitle
-              title="EB supports"
-              subtitle="Sentence stems appear under the question for students who enable supports."
-            />
-            <textarea
-              className="mt-3 w-full rounded-2xl border border-slate-200 bg-white p-3 text-sm shadow-sm focus:border-slate-300 focus:outline-none"
-              rows={4}
-              value={sentenceStems}
-              onChange={(e) => setSentenceStems(e.target.value)}
-              placeholder={
-                "I think the answer is ___ because ___.\nThe evidence shows ___.\nThis supports the claim because ___."
-              }
-            />
-          </div>
-
-          {/* Save/Copy panel */}
-          {showSavePanel ? (
+            {/* Supports */}
             <div className="rounded-3xl border bg-white p-5 shadow-sm">
               <SectionTitle
-                title="Save / Copy Item (for now)"
-                subtitle="You don't have a teacher database yet, so copying JSON is how you move items into your item bank."
+                title="EB supports"
+                subtitle="Sentence stems appear under the question for students who enable supports."
               />
               <textarea
-                className="mt-3 w-full border border-slate-200 p-3 font-mono text-xs ia-card-soft "
-                rows={12}
-                readOnly
-                value={JSON.stringify(itemJson, null, 2)}
+                className="mt-3 w-full rounded-2xl border border-slate-200 bg-white p-3 text-sm shadow-sm focus:border-slate-300 focus:outline-none"
+                rows={4}
+                value={sentenceStems}
+                onChange={(e) => setSentenceStems(e.target.value)}
+                placeholder={
+                  "I think the answer is ___ because ___.\nThe evidence shows ___.\nThis supports the claim because ___."
+                }
               />
             </div>
-          ) : null}
-        </div>
 
-        {/* RIGHT: Live Preview */}
-        <div className="h-fit xl:sticky xl:top-6">
-          <div className="rounded-3xl border bg-white p-5 shadow-sm">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="text-sm font-semibold text-slate-900">
-                Live preview
+            {/* Save/Copy panel */}
+            {showSavePanel ? (
+              <div className="rounded-3xl border bg-white p-5 shadow-sm">
+                <SectionTitle
+                  title="Save / Copy Item (for now)"
+                  subtitle="You don't have a teacher database yet, so copying JSON is how you move items into your item bank."
+                />
+                <textarea
+                  className="mt-3 w-full border border-slate-200 p-3 font-mono text-xs ia-card-soft "
+                  rows={12}
+                  readOnly
+                  value={JSON.stringify(itemJson, null, 2)}
+                />
               </div>
-              <span className="text-xs text-slate-500">
-                Updates as you type
-              </span>
-            </div>
+            ) : null}
+          </div>
 
-            <div className="space-y-4">
-              <PreviewCard>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Pill>{type.toUpperCase()}</Pill>
-                  <Pill>{rc}</Pill>
-                  <Pill>{primaryTeks}</Pill>
-                  {secondaryTeks ? <Pill>{secondaryTeks}</Pill> : null}
+          {/* RIGHT: Live Preview */}
+          <div className="h-fit xl:sticky xl:top-6">
+            <div className="rounded-3xl border bg-white p-5 shadow-sm">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-sm font-semibold text-slate-900">
+                  Live preview
                 </div>
+                <span className="text-xs text-slate-500">
+                  Updates as you type
+                </span>
+              </div>
 
-                <div className="mt-3 text-base font-semibold text-slate-900">
-                  {prompt.trim() ? (
-                    prompt
-                  ) : (
-                    <span className="text-slate-400">Prompt preview…</span>
-                  )}
-                </div>
-              </PreviewCard>
-
-              {type === "mcq" ? (
+              <div className="space-y-4">
                 <PreviewCard>
-                  <div className="text-sm font-semibold text-slate-900">
-                    Choices
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    {mcqChoices.map((c, i) => {
-                      const correct = c.id === mcqCorrectId;
-                      return (
-                        <div
-                          key={c.id}
-                          className={[
-                            "flex items-start gap-3 rounded-2xl border p-3",
-                            correct
-                              ? "border-emerald-300 bg-emerald-50"
-                              : "border-slate-200 bg-white/0",
-                          ].join(" ")}
-                        >
-                          <div className="mt-1 text-xs font-semibold text-slate-600 w-5">
-                            {String.fromCharCode(65 + i)}.
-                          </div>
-                          <div className="flex-1 text-sm text-slate-900">
-                            {c.text.trim() ? (
-                              c.text
-                            ) : (
-                              <span className="text-slate-400">Choice…</span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </PreviewCard>
-              ) : null}
-
-              {type === "dragdrop" ? (
-                <PreviewCard>
-                  <div className="text-sm font-semibold text-slate-900">
-                    Card Sort preview
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Pill>{type.toUpperCase()}</Pill>
+                    <Pill>{rc}</Pill>
+                    <Pill>{primaryTeks}</Pill>
+                    {secondaryTeks ? <Pill>{secondaryTeks}</Pill> : null}
                   </div>
 
-                  {/* WORD BANK (top) */}
-                  <div className="mt-3 overflow-hidden ia-card-soft ">
-                    <div className="flex items-center justify-between bg-slate-100 px-3 py-2 border-b">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block h-2 w-2 rounded-full bg-slate-400" />
-                        <div className="text-sm font-semibold text-slate-800">
-                          Word Bank
-                        </div>
-                      </div>
-                      <div className="text-xs text-slate-500">drag cards</div>
-                    </div>
-
-                    <div className="p-3">
-                      <div className="flex flex-wrap gap-2">
-                        {cards.map((c) => (
-                          <div
-                            key={c.id}
-                            className="rounded-xl border bg-whitepx-3 py-2 text-sm shadow-sm text-slate-900"
-                          >
-                            {c.text.trim() ? c.text : "Card…"}
-                          </div>
-                        ))}
-                        {cards.length === 0 ? (
-                          <div className="text-sm text-slate-500">
-                            Add cards to populate the word bank.
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* CATEGORIES (bottom) */}
-                  <div className="mt-4">
-                    <div className="text-xs font-semibold text-slate-700 mb-2">
-                      Categories
-                    </div>
-
-                    <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
-                      {buckets.map((b) => (
-                        <div
-                          key={b.id}
-                          className="overflow-hidden min-h-42.5 ia-card-soft "
-                        >
-                          <div className="flex items-center justify-between bg-slate-100 px-3 py-2 border-b">
-                            <div className="flex items-center gap-2">
-                              <span className="inline-block h-2 w-2 rounded-full bg-slate-400" />
-                              <div className="text-sm font-semibold text-slate-800">
-                                {b.label || "Category…"}
-                              </div>
-                            </div>
-                            <div className="text-xs text-slate-500">
-                              drop zone
-                            </div>
-                          </div>
-
-                          {/* Drop space */}
-                          <div className="p-3">
-                            <div className="min-h-27.5 rounded-xl border border-dashed border-slate-300 p-3">
-                              <div className="text-sm text-slate-500">
-                                Drop cards here.
-                              </div>
-                              {/* show what WOULD be inside based on answerKey */}
-                              <div className="mt-2 space-y-2">
-                                {cards
-                                  .filter((c) => answerKey[c.id] === b.id)
-                                  .map((c) => (
-                                    <div
-                                      key={c.id}
-                                      className="w-full rounded-xl border bg-whitepx-3 py-2 text-sm shadow-sm text-slate-900"
-                                    >
-                                      {c.text.trim() ? c.text : "Card…"}
-                                    </div>
-                                  ))}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {buckets.length === 0 ? (
-                      <div className="text-sm text-slate-500">
-                        Add categories to preview the drop zones.
-                      </div>
-                    ) : null}
-                  </div>
-                </PreviewCard>
-              ) : null}
-
-              {type === "hotspot" ? (
-                <PreviewCard>
-                  <div className="text-sm font-semibold text-slate-900">
-                    Hotspot
-                  </div>
-                  <div className="mt-2 text-xs text-slate-600">
-                    Image:{" "}
-                    {imageUrl.trim() ? (
-                      imageUrl
+                  <div className="mt-3 text-base font-semibold text-slate-900">
+                    {prompt.trim() ? (
+                      <GlossaryText
+                        text={prompt}
+                        glossary={glossary}
+                        defaultLang="en"
+                        showSupport={false}
+                      />
                     ) : (
-                      <span className="text-slate-400">none</span>
+                      <span className="text-slate-400">Prompt preview…</span>
                     )}
                   </div>
-                  <div className="mt-3 aspect-video w-full rounded-2xl border grid place-items-center text-xs text-slate-500">
-                    Image preview (hotspot placement later)
-                  </div>
                 </PreviewCard>
-              ) : null}
 
-              {type === "cer" ? (
-                <PreviewCard>
-                  <div className="text-sm font-semibold text-slate-900">
-                    CER Configuration
-                  </div>
-                  <div className="mt-3 space-y-2 text-xs">
-                    <div>
-                      <span className="text-slate-600">Mode:</span>
-                      <span className="ml-2 font-semibold">
-                        {cerItem?.mode || "open"}
-                      </span>
+                {type === "mcq" ? (
+                  <PreviewCard>
+                    <div className="text-sm font-semibold text-slate-900">
+                      Choices
                     </div>
-                    <div>
-                      <span className="text-slate-600">Evidence items:</span>
-                      <span className="ml-2 font-semibold">
-                        {(cerItem?.evidenceBank || []).length}
-                      </span>
+                    <div className="mt-3 space-y-2">
+                      {mcqChoices.map((c, i) => {
+                        const correct = c.id === mcqCorrectId;
+                        return (
+                          <div
+                            key={c.id}
+                            className={[
+                              "flex items-start gap-3 rounded-2xl border p-3",
+                              correct
+                                ? "border-emerald-300 bg-emerald-50"
+                                : "border-slate-200 bg-white/0",
+                            ].join(" ")}
+                          >
+                            <div className="mt-1 text-xs font-semibold text-slate-600 w-5">
+                              {String.fromCharCode(65 + i)}.
+                            </div>
+                            <div className="flex-1 text-sm text-slate-900">
+                              {c.text.trim() ? (
+                                c.text
+                              ) : (
+                                <span className="text-slate-400">Choice…</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="mt-2">
-                      <span className="text-slate-600 block mb-1">
-                        Constraints:
-                      </span>
-                      <ul className="text-slate-700 space-y-1 pl-2">
-                        <li>
-                          Min Evidence: {cerItem?.constraints?.minEvidence ?? 1}
-                        </li>
-                        <li>
-                          Max Evidence: {cerItem?.constraints?.maxEvidence ?? 3}
-                        </li>
-                        <li>
-                          Min Reasoning:{" "}
-                          {cerItem?.constraints?.reasoningMinChars ?? 60} chars
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </PreviewCard>
-              ) : null}
+                  </PreviewCard>
+                ) : null}
 
-              {supports?.sentenceStems?.length ? (
-                <PreviewCard>
-                  <div className="text-sm font-semibold text-slate-900">
-                    Sentence stems
-                  </div>
-                  <ul className="mt-2 list-disc pl-5 text-sm text-slate-800 space-y-1">
-                    {supports.sentenceStems.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </PreviewCard>
-              ) : null}
+                {type === "dragdrop" ? (
+                  <PreviewCard>
+                    <div className="text-sm font-semibold text-slate-900">
+                      Card Sort preview
+                    </div>
+
+                    {/* WORD BANK (top) */}
+                    <div className="mt-3 overflow-hidden ia-card-soft ">
+                      <div className="flex items-center justify-between bg-slate-100 px-3 py-2 border-b">
+                        <div className="flex items-center gap-2">
+                          <span className="inline-block h-2 w-2 rounded-full bg-slate-400" />
+                          <div className="text-sm font-semibold text-slate-800">
+                            Word Bank
+                          </div>
+                        </div>
+                        <div className="text-xs text-slate-500">drag cards</div>
+                      </div>
+
+                      <div className="p-3">
+                        <div className="flex flex-wrap gap-2">
+                          {cards.map((c) => (
+                            <div
+                              key={c.id}
+                              className="rounded-xl border bg-white px-3 py-2 text-sm shadow-sm text-slate-900"
+                            >
+                              {c.text.trim() ? c.text : "Card…"}
+                            </div>
+                          ))}
+                          {cards.length === 0 ? (
+                            <div className="text-sm text-slate-500">
+                              Add cards to populate the word bank.
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CATEGORIES (bottom) */}
+                    <div className="mt-4">
+                      <div className="text-xs font-semibold text-slate-700 mb-2">
+                        Categories
+                      </div>
+
+                      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
+                        {buckets.map((b) => (
+                          <div
+                            key={b.id}
+                            className="overflow-hidden min-h-42.5 ia-card-soft "
+                          >
+                            <div className="flex items-center justify-between bg-slate-100 px-3 py-2 border-b">
+                              <div className="flex items-center gap-2">
+                                <span className="inline-block h-2 w-2 rounded-full bg-slate-400" />
+                                <div className="text-sm font-semibold text-slate-800">
+                                  {b.label || "Category…"}
+                                </div>
+                              </div>
+                              <div className="text-xs text-slate-500">
+                                drop zone
+                              </div>
+                            </div>
+
+                            {/* Drop space */}
+                            <div className="p-3">
+                              <div className="min-h-27.5 rounded-xl border border-dashed border-slate-300 p-3">
+                                <div className="text-sm text-slate-500">
+                                  Drop cards here.
+                                </div>
+                                {/* show what WOULD be inside based on answerKey */}
+                                <div className="mt-2 space-y-2">
+                                  {cards
+                                    .filter((c) => answerKey[c.id] === b.id)
+                                    .map((c) => (
+                                      <div
+                                        key={c.id}
+                                        className="w-full rounded-xl border bg-white px-3 py-2 text-sm shadow-sm text-slate-900"
+                                      >
+                                        {c.text.trim() ? c.text : "Card…"}
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {buckets.length === 0 ? (
+                        <div className="text-sm text-slate-500">
+                          Add categories to preview the drop zones.
+                        </div>
+                      ) : null}
+                    </div>
+                  </PreviewCard>
+                ) : null}
+
+                {type === "hotspot" ? (
+                  <PreviewCard>
+                    <div className="text-sm font-semibold text-slate-900">
+                      Hotspot
+                    </div>
+                    <div className="mt-2 text-xs text-slate-600">
+                      Image:{" "}
+                      {imageUrl.trim() ? (
+                        imageUrl
+                      ) : (
+                        <span className="text-slate-400">none</span>
+                      )}
+                    </div>
+                    <div className="mt-3 aspect-video w-full rounded-2xl border grid place-items-center text-xs text-slate-500">
+                      Image preview (hotspot placement later)
+                    </div>
+                  </PreviewCard>
+                ) : null}
+
+                {type === "inline_choice" ? (
+                  <PreviewCard>
+                    <div className="text-sm font-semibold text-slate-900">
+                      Inline Choice preview
+                    </div>
+                    <div className="mt-3 text-sm text-slate-600">
+                      Blanks: {Object.keys(clozeOptions).length}
+                    </div>
+                    <div className="mt-2 whitespace-pre-wrap text-sm text-slate-900">
+                      {clozeText.trim() || (
+                        <span className="text-slate-400">Cloze text preview…</span>
+                      )}
+                    </div>
+                  </PreviewCard>
+                ) : null}
+
+                {type === "cer" ? (
+                  <PreviewCard>
+                    <div className="text-sm font-semibold text-slate-900">
+                      CER Configuration
+                    </div>
+                    <div className="mt-3 space-y-2 text-xs">
+                      <div>
+                        <span className="text-slate-600">Mode:</span>
+                        <span className="ml-2 font-semibold">
+                          {cerItem?.mode || "open"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-600">Evidence items:</span>
+                        <span className="ml-2 font-semibold">
+                          {(cerItem?.evidenceBank || []).length}
+                        </span>
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-slate-600 block mb-1">
+                          Constraints:
+                        </span>
+                        <ul className="text-slate-700 space-y-1 pl-2">
+                          <li>
+                            Min Evidence:{" "}
+                            {cerItem?.constraints?.minEvidence ?? 1}
+                          </li>
+                          <li>
+                            Max Evidence:{" "}
+                            {cerItem?.constraints?.maxEvidence ?? 3}
+                          </li>
+                          <li>
+                            Min Reasoning:{" "}
+                            {cerItem?.constraints?.reasoningMinChars ?? 60}{" "}
+                            chars
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </PreviewCard>
+                ) : null}
+
+                {supports?.sentenceStems?.length ? (
+                  <PreviewCard>
+                    <div className="text-sm font-semibold text-slate-900">
+                      Sentence stems
+                    </div>
+                    <ul className="mt-2 list-disc pl-5 text-sm text-slate-800 space-y-1">
+                      {supports.sentenceStems.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  </PreviewCard>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </PageContent>
   );
