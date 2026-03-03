@@ -1,47 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { PageContent, Card } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { PageContent, PageBanner, Card, Button } from "@/components/ui";
 
 // If these components exist in your repo, keep them.
 // If your import paths differ, the build will tell us and we can patch paths next.
 
 export default function TeacherDashboardPage() {
+  const router = useRouter();
+
   return (
     <main>
+      <PageBanner
+        title="Teacher Dashboard"
+        subtitle="Quick access to your item bank, builder, classes, and insights."
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={() => router.push("/teacher/item-bank")}
+          >
+            Item Bank
+          </Button>
+
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => router.push("/teacher/builder")}
+          >
+            Builder
+          </Button>
+        </div>
+      </PageBanner>
       <PageContent className="py-8">
         <div className="flex flex-col gap-6">
-          {/* Header */}
-          <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-semibold tracking-tight">
-                Teacher Dashboard
-              </h1>
-              <p className="mt-1 text-slate-600">
-                Quick access to your item bank, builder, classes, and insights.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/teacher/item-bank"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 font-semibold text-slate-900 shadow-sm hover:bg-slate-50"
-              >
-                Item Bank
-              </Link>
-
-              <Link
-                href="/teacher/builder"
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 font-semibold text-white shadow-sm hover:bg-emerald-700"
-              >
-                Builder
-              </Link>
-            </div>
-          </header>
-
-          {/* KPIs */}
-          <section className="grid grid-cols-1 gap-4 md:grid-cols-3"></section>
-
           {/* Main content */}
           <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card className="p-5">
@@ -53,33 +47,36 @@ export default function TeacherDashboardPage() {
                   </p>
                 </div>
 
-                <Link
-                  href="/teacher/assessments"
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 font-semibold text-slate-900 hover:bg-slate-50"
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => router.push("/teacher/assessments")}
                 >
                   View All
-                </Link>
+                </Button>
               </div>
 
               <div className="mt-4 rounded-2xl border border-slate-200 p-4">
                 <div className="text-slate-600">No assessments yet.</div>
 
                 <div className="mt-5 flex justify-end gap-3">
-                  <Link
-                    href="/teacher/builder"
-                    className="rounded-xl border border-slate-300 px-4 py-2 font-semibold hover:bg-slate-50"
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    onClick={() => router.push("/teacher/builder")}
                   >
                     Open
-                  </Link>
+                  </Button>
 
-                  <button
+                  <Button
                     type="button"
-                    className="rounded-xl border border-slate-300 px-4 py-2 font-semibold opacity-60"
+                    variant="secondary"
+                    size="md"
                     title="Hook this up later"
                     disabled
                   >
                     Analytics
-                  </button>
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -93,23 +90,29 @@ export default function TeacherDashboardPage() {
                 </div>
               </Card>
 
-              <div className="rounded-2xl bg-emerald-700 p-5 text-white shadow-sm">
+              <Card
+                variant="accent"
+                accentColor="green"
+                className="p-5"
+                animate
+              >
                 <h2 className="text-xl font-semibold">AI Grading Assistant</h2>
-                <p className="mt-2 text-emerald-50">
+                <p className="mt-2 text-text-muted">
                   You have <span className="font-semibold">—</span> constructed
                   responses waiting for review.
                 </p>
                 <div className="mt-4">
-                  <button
+                  <Button
                     type="button"
-                    className="rounded-xl bg-white/15 px-4 py-2 font-semibold hover:bg-white/20"
+                    variant="secondary"
+                    size="md"
                     title="Hook this up later"
                     disabled
                   >
                     Open Queue
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             </div>
           </section>
         </div>

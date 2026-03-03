@@ -40,7 +40,13 @@ export default function ShortResponse({
   return (
     <div className="space-y-3">
       <div className="text-lg font-semibold">
-        {<BilingualText text={item.stem} showSupport={lang === "es"} />}
+        {
+          <BilingualText
+            text={item.stem}
+            showSupport={lang === "es"}
+            glossary={item.glossary ?? []}
+          />
+        }
       </div>
       <textarea
         value={text}

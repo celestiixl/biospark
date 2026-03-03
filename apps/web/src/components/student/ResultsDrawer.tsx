@@ -35,74 +35,98 @@ export default function ResultsDrawer({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       {/* Scrim */}
       <button
         aria-label="Close results"
-        className="absolute inset-0 bg-black/25"
+        className="absolute inset-0 bg-slate-900/45"
         onClick={onClose}
       />
 
-      {/* Panel */}
-      <aside className="absolute right-0 top-0 h-full w-full max-w-[420px] bg-white/0 shadow-2xl border-l flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <div className="font-semibold">Check</div>
-          <div className="flex items-center gap-2">
+      {/* Modal */}
+      <aside className="relative z-10 w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div className="border-b border-slate-200 px-5 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Check result
+              </div>
+              <div className="mt-1 text-lg font-semibold text-slate-900">
+                {summary}
+              </div>
+            </div>
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                correct
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-amber-50 text-amber-700 border border-amber-200"
+              }`}
+            >
+              {correct ? "Correct" : "Needs review"}
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-4 p-5">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Score
+              </div>
+              <div className="mt-1 text-base font-semibold text-slate-900">
+                {score}/{max}
+              </div>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Time
+              </div>
+              <div className="mt-1 text-base font-semibold text-slate-900">
+                {Math.max(0, timeSeconds)}s
+              </div>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Attempts left
+              </div>
+              <div className="mt-1 text-base font-semibold text-slate-900">
+                {attemptsLeft == null ? "—" : String(attemptsLeft)}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 p-4">
+            <div className="text-sm font-semibold text-slate-900">
+              Explanation
+            </div>
+            {explanation ? (
+              <div className="mt-2 whitespace-pre-wrap text-sm text-slate-700">
+                {explanation}
+              </div>
+            ) : (
+              <div className="mt-2 text-sm text-slate-500">
+                Explanation is locked until you use your attempts.
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-2 border-t border-slate-200 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Close
+            </button>
             {hasNext && onNext ? (
               <button
                 type="button"
                 onClick={onNext}
-                className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
+                className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
               >
-                Next →
+                Next question →
               </button>
             ) : null}
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-slate-50"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="p-4 space-y-4 overflow-auto">
-          {/* Student-friendly summary */}
-          <div className="rounded-2xl border p-4 space-y-2">
-            <div className="font-semibold">Student-friendly summary</div>
-            <div className="text-sm text-slate-700">{summary}</div>
-
-            <div className="text-xs text-slate-500">
-              Tip: if you can explain WHY it’s correct, you really know it.
-            </div>
-
-            <div className="text-xs text-slate-600">
-              Attempts left: {attemptsLeft == null ? "—" : String(attemptsLeft)}
-            </div>
-
-            <button
-              type="button"
-              className="mt-2 rounded-xl border px-4 py-2 text-sm font-medium hover:bg-slate-50"
-            >
-              More details
-            </button>
-          </div>
-
-          {/* Explanation */}
-          <div className="rounded-2xl border p-4 space-y-2">
-            <div className="font-semibold">Explanation</div>
-            {explanation ? (
-              <div className="text-sm text-slate-700 whitespace-pre-wrap">
-                {explanation}
-              </div>
-            ) : (
-              <div className="text-sm text-slate-500">
-                Explanation is locked until you use your attempts.
-              </div>
-            )}
           </div>
         </div>
       </aside>

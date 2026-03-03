@@ -3,13 +3,19 @@
 import { useRouter, usePathname } from "next/navigation";
 import type { Segment } from "@/types/segment";
 import AccommodationsButton from "@/components/student/AccommodationsButton";
+import StudentFloatingDock from "@/components/student/StudentFloatingDock";
 
 import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
 
-import MasteryDonut from "@/components/student/MasteryDonut";
 import SpecimenGrid from "@/components/student/SpecimenGrid";
-import { PageContent, Card, Section } from "@/components/ui";
+import {
+  PageContent,
+  PageBanner,
+  Card,
+  Section,
+  MasteryRing,
+} from "@/components/ui";
 
 function clamp01(n: number) {
   if (!Number.isFinite(n)) return 0;
@@ -30,7 +36,6 @@ function getBiomeHealth(segments: Segment[]) {
       biome: "Polluted Waters",
       desc: "Food web is unstable.",
       pct: Math.round(p * 100),
-      banner: "bg-neutral-50",
       badge: "border-neutral-200 text-neutral-800",
     };
   }
@@ -40,7 +45,6 @@ function getBiomeHealth(segments: Segment[]) {
       biome: "Sparse Grassland",
       desc: "Some stability, gaps remain.",
       pct: Math.round(p * 100),
-      banner: "bg-amber-50",
       badge: "border-amber-200 text-amber-900",
     };
   }
@@ -50,7 +54,6 @@ function getBiomeHealth(segments: Segment[]) {
       biome: "Balanced Forest",
       desc: "Most relationships are solid.",
       pct: Math.round(p * 100),
-      banner: "bg-green-50",
       badge: "border-green-200 text-green-900",
     };
   }
@@ -59,7 +62,6 @@ function getBiomeHealth(segments: Segment[]) {
     biome: "Thriving Reef",
     desc: "Ecosystem is strong and resilient.",
     pct: Math.round(p * 100),
-    banner: "bg-cyan-50",
     badge: "border-cyan-200 text-cyan-900",
   };
 }
@@ -253,64 +255,63 @@ export default function StudentDashboard() {
   }, [segments]);
 
   return (
-    <main className="min-h-dvh  text-slate-900">
-      {/* FULL-WIDTH HEADER BAND */}
-      <div className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600">
-        <div className="mx-auto max-w-6xl px-6 py-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-semibold tracking-tight text-white">
-                Student Dashboard
-              </h1>
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-white/90">
-                <span>Your personal mastery tracker.</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    Object.keys(sessionStorage).forEach((k) => {
-                      if (k.startsWith("specimen_unlocked_"))
-                        sessionStorage.removeItem(k);
-                    });
-                    location.reload();
-                  }}
-                  className="rounded-full bg-white/20 px-4 py-2 text-xs font-semibold text-white hover:bg-white/25"
-                >
-                  Reset Specimen Unlocks
-                </button>
-              </div>
-            </div>
-
-            <Link
-              href="/student/assessment"
-              className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"
-            >
-              Back to Assessment Lab
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* MAIN CONTENT SURFACE */}
-      <PageContent className="-mt-5 pb-10">
-        <Card>
-          {/* Biome banner */}
-          <div
-            className={`mb-5 flex flex-wrap items-start justify-between gap-3 rounded-2xl border p-5 ${biome.banner}`}
+    <main className="ia-vh-page flex h-dvh flex-col overflow-hidden text-slate-900">
+      <PageBanner
+        title="Student Dashboard"
+        subtitle="Your personal mastery tracker."
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              Object.keys(sessionStorage).forEach((k) => {
+                if (k.startsWith("specimen_unlocked_"))
+                  sessionStorage.removeItem(k);
+              });
+              location.reload();
+            }}
+            className="rounded-full bg-white/20 px-4 py-2 text-xs font-semibold text-white hover:bg-white/25"
           >
+            Reset Specimen Unlocks
+          </button>
+          <Link
+            href="/student/assessment"
+            className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"
+          >
+            Back to Assessment Lab
+          </Link>
+          <Link
+            href="/student/learn"
+            className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"
+          >
+            Open BioSpark Quest
+          </Link>
+          <Link
+            href="/student/profile"
+            className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"
+          >
+            My Profile
+          </Link>
+        </div>
+      </PageBanner>
+      <PageContent className="flex-1 min-h-0 py-4">
+        <div className="ia-vh-scroll h-full min-h-0 overflow-y-auto pr-1">
+          {/* MAIN CONTENT SURFACE */}
+          <Card>
+          {/* Biome banner */}
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-white/20 bg-linear-to-r from-violet-500 via-purple-400 to-amber-400 p-5">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="text-xs font-semibold uppercase tracking-wide text-white/85">
                 Biome Health
               </div>
-              <div className="mt-1 text-lg font-semibold text-slate-900">
+              <div className="mt-1 text-lg font-semibold text-white">
                 {biome.level} • {biome.biome}{" "}
-                <span className="ml-2 text-sm font-semibold text-slate-600">
+                <span className="ml-2 text-sm font-semibold text-white/90">
                   ({biome.pct}%)
                 </span>
               </div>
-              <div className="mt-1 text-sm text-slate-600">{biome.desc}</div>
-              <div
-                className={`mt-3 inline-flex items-center rounded-full border bg-white/95 px-3 py-1 text-xs font-semibold ${biome.badge}`}
-              >
+              <div className="mt-1 text-sm text-white/90">{biome.desc}</div>
+              <div className="mt-3 inline-flex items-center rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs font-semibold text-white">
                 segments passed: {segments.length}
               </div>
             </div>
@@ -382,13 +383,10 @@ export default function StudentDashboard() {
           </div>
 
           {/* Main panel */}
-          <Section className="/0 p-6 ia-card-soft ">
+          <Section className="p-6 ia-card-soft">
             {tab === "overview" ? (
               <>
-                <MasteryDonut segments={segments} />
-                <div className="mt-4 text-center text-sm text-slate-500">
-                  Hover a slice to see the TEKS.
-                </div>
+                <MasteryRing segments={segments} />
               </>
             ) : (
               <>
@@ -401,6 +399,39 @@ export default function StudentDashboard() {
           </Section>
 
           {/* Bottom cards */}
+          <section className="mt-5 rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold text-slate-800">
+                  Assigned work
+                </div>
+                <div className="mt-1 text-xs text-slate-600">
+                  Open your teacher-assigned work, learning blocks, and quizzes.
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href="/student/assignments"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  Assignments
+                </Link>
+                <Link
+                  href="/student/assignments?kind=assignment"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  Learning Blocks
+                </Link>
+                <Link
+                  href="/student/assignments?kind=assessment"
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                >
+                  Quizzes
+                </Link>
+              </div>
+            </div>
+          </section>
+
           <section className="mt-5 grid gap-4 md:grid-cols-3">
             <Card variant="sm">
               <div className="text-sm font-semibold text-slate-800">
@@ -421,6 +452,9 @@ export default function StudentDashboard() {
                   href="/practice?rc=RC1%20%E2%80%A2%20Cell%20Structure%20%26%20Function"
                 >
                   Practice RC1
+                </Link>
+                <Link className="ia-btn text-sm" href="/student/learn">
+                  BioSpark Quest
                 </Link>
               </div>
             </Card>
@@ -449,8 +483,10 @@ export default function StudentDashboard() {
               </div>
             </Card>
           </section>
-        </Card>
+          </Card>
+        </div>
       </PageContent>
+      <StudentFloatingDock />
     </main>
   );
 }
