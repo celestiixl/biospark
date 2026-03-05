@@ -6,3 +6,6 @@ dist
 .env.*
 .DS_Store
 package-lock.json
+
+# Ignore ad-hoc shell scripts dropped in the repo root
+/*.sh
