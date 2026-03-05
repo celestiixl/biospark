@@ -117,12 +117,12 @@ export default function WeeklyDigestPage() {
 
     fetch(`/api/teacher/weekly-digest?${params.toString()}`)
       .then((r) => r.json())
-      .then((data: WeeklyDigestResult) => {
+      .then((data: WeeklyDigestResult & { error?: string }) => {
         if (cancelled) return;
         if (data.ok) {
           setDigest(data);
         } else {
-          setFetchError("Failed to load digest");
+          setFetchError(data.error ?? "Failed to load digest");
         }
       })
       .catch(() => {
