@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Backup and disabled files:
+    ".bak_*/**",
+    "app__DISABLED_*/**",
+    "**/*.bak.*",
     // Backup files created by patch scripts:
     ".bak_*/",
     "app__DISABLED_*/",

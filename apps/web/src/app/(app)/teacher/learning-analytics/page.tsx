@@ -30,12 +30,20 @@ export default function TeacherLearningAnalyticsPage() {
               Completion funnel, check behavior, and stuck-point analysis.
             </p>
           </div>
-          <Link
-            href="/teacher/dashboard"
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Back to Dashboard
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/teacher/learning-analytics/weekly-digest"
+              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/40"
+            >
+              Weekly Digest
+            </Link>
+            <Link
+              href="/teacher/dashboard"
+              className="rounded-xl border border-border bg-surface-1 px-4 py-2 text-sm font-semibold text-text shadow-sm hover:bg-surface-3"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
         </div>
       </section>
 
