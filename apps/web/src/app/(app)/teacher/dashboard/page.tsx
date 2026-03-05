@@ -69,11 +69,9 @@ export default function TeacherDashboardPage() {
                   </Button>
 
                   <Button
-                    type="button"
                     variant="secondary"
                     size="md"
-                    title="Hook this up later"
-                    disabled
+                    onClick={() => router.push("/teacher/learning-analytics")}
                   >
                     Analytics
                   </Button>
@@ -111,6 +109,39 @@ export default function TeacherDashboardPage() {
                   >
                     Open Queue
                   </Button>
+                </div>
+              </Card>
+
+              <Card className="p-5">
+                <h2 className="text-xl font-semibold">Learning Hub Admin</h2>
+                <p className="mt-2 text-slate-600">
+                  Manage visibility, playlists, curriculum quality, and imports.
+                </p>
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <Link
+                    href="/teacher/learning-controls"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Learning Controls
+                  </Link>
+                  <Link
+                    href="/teacher/content-quality"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Content Quality
+                  </Link>
+                  <Link
+                    href="/teacher/import-curriculum"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Import Validator
+                  </Link>
+                  <Link
+                    href="/teacher/learning-analytics"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Learning Analytics
+                  </Link>
                 </div>
               </Card>
             </div>

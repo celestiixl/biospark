@@ -20,6 +20,13 @@ export function PageContent({
   className?: string;
 }) {
   return (
-    <div className={cx("mx-auto max-w-6xl px-6", className)}>{children}</div>
+    <div
+      className={cx(
+        "mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8",
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
 }

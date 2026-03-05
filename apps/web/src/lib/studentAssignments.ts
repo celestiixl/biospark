@@ -23,11 +23,11 @@ export type StudentAssignment = {
 
 export const MOCK_STUDENT_ASSIGNMENTS: StudentAssignment[] = [
   {
-    id: "asgn-1",
-    title: "Unit 2 Check-In: Cell Cycle",
+    id: "asgn-u2-core",
+    title: "Unit 2 Check-In: DNA and Protein Synthesis",
     kind: "assignment",
     subject: "Biology",
-    teks: ["BIO.6A", "BIO.6B"],
+    teks: ["B.7A", "B.7B", "B.7C"],
     status: "not_started",
     dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     openedAt: null,
@@ -37,11 +37,11 @@ export const MOCK_STUDENT_ASSIGNMENTS: StudentAssignment[] = [
     completedItems: 0,
   },
   {
-    id: "asgn-2",
-    title: "Photosynthesis Quiz",
+    id: "asgn-u1-energy",
+    title: "Energy Conversions Quick Check",
     kind: "assessment",
     subject: "Biology",
-    teks: ["BIO.11A"],
+    teks: ["B.11A", "B.11B"],
     status: "in_progress",
     dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
     openedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
@@ -51,11 +51,11 @@ export const MOCK_STUDENT_ASSIGNMENTS: StudentAssignment[] = [
     completedItems: 4,
   },
   {
-    id: "asgn-3",
-    title: "Genetics Practice Set",
+    id: "asgn-u2-models",
+    title: "Gene Expression Modeling Practice",
     kind: "assignment",
     subject: "Biology",
-    teks: ["BIO.7A", "BIO.7B", "BIO.8A", "BIO.8B"],
+    teks: ["B.7A", "B.7B", "B.7C"],
     status: "submitted",
     dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     openedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
@@ -65,11 +65,11 @@ export const MOCK_STUDENT_ASSIGNMENTS: StudentAssignment[] = [
     completedItems: 12,
   },
   {
-    id: "asgn-4",
-    title: "Ecology & Biodiversity Final",
+    id: "asgn-u1-transport",
+    title: "Cell Transport and Homeostasis Quiz",
     kind: "assessment",
     subject: "Biology",
-    teks: ["BIO.13A", "BIO.13B", "BIO.13C", "BIO.13D"],
+    teks: ["B.5C"],
     status: "graded",
     dueDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     openedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
@@ -79,11 +79,11 @@ export const MOCK_STUDENT_ASSIGNMENTS: StudentAssignment[] = [
     completedItems: 15,
   },
   {
-    id: "asgn-5",
-    title: "Unit 1 Cell Structure Review",
+    id: "asgn-u1-core",
+    title: "Unit 1 Biomolecules and Cells Review",
     kind: "assignment",
     subject: "Biology",
-    teks: ["BIO.5A", "BIO.5B", "BIO.5C"],
+    teks: ["B.5A", "B.5B", "B.5C", "B.11A", "B.11B"],
     status: "graded",
     dueDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     openedAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
@@ -93,11 +93,11 @@ export const MOCK_STUDENT_ASSIGNMENTS: StudentAssignment[] = [
     completedItems: 10,
   },
   {
-    id: "asgn-6",
-    title: "Evolution Evidence Check",
+    id: "asgn-u1-enzymes",
+    title: "Enzyme Function Mini Check",
     kind: "assignment",
     subject: "Biology",
-    teks: ["BIO.9A", "BIO.9B"],
+    teks: ["B.11B"],
     status: "not_started",
     dueDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
     openedAt: null,
@@ -107,3 +107,19 @@ export const MOCK_STUDENT_ASSIGNMENTS: StudentAssignment[] = [
     completedItems: 0,
   },
 ];
+
+export function getStudentAssignmentById(
+  assignmentId?: string,
+): StudentAssignment | undefined {
+  if (!assignmentId) return undefined;
+  return MOCK_STUDENT_ASSIGNMENTS.find(
+    (assignment) => assignment.id === assignmentId,
+  );
+}
+
+export function isAssignmentComplete(
+  assignment: StudentAssignment | undefined,
+): boolean {
+  if (!assignment) return false;
+  return assignment.status === "submitted" || assignment.status === "graded";
+}

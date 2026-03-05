@@ -4,7 +4,6 @@ import { useRouter, usePathname } from "next/navigation";
 import type { Segment } from "@/types/segment";
 import AccommodationsButton from "@/components/student/AccommodationsButton";
 import StudentFloatingDock from "@/components/student/StudentFloatingDock";
-import LearningHub from "@/components/student/LearningHub";
 
 import Link from "next/link";
 import { useMemo, useState, useEffect } from "react";
@@ -83,15 +82,13 @@ export default function StudentDashboard() {
       : "";
   const initialTab = tabParam === "specimens" ? "specimens" : "overview";
 
-  const [tab, setTab] = useState<"overview" | "specimens" | "learning">(
-    "overview",
-  );
+  const [tab, setTab] = useState<"overview" | "specimens">("overview");
 
   // After hydration, restore last selected tab (prevents SSR/client mismatch)
   useEffect(() => {
     try {
       const v = window.localStorage.getItem("studentDashboard.activeTab");
-      if (v === "specimens" || v === "overview" || v === "learning") setTab(v);
+      if (v === "specimens" || v === "overview") setTab(v);
     } catch {}
   }, []);
 
@@ -105,150 +102,48 @@ export default function StudentDashboard() {
 
   // Demo segments (0..1). Replace later with real stats.
   const SEGMENTS: Segment[] = [
+    { key: "B.5A", label: "Biomolecules", value: 0.8, group: "B.5" },
     {
-      key: "BIO.1",
-      label: "BIO.1 • Ask questions & investigate safely",
-      value: 0.8,
-      group: "BIO.1",
-    },
-    {
-      key: "BIO.2",
-      label: "BIO.2 • Analyze & interpret data",
-      value: 0.52,
-      group: "BIO.2",
-    },
-    {
-      key: "BIO.3",
-      label: "BIO.3 • Communicate findings",
-      value: 0.57,
-      group: "BIO.3",
-    },
-    {
-      key: "BIO.4",
-      label: "BIO.4 • Science & society",
-      value: 0.48,
-      group: "BIO.4",
-    },
-
-    { key: "BIO.5A", label: "Biomolecules", value: 0.8, group: "BIO.5" },
-    {
-      key: "BIO.5B",
+      key: "B.5B",
       label: "Prokaryote vs eukaryote",
       value: 0.54,
-      group: "BIO.5",
+      group: "B.5",
     },
     {
-      key: "BIO.5C",
+      key: "B.5C",
       label: "Transport & homeostasis",
       value: 0.49,
-      group: "BIO.5",
-    },
-    { key: "BIO.5D", label: "Viruses vs cells", value: 0.46, group: "BIO.5" },
-
-    {
-      key: "BIO.6A",
-      label: "Cell cycle & DNA replication",
-      value: 0.55,
-      group: "BIO.6",
+      group: "B.5",
     },
     {
-      key: "BIO.6B",
-      label: "Cell differentiation",
-      value: 0.51,
-      group: "BIO.6",
-    },
-    {
-      key: "BIO.6C",
-      label: "Cell cycle disruption & cancer",
-      value: 0.44,
-      group: "BIO.6",
-    },
-
-    {
-      key: "BIO.7A",
-      label: "DNA structure & traits",
-      value: 0.56,
-      group: "BIO.7",
-    },
-    { key: "BIO.7B", label: "Protein synthesis", value: 0.5, group: "BIO.7" },
-    { key: "BIO.7C", label: "Mutations", value: 0.47, group: "BIO.7" },
-    {
-      key: "BIO.7D",
-      label: "Molecular technologies",
-      value: 0.52,
-      group: "BIO.7",
-    },
-
-    {
-      key: "BIO.8A",
-      label: "Meiosis & diversity",
-      value: 0.53,
-      group: "BIO.8",
-    },
-    { key: "BIO.8B", label: "Genetic crosses", value: 0.48, group: "BIO.8" },
-
-    {
-      key: "BIO.9A",
-      label: "Evidence of evolution",
-      value: 0.6,
-      group: "BIO.9",
-    },
-    {
-      key: "BIO.9B",
-      label: "Rates of evolutionary change",
-      value: 0.52,
-      group: "BIO.9",
-    },
-
-    {
-      key: "BIO.10A",
-      label: "Natural selection",
-      value: 0.57,
-      group: "BIO.10",
-    },
-    {
-      key: "BIO.10B",
-      label: "Elements of natural selection",
-      value: 0.5,
-      group: "BIO.10",
-    },
-    { key: "BIO.10C", label: "Speciation", value: 0.44, group: "BIO.10" },
-    { key: "BIO.10D", label: "Other mechanisms", value: 0.46, group: "BIO.10" },
-
-    {
-      key: "BIO.11A",
+      key: "B.11A",
       label: "Photosynthesis & respiration",
       value: 0.55,
-      group: "BIO.11",
-    },
-    { key: "BIO.11B", label: "Enzymes", value: 0.51, group: "BIO.11" },
-
-    { key: "BIO.12A", label: "Animal systems", value: 0.49, group: "BIO.12" },
-    { key: "BIO.12B", label: "Plant systems", value: 0.47, group: "BIO.12" },
-
-    {
-      key: "BIO.13A",
-      label: "Ecological relationships",
-      value: 0.58,
-      group: "BIO.13",
+      group: "B.11",
     },
     {
-      key: "BIO.13B",
-      label: "Energy/matter disruption",
+      key: "B.11B",
+      label: "Enzyme function",
+      value: 0.51,
+      group: "B.11",
+    },
+    {
+      key: "B.7A",
+      label: "DNA structure & traits",
+      value: 0.56,
+      group: "B.7",
+    },
+    {
+      key: "B.7B",
+      label: "Protein synthesis",
       value: 0.5,
-      group: "BIO.13",
+      group: "B.7",
     },
     {
-      key: "BIO.13C",
-      label: "Carbon & nitrogen cycles",
-      value: 0.46,
-      group: "BIO.13",
-    },
-    {
-      key: "BIO.13D",
-      label: "Biodiversity change",
+      key: "B.7C",
+      label: "Mutations",
       value: 0.44,
-      group: "BIO.13",
+      group: "B.7",
     },
   ];
 
@@ -395,18 +290,15 @@ export default function StudentDashboard() {
               <button
                 type="button"
                 onClick={() => {
-                  setTab("learning");
-                  if (typeof window !== "undefined")
+                  if (typeof window !== "undefined") {
                     window.localStorage.setItem(
                       "studentDashboard.activeTab",
-                      "learning",
+                      "overview",
                     );
+                  }
+                  router.push("/student/learning-hub");
                 }}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                  tab === "learning"
-                    ? "bg-slate-900 text-white"
-                    : "bg-white text-slate-900 hover:bg-slate-50"
-                }`}
+                className="rounded-full border bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
               >
                 Learning Hub
               </button>
@@ -425,9 +317,7 @@ export default function StudentDashboard() {
                   </div>
                   <SpecimenGrid segments={segments} />
                 </>
-              ) : (
-                <LearningHub streak={3} accuracy={74} />
-              )}
+              ) : null}
             </Section>
 
             {/* Bottom cards */}

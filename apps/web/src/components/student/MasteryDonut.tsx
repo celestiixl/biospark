@@ -1,24 +1,33 @@
 "use client";
 
-import type { Segment } from "@/types/segment";
-
 import React, { useMemo, useState } from "react";
+import { LEARNING_UNITS } from "@/lib/learningHubContent";
 
 export type DonutSegment = {
-  key: string; // e.g. "BIO.10C" or "BIO.2"
+  key: string; // e.g. "B.7C" or "B.5A"
   label: string;
   value: number; // 0..100 (or sometimes 0..1)
   weight?: number;
-  group?: string; // e.g. "BIO.10" or "BIO.2"
+  group?: string; // e.g. "B.7" or "B.5"
 };
 
 type RingArc = {
   key: string;
   label: string;
   weight: number;
-  value: number; // 0..100
-  groupKey?: string;
-  groupLabel?: string;
+  value: number;
+  color: string;
+};
+
+type UnitSummary = {
+  key: string;
+  label: string;
+  teksCount: number;
+  masteryPct: number;
+  masteredCount: number;
+  learnedCount: number;
+  remainingCount: number;
+  weakestTeks: string[];
   color: string;
 };
 
@@ -26,7 +35,14 @@ function polarToXY(cx: number, cy: number, r: number, a: number) {
   return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
 }
 
-function arcPath(cx: number, cy: number, rOuter: number, rInner: number, start: number, end: number) {
+function arcPath(
+  cx: number,
+  cy: number,
+  rOuter: number,
+  rInner: number,
+  start: number,
+  end: number,
+) {
   const large = end - start > Math.PI ? 1 : 0;
   const p1 = polarToXY(cx, cy, rOuter, start);
   const p2 = polarToXY(cx, cy, rOuter, end);
@@ -59,197 +75,196 @@ function mixHex(a: string, b: string, t: number) {
   return `#${toHex(rr)}${toHex(rg)}${toHex(rb)}`;
 }
 
-function hashStr(s: string) {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
 function toPct(v: number) {
   if (!Number.isFinite(v)) return 0;
-  // support 0..1 inputs
   if (v >= 0 && v <= 1) return v * 100;
-  return v;
+  return Math.max(0, Math.min(100, v));
 }
 
-/** Outer ring: make TEKS in same cluster share a base color (BIO.10, BIO.12, etc). */
-const OUTER_CLUSTER_BASE: Record<string, string> = {
-  "BIO.5": "#2563eb",  // blue
-  "BIO.6": "#7c3aed",  // violet
-  "BIO.7": "#db2777",  // pink
-  "BIO.8": "#f59e0b",  // amber
-  "BIO.9": "#16a34a",  // green
-  "BIO.10": "#ef4444", // red
-  "BIO.11": "#06b6d4", // cyan
-  "BIO.12": "#22c55e", // green (brighter)
-  "BIO.13": "#a855f7", // purple
+const UNIT_BASE_COLORS: Record<string, string> = {
+  "B.5": "#2563eb",
+  "B.7": "#db2777",
+  "B.11": "#06b6d4",
 };
 
-const OUTER_SHADE_STEPS = 6;
-
-function shadeOf(baseHex: string, idx: number) {
-  // idx 0..steps-1 -> slightly different tints
-  const t = idx / Math.max(1, OUTER_SHADE_STEPS - 1);
-  return mixHex(baseHex, "#ffffff", 0.08 + 0.22 * t);
-}
+const PRACTICE_LABELS: Record<string, string> = {
+  "B.5": "Unit 1: Biomolecules and Cells",
+  "B.7": "Unit 2: Nucleic Acids and Protein Synthesis",
+  "B.11": "Unit 1: Energy Conversions and Enzymes",
+};
 
 function clusterKeyFromSegmentKey(key: string) {
-  // "BIO.10C" -> "BIO.10"
-  const m = key.match(/^(BIO\.[0-9]+)/);
+  const m = key.match(/^([A-Z]\.[0-9]+)/);
   return m ? m[1] : key;
 }
 
-function outerColorFor(key: string) {
-  const cluster = clusterKeyFromSegmentKey(key);
-  const base = OUTER_CLUSTER_BASE[cluster] ?? "#2563eb";
+function colorForMastery(groupKey: string, masteryPct: number) {
+  const base = UNIT_BASE_COLORS[groupKey] ?? "#2563eb";
+  const toned = mixHex(base, "#e2e8f0", ((100 - masteryPct) / 100) * 0.72);
+  return toned;
+}
 
-  // If there’s a trailing letter (A/B/C/D...), use it for stable shading.
-  // Otherwise use a hash.
-  const m = key.match(/([A-Z])$/); // trailing letter
-  let idx = 0;
-
-  if (m && m[1]) {
-    idx = (m[1].charCodeAt(0) - 65) % OUTER_SHADE_STEPS; // A->0, B->1...
-  } else {
-    idx = hashStr(key) % OUTER_SHADE_STEPS;
+function unitTitleMap() {
+  const map: Record<string, string> = {};
+  for (const unit of LEARNING_UNITS) {
+    const prefixes = new Set(
+      unit.teks.map((teks) => clusterKeyFromSegmentKey(teks)),
+    );
+    prefixes.forEach((prefix) => {
+      if (!map[prefix]) {
+        map[prefix] = `${prefix} • ${unit.title}`;
+      }
+    });
   }
-
-  return shadeOf(base, idx);
+  return map;
 }
 
-/** Inner ring: muted colors (BIO.1–BIO.4) */
-const INNER_COLORS = ["#94a3b8", "#60a5fa", "#34d399", "#f59e0b"] as const;
-
-const PRACTICE_KEYS = ["BIO.1", "BIO.2", "BIO.3", "BIO.4"] as const;
-
-const PRACTICE_LABELS: Record<(typeof PRACTICE_KEYS)[number], string> = {
-  "BIO.1": "BIO.1 • Ask questions, plan & conduct investigations safely",
-  "BIO.2": "BIO.2 • Analyze & interpret data",
-  "BIO.3": "BIO.3 • Develop explanations & communicate findings",
-  "BIO.4": "BIO.4 • Scientists, research, and societal impact",
-};
-
-function isPracticeClusterKey(
-  k: string
-): k is (typeof PRACTICE_KEYS)[number] {
-  return (PRACTICE_KEYS as readonly string[]).includes(k);
-}
-
-function innerColorFor(groupKey: string) {
-  const idx = hashStr(groupKey) % INNER_COLORS.length;
-  return INNER_COLORS[idx] ?? "#94a3b8";
+function masteryBand(value: number) {
+  if (value >= 75) return "mastered";
+  if (value >= 40) return "learned";
+  return "remaining";
 }
 
 export default function MasteryDonut({
   segments,
-  size = 420,
+  size = 360,
 }: {
   segments: DonutSegment[];
   size?: number;
 }) {
   const [hoverKey, setHoverKey] = useState<string | null>(null);
 
-  const { outer, inner, overall, hoverText } = useMemo(() => {
+  const {
+    arcs,
+    overall,
+    hoverText,
+    units,
+    masteredCount,
+    learnedCount,
+    remainingCount,
+  } = useMemo(() => {
+    const titles = unitTitleMap();
     const norm = segments.map((s) => ({
       ...s,
       value: toPct(s.value),
       weight: typeof s.weight === "number" ? s.weight : 1,
-      group: s.group ?? (s.key.includes(".") ? s.key.split(".").slice(0, 2).join(".") : s.key),
+      group:
+        s.group ??
+        (s.key.includes(".") ? s.key.split(".").slice(0, 2).join(".") : s.key),
     }));
 
     const totW = norm.reduce((a, s) => a + (s.weight ?? 1), 0);
-    const totS = norm.reduce((a, s) => a + (s.value * (s.weight ?? 1)), 0);
+    const totS = norm.reduce((a, s) => a + s.value * (s.weight ?? 1), 0);
     const overall = totW > 0 ? totS / totW : 0;
 
-    const outerSegments = norm.filter((s) => {
-      if (isPracticeClusterKey(s.key)) return false;
-      if (isPracticeClusterKey(s.group ?? "")) return false;
-      return true;
-    });
-
-    const outer: RingArc[] = outerSegments
-      .slice()
-      .sort((a, b) => (a.group ?? "").localeCompare(b.group ?? "") || a.key.localeCompare(b.key))
-      .map((s) => ({
-        key: s.key,
-        label: s.label,
-        weight: s.weight ?? 1,
-        value: s.value,
-        groupKey: s.group,
-        groupLabel: s.group,
-        color: outerColorFor(s.key),
-      }));
-
-    const providedPractice = new Map<string, DonutSegment>();
+    const byGroup = new Map<string, DonutSegment[]>();
     for (const s of norm) {
-      if (isPracticeClusterKey(s.key)) providedPractice.set(s.key, s);
+      const g = clusterKeyFromSegmentKey(s.group ?? s.key);
+      if (!byGroup.has(g)) byGroup.set(g, []);
+      byGroup.get(g)?.push(s);
     }
 
-    const byPractice = new Map<string, { weight: number; sum: number }>();
-    for (const s of norm) {
-      const g = s.group ?? "";
-      if (!isPracticeClusterKey(g)) continue;
-      const prev = byPractice.get(g) ?? { weight: 0, sum: 0 };
-      prev.weight += s.weight ?? 1;
-      prev.sum += s.value * (s.weight ?? 1);
-      byPractice.set(g, prev);
-    }
+    const units: UnitSummary[] = Array.from(byGroup.entries())
+      .map(([groupKey, rows]) => {
+        const teksCount = rows.length;
+        const weighted = rows.reduce(
+          (acc, row) => {
+            const weight = row.weight ?? 1;
+            acc.sum += row.value * weight;
+            acc.weight += weight;
+            return acc;
+          },
+          { sum: 0, weight: 0 },
+        );
 
-    const inner: RingArc[] = PRACTICE_KEYS.map((k) => {
-      const explicit = providedPractice.get(k);
-      if (explicit) {
+        const masteryPct =
+          weighted.weight > 0 ? Math.round(weighted.sum / weighted.weight) : 0;
+
+        const sortedWeakest = rows
+          .slice()
+          .sort((a, b) => (a.value ?? 0) - (b.value ?? 0))
+          .slice(0, 2)
+          .map((row) => row.key);
+
+        const counts = rows.reduce(
+          (acc, row) => {
+            const band = masteryBand(row.value ?? 0);
+            acc[band] += 1;
+            return acc;
+          },
+          { mastered: 0, learned: 0, remaining: 0 },
+        );
+
         return {
-          key: k,
-          label: PRACTICE_LABELS[k],
-          weight: explicit.weight ?? 1,
-          value: toPct(explicit.value),
-          color: innerColorFor(k),
+          key: groupKey,
+          label:
+            titles[groupKey] ??
+            PRACTICE_LABELS[groupKey] ??
+            `${groupKey} • Unit`,
+          teksCount,
+          masteryPct,
+          masteredCount: counts.mastered,
+          learnedCount: counts.learned,
+          remainingCount: counts.remaining,
+          weakestTeks: sortedWeakest,
+          color: colorForMastery(groupKey, masteryPct),
         };
-      }
-      const agg = byPractice.get(k);
-      const w = agg?.weight ?? 1;
-      const v = agg && agg.weight > 0 ? agg.sum / agg.weight : 0;
-      return {
-        key: k,
-        label: PRACTICE_LABELS[k],
-        weight: w,
-        value: v,
-        color: innerColorFor(k),
-      };
-    });
+      })
+      .sort((a, b) => {
+        const an = Number(a.key.replace(/^([A-Z]\.)/, ""));
+        const bn = Number(b.key.replace(/^([A-Z]\.)/, ""));
+        if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
+        return a.key.localeCompare(b.key);
+      });
+
+    const arcs: RingArc[] = units.map((unit) => ({
+      key: unit.key,
+      label: unit.label,
+      weight: unit.teksCount,
+      value: unit.masteryPct,
+      color: unit.color,
+    }));
+
+    const counts = norm.reduce(
+      (acc, row) => {
+        const band = masteryBand(row.value ?? 0);
+        acc[band] += 1;
+        return acc;
+      },
+      { mastered: 0, learned: 0, remaining: 0 },
+    );
 
     const hoverText = (key: string | null) => {
-      if (!key) return "Hover a slice to see the TEKS.";
-      const p = inner.find((x) => x.key === key);
-      if (p) return p.label;
-      const it = outer.find((x) => x.key === key);
+      if (!key) return "Hover a unit for details.";
+      const it = units.find((x) => x.key === key);
       if (it) {
-        const grp = it.groupLabel ? ` (${it.groupLabel})` : "";
-        return `${it.key} • ${it.label}${grp}`;
+        return `${it.label} • ${it.masteryPct}% mastery`;
       }
-      return "Hover a slice to see the TEKS.";
+      return "Hover a unit for details.";
     };
 
-    return { outer, inner, overall, hoverText };
+    return {
+      arcs,
+      overall,
+      hoverText,
+      units,
+      masteredCount: counts.mastered,
+      learnedCount: counts.learned,
+      remainingCount: counts.remaining,
+    };
   }, [segments]);
 
   const cx = size / 2;
   const cy = size / 2;
 
-  const rOuterOuter = size * 0.44;
-  const rOuterInner = size * 0.34;
+  const rOuterOuter = size * 0.42;
+  const rOuterInner = size * 0.26;
 
-  const rInnerOuter = size * 0.30;
-  const rInnerInner = size * 0.22;
-
-  function renderRing(arcs: RingArc[], rOuter: number, rInner: number) {
-    const total = arcs.reduce((a, x) => a + x.weight, 0) || 1;
+  function renderRing(data: RingArc[], rOuter: number, rInner: number) {
+    const total = data.reduce((a, x) => a + x.weight, 0) || 1;
     let ang = -Math.PI / 2;
 
-    return arcs.map((a) => {
+    return data.map((a) => {
       const span = (a.weight / total) * Math.PI * 2;
       const start = ang;
       const end = ang + span;
@@ -268,8 +283,10 @@ export default function MasteryDonut({
           onMouseLeave={() => setHoverKey(null)}
           style={{
             transition: "opacity 140ms ease, filter 140ms ease",
-            filter: isHover ? "drop-shadow(0px 10px 16px rgba(0,0,0,0.18))" : "none",
-            cursor: "default",
+            filter: isHover
+              ? "drop-shadow(0px 10px 16px rgba(0,0,0,0.18))"
+              : "none",
+            cursor: "pointer",
           }}
         />
       );
@@ -278,27 +295,116 @@ export default function MasteryDonut({
 
   const centerPct = Math.round(overall);
 
+  const totalCount = masteredCount + learnedCount + remainingCount;
+  const masteredWidth = totalCount ? (masteredCount / totalCount) * 100 : 0;
+  const learnedWidth = totalCount ? (learnedCount / totalCount) * 100 : 0;
+  const remainingWidth = totalCount ? (remainingCount / totalCount) * 100 : 0;
+
   return (
-    <div className="flex flex-col items-center">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        {renderRing(outer, rOuterOuter, rOuterInner)}
+    <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
+      <div className="flex flex-col items-center">
+        <div className="w-full max-w-[340px]">
+          <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+            <div className="flex h-full w-full">
+              <div
+                className="bg-cyan-500"
+                style={{ width: `${masteredWidth}%` }}
+              />
+              <div
+                className="bg-cyan-300"
+                style={{ width: `${learnedWidth}%` }}
+              />
+              <div
+                className="bg-slate-300"
+                style={{ width: `${remainingWidth}%` }}
+              />
+            </div>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-slate-600">
+            <span>Mastered: {masteredCount}</span>
+            <span>Learned: {learnedCount}</span>
+            <span>Remaining: {remainingCount}</span>
+          </div>
+        </div>
 
-        <circle cx={cx} cy={cy} r={rOuterInner + 1} fill="white" opacity={0.98} />
-        <circle cx={cx} cy={cy} r={rInnerOuter - 1} fill="white" opacity={0.98} />
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          {renderRing(arcs, rOuterOuter, rOuterInner)}
+          <circle cx={cx} cy={cy} r={rOuterInner - 8} fill="white" />
 
-        {renderRing(inner, rInnerOuter, rInnerInner)}
+          <text
+            x={cx}
+            y={cy + 2}
+            textAnchor="middle"
+            fontSize="48"
+            fill="#0f172a"
+            fontWeight={800}
+          >
+            {centerPct}%
+          </text>
+          <text
+            x={cx}
+            y={cy + 32}
+            textAnchor="middle"
+            fontSize="14"
+            fill="#64748b"
+            fontWeight={600}
+          >
+            overall mastery
+          </text>
+        </svg>
 
-        <circle cx={cx} cy={cy} r={rInnerInner - 6} fill="white" />
+        <div className="-mt-4 text-center text-sm text-slate-600">
+          {hoverText(hoverKey)}
+        </div>
+      </div>
 
-        <text x={cx} y={cy + 6} textAnchor="middle" fontSize="56" fill="#0f172a" fontWeight={800}>
-          {centerPct}%
-        </text>
-        <text x={cx} y={cy + 42} textAnchor="middle" fontSize="16" fill="#64748b" fontWeight={600}>
-          mastery
-        </text>
-      </svg>
-
-      <div className="mt-3 text-center text-sm text-slate-600">{hoverText(hoverKey)}</div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-3">
+        <div className="mb-2 text-sm font-semibold text-slate-900">
+          Color key by unit + TEKS
+        </div>
+        <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1">
+          {units.map((unit) => {
+            const isHover = hoverKey === unit.key;
+            return (
+              <button
+                type="button"
+                key={unit.key}
+                onMouseEnter={() => setHoverKey(unit.key)}
+                onMouseLeave={() => setHoverKey(null)}
+                className={`w-full rounded-xl border px-3 py-2 text-left transition ${
+                  isHover
+                    ? "border-slate-400 bg-slate-50"
+                    : "border-slate-200 bg-white hover:bg-slate-50"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span
+                      className="inline-block h-3 w-3 shrink-0 rounded-full"
+                      style={{ backgroundColor: unit.color }}
+                    />
+                    <span className="truncate text-sm font-semibold text-slate-800">
+                      {unit.label}
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold text-slate-700">
+                    {unit.masteryPct}%
+                  </span>
+                </div>
+                <div className="mt-1 text-[11px] text-slate-500">
+                  {unit.teksCount} TEKS • {unit.masteredCount} mastered •{" "}
+                  {unit.remainingCount} need support
+                </div>
+                {unit.weakestTeks.length > 0 ? (
+                  <div className="mt-1 text-[11px] text-slate-600">
+                    Focus: {unit.weakestTeks.join(" • ")}
+                  </div>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

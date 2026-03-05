@@ -19,14 +19,31 @@ export default async function LearningUnitPage({ params }: UnitPageProps) {
       <div className="mx-auto grid w-full max-w-5xl gap-3">
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
-            Unit Chapter
+            Grading Period {unit.gradingPeriod}
           </div>
           <h1 className="mt-1 text-2xl font-bold text-slate-900">
-            {unit.title}
+            Unit {unit.unitNumber}: {unit.title}
           </h1>
           <p className="mt-2 text-sm text-slate-600">
             Objective: {unit.objective}
           </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-700">
+              {unit.contentVersion}
+            </span>
+            <span
+              className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
+                unit.approvalStatus === "approved"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                  : "border-amber-200 bg-amber-50 text-amber-800"
+              }`}
+            >
+              {unit.approvalStatus}
+            </span>
+          </div>
+          <div className="mt-2 text-xs font-semibold text-slate-600">
+            {unit.lessons.length} lessons in this chapter
+          </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {unit.teks.map((teks) => (
               <span

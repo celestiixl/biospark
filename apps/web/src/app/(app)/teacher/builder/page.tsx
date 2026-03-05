@@ -160,7 +160,7 @@ export default function TeacherBuilderPage() {
     }
   }
   // TEKS tags
-  const [primaryTeks, setPrimaryTeks] = useState<string>("BIO.8B");
+  const [primaryTeks, setPrimaryTeks] = useState<string>("B.7B");
   const [secondaryTeks, setSecondaryTeks] = useState<string>(""); // optional
 
   // EB supports (v1)
@@ -1162,7 +1162,9 @@ export default function TeacherBuilderPage() {
                     </div>
                     <div className="mt-2 whitespace-pre-wrap text-sm text-slate-900">
                       {clozeText.trim() || (
-                        <span className="text-slate-400">Cloze text preview…</span>
+                        <span className="text-slate-400">
+                          Cloze text preview…
+                        </span>
                       )}
                     </div>
                   </PreviewCard>

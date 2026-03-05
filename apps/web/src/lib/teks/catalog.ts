@@ -1,152 +1,151 @@
 export type ReportingCategory = "RC1" | "RC2" | "RC3" | "RC4";
 
 export type TeksEntry = {
-  id: string; // e.g., "BIO.8B"
-  unit: number; // your unit guide number
-  strand: string; // short teacher grouping
-  title: string; // short student-friendly title
-  description: string; // teacher-facing description
+  id: string; // e.g., "B.5A"
+  unit: 1 | 2;
+  strand: string;
+  title: string;
+  description: string;
+  teaPriority: "SEP" | "SEP (Priority)" | "Content" | "Priority Content";
 };
 
 export const RC_LABELS: Record<ReportingCategory, string> = {
-  RC1: "Cell Structure & Function",
-  RC2: "Mechanisms of Genetics",
-  RC3: "Biological Evolution & Classification",
-  RC4: "Biological Processes & Systems",
+  RC1: "Biomolecules and Cells",
+  RC2: "Cellular Processes and Energy",
+  RC3: "DNA, RNA, and Protein Synthesis",
+  RC4: "Gene Expression and Mutation",
 };
 
-// Starter catalog aligned to your uploaded unit guides (Units 2–10).
-// Expand as you add more TEKS.
+// FBISD-aligned starter catalog (Units 1-2 only)
 export const TEKS_CATALOG: Record<string, TeksEntry> = {
-  // Unit 2 (Cell Cycle & Differentiation) – BIO.6A–C
-  "BIO.6A": {
-    id: "BIO.6A",
+  "B.1A": {
+    id: "B.1A",
+    unit: 1,
+    strand: "Scientific and engineering practices",
+    title: "Ask questions and define problems",
+    description: "Ask questions and define problems based on observations.",
+    teaPriority: "SEP",
+  },
+  "B.1B": {
+    id: "B.1B",
+    unit: 1,
+    strand: "Scientific and engineering practices",
+    title: "Plan and conduct investigations",
+    description:
+      "Plan and conduct descriptive, comparative, and experimental investigations.",
+    teaPriority: "SEP (Priority)",
+  },
+  "B.1D": {
+    id: "B.1D",
+    unit: 1,
+    strand: "Scientific and engineering practices",
+    title: "Use appropriate lab tools",
+    description:
+      "Use appropriate tools including microscopes, gel electrophoresis, and PCR instrumentation.",
+    teaPriority: "SEP (Priority)",
+  },
+  "B.1G": {
+    id: "B.1G",
+    unit: 1,
+    strand: "Scientific and engineering practices",
+    title: "Develop and use models",
+    description: "Develop and use models to represent biological systems.",
+    teaPriority: "SEP",
+  },
+  "B.2A": {
+    id: "B.2A",
+    unit: 1,
+    strand: "Scientific and engineering practices",
+    title: "Model advantages and limitations",
+    description: "Identify model advantages and limitations.",
+    teaPriority: "SEP",
+  },
+  "B.3A": {
+    id: "B.3A",
+    unit: 1,
+    strand: "Scientific and engineering practices",
+    title: "Develop explanations from data",
+    description: "Develop explanations supported by data and models.",
+    teaPriority: "SEP (Priority)",
+  },
+  "B.3B": {
+    id: "B.3B",
+    unit: 1,
+    strand: "Scientific and engineering practices",
+    title: "Communicate explanations",
+    description: "Communicate scientific explanations clearly and accurately.",
+    teaPriority: "SEP",
+  },
+  "B.5A": {
+    id: "B.5A",
+    unit: 1,
+    strand: "Biomolecules",
+    title: "Biomolecule function and structure",
+    description:
+      "Relate the functions of carbohydrates, lipids, proteins, and nucleic acids to cell structure and function.",
+    teaPriority: "Priority Content",
+  },
+  "B.5B": {
+    id: "B.5B",
+    unit: 1,
+    strand: "Cells",
+    title: "Prokaryotic and eukaryotic cells",
+    description:
+      "Compare and contrast prokaryotic and eukaryotic cells and scientific explanations for cellular complexity.",
+    teaPriority: "Priority Content",
+  },
+  "B.5C": {
+    id: "B.5C",
+    unit: 1,
+    strand: "Cell transport",
+    title: "Homeostasis through transport",
+    description:
+      "Investigate homeostasis through cellular transport of molecules.",
+    teaPriority: "Content",
+  },
+  "B.11A": {
+    id: "B.11A",
+    unit: 1,
+    strand: "Energy conversions",
+    title: "Photosynthesis and respiration models",
+    description:
+      "Explain conservation of matter and energy transfer during photosynthesis and cellular respiration using models and equations.",
+    teaPriority: "Priority Content",
+  },
+  "B.11B": {
+    id: "B.11B",
+    unit: 1,
+    strand: "Enzymes",
+    title: "Role of enzymes",
+    description:
+      "Investigate and explain the role of enzymes in facilitating cellular processes.",
+    teaPriority: "Priority Content",
+  },
+  "B.7A": {
+    id: "B.7A",
     unit: 2,
-    strand: "Growth & differentiation",
-    title: "Cell cycle + DNA replication",
+    strand: "DNA structure",
+    title: "DNA components and traits",
     description:
-      "Explain the importance of the cell cycle to organism growth, including stages of the cell cycle and DNA replication models.",
+      "Identify DNA components and explain how nucleotide sequence specifies traits.",
+    teaPriority: "Content",
   },
-  "BIO.6B": {
-    id: "BIO.6B",
+  "B.7B": {
+    id: "B.7B",
     unit: 2,
-    strand: "Growth & differentiation",
-    title: "Cell differentiation",
-    description:
-      "Explain the process of cell specialization through cell differentiation, including the role of environmental factors.",
-  },
-  "BIO.6C": {
-    id: "BIO.6C",
-    unit: 2,
-    strand: "Growth & differentiation",
-    title: "Cell cycle disruptions (cancer)",
-    description:
-      "Relate disruptions of the cell cycle to how they lead to diseases such as cancer.",
-  },
-
-  // Unit 3 (From Cells to Organisms) – BIO.12A–B
-  "BIO.12A": {
-    id: "BIO.12A",
-    unit: 3,
-    strand: "Systems interactions",
-    title: "Animal system interactions",
-    description:
-      "Analyze interactions among animal systems that perform regulation, nutrient absorption, reproduction, and defense from injury/illness.",
-  },
-  "BIO.12B": {
-    id: "BIO.12B",
-    unit: 3,
-    strand: "Systems interactions",
-    title: "Plant system interactions",
-    description:
-      "Explain how plant systems that perform transport, reproduction, and response are facilitated by their structures.",
-  },
-
-  // Unit 4 (Gene Expression & Regulation) – BIO.7A–D
-  "BIO.7A": {
-    id: "BIO.7A",
-    unit: 4,
-    strand: "DNA → traits",
-    title: "DNA components + sequence → traits",
-    description:
-      "Identify components of DNA, explain how nucleotide sequence specifies some traits, and examine scientific explanations for the origin of DNA.",
-  },
-  "BIO.7B": {
-    id: "BIO.7B",
-    unit: 4,
     strand: "Gene expression",
-    title: "Transcription & translation",
+    title: "Protein synthesis models",
     description:
-      "Explain how information flows from DNA to RNA to protein through transcription and translation (gene expression and regulation).",
+      "Describe gene expression significance and explain protein synthesis using DNA/RNA models.",
+    teaPriority: "Priority Content",
   },
-  "BIO.7C": {
-    id: "BIO.7C",
-    unit: 4,
+  "B.7C": {
+    id: "B.7C",
+    unit: 2,
     strand: "Mutations",
-    title: "DNA changes + significance",
+    title: "DNA changes and significance",
     description:
-      "Identify and illustrate changes in DNA and evaluate the significance of these changes.",
-  },
-  "BIO.7D": {
-    id: "BIO.7D",
-    unit: 4,
-    strand: "Biotech tools",
-    title: "PCR, gels, genetic engineering",
-    description:
-      "Discuss the importance of molecular technologies such as PCR, gel electrophoresis, and genetic engineering used in research/engineering practices.",
-  },
-
-  // Unit 5 (Inheritance & Variation) – BIO.8A–B
-  "BIO.8A": {
-    id: "BIO.8A",
-    unit: 5,
-    strand: "Meiosis → variation",
-    title: "Meiosis increases diversity",
-    description:
-      "Analyze how chromosome reduction, independent assortment, and crossing over during meiosis increase diversity in sexually reproducing populations.",
-  },
-  "BIO.8B": {
-    id: "BIO.8B",
-    unit: 5,
-    strand: "Inheritance patterns",
-    title: "Predict outcomes (Punnett squares)",
-    description:
-      "Predict outcomes of genetic combinations using monohybrid/dihybrid crosses, including non-Mendelian traits.",
-  },
-
-  // Unit 6 (Mechanisms of Evolution) – BIO.10C–D
-  "BIO.10C": {
-    id: "BIO.10C",
-    unit: 6,
-    strand: "Speciation",
-    title: "Natural selection → speciation",
-    description:
-      "Analyze and evaluate how natural selection may lead to speciation.",
-  },
-  "BIO.10D": {
-    id: "BIO.10D",
-    unit: 6,
-    strand: "Evolution mechanisms",
-    title: "Other mechanisms change gene pools",
-    description:
-      "Analyze evolutionary mechanisms other than natural selection and their effect on a population gene pool.",
-  },
-
-  // Unit 10 (Biodiversity & Human Impacts) – BIO.13C–D
-  "BIO.13C": {
-    id: "BIO.13C",
-    unit: 10,
-    strand: "Ecosystem stability",
-    title: "Carbon & nitrogen cycles",
-    description:
-      "Explain the significance of the carbon and nitrogen cycles to ecosystem stability and analyze consequences of disrupting these cycles.",
-  },
-  "BIO.13D": {
-    id: "BIO.13D",
-    unit: 10,
-    strand: "Human impacts",
-    title: "Environmental change & biodiversity",
-    description:
-      "Explain how environmental change (including human activity) affects biodiversity and analyze how biodiversity changes impact ecosystem stability.",
+      "Identify and illustrate changes in DNA and evaluate significance of those changes.",
+    teaPriority: "Priority Content",
   },
 };

@@ -1,5 +1,7 @@
 export * from "./catalog";
 
+import { normalizeCanonicalTeks } from "@/lib/curriculumPolicy";
+
 import {
   RC_LABELS,
   TEKS_CATALOG,
@@ -8,7 +10,7 @@ import {
 } from "./catalog";
 
 export function normalizeTeksId(id: string): string {
-  return (id || "").trim().toUpperCase().replace(/\s+/g, "");
+  return normalizeCanonicalTeks(id);
 }
 
 export function getTeksEntry(id: string): TeksEntry | null {

@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProgressBar from "@/components/ui/ProgressBar";
 import { LEARNING_UNITS } from "@/lib/learningHubContent";
 import {
   MOCK_STUDENT_ASSIGNMENTS,
   type StudentAssignment,
 } from "@/lib/studentAssignments";
+import {
+  loadLearningProgress,
+  type LearningProgressMap,
+} from "@/lib/learningProgress";
+import { loadLearningSettings } from "@/lib/learningSettings";
 
 type LessonStatus = "not_started" | "in_progress" | "complete";
 
@@ -23,6 +28,7 @@ interface Microlesson {
   progress: number; // 0-100
   href: string;
   assignmentTitle?: string;
+  dueDateIso?: string;
   dueDateLabel?: string;
 }
 
@@ -37,6 +43,11 @@ function formatDueLabel(iso: string | null | undefined): string | undefined {
   if (diffDays === 1) return "Due tomorrow";
   if (diffDays < 0) return `Due ${Math.abs(diffDays)}d ago`;
   return `Due in ${diffDays}d`;
+}
+
+function dueSortValue(iso: string | null | undefined): number {
+  if (!iso) return Number.MAX_SAFE_INTEGER;
+  return new Date(iso).getTime();
 }
 
 function toLessonStatus(assignment?: StudentAssignment): LessonStatus {
@@ -109,6 +120,18 @@ interface LearningHubProps {
 
 export default function LearningHub({ streak, accuracy }: LearningHubProps) {
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [progressMap, setProgressMap] = useState<LearningProgressMap>({});
+  const [visibleUnitIds, setVisibleUnitIds] = useState<string[]>(
+    LEARNING_UNITS.map((unit) => unit.id),
+  );
+
+  useEffect(() => {
+    setProgressMap(loadLearningProgress());
+    const settings = loadLearningSettings(
+      LEARNING_UNITS.map((unit) => unit.id),
+    );
+    setVisibleUnitIds(settings.visibleUnitIds);
+  }, []);
 
   const learningAssignments = useMemo(
     () => MOCK_STUDENT_ASSIGNMENTS.filter((a) => a.kind === "assignment"),
@@ -116,13 +139,28 @@ export default function LearningHub({ streak, accuracy }: LearningHubProps) {
   );
 
   const lessons = useMemo<Microlesson[]>(() => {
-    return LEARNING_UNITS.flatMap((unit) => {
-      const linkedAssignment = learningAssignments.find((assignment) =>
-        assignment.teks.some((teks) => unit.teks.includes(teks)),
-      );
-
+    return LEARNING_UNITS.filter((unit) =>
+      visibleUnitIds.includes(unit.id),
+    ).flatMap((unit) => {
       return unit.lessons.map((lesson) => {
+        const assignmentId = unit.linkedAssignmentId;
+        const linkedAssignment = assignmentId
+          ? learningAssignments.find(
+              (assignment) => assignment.id === assignmentId,
+            )
+          : learningAssignments.find((assignment) =>
+              assignment.teks.some((teks) => unit.teks.includes(teks)),
+            );
+
         const status = toLessonStatus(linkedAssignment);
+        const persisted = progressMap[lesson.id];
+        const isComplete = persisted?.completed ?? false;
+        const resolvedStatus: LessonStatus = isComplete ? "complete" : status;
+        const resolvedProgress = Math.max(
+          persisted?.percent ?? 0,
+          toProgress(resolvedStatus, linkedAssignment),
+        );
+
         return {
           id: lesson.id,
           title: lesson.title,
@@ -131,18 +169,30 @@ export default function LearningHub({ streak, accuracy }: LearningHubProps) {
           teks: unit.teks[0] ?? "BIO",
           description: lesson.summary,
           durationMin: lesson.minutes,
-          status,
-          progress: toProgress(status, linkedAssignment),
+          status: resolvedStatus,
+          progress: resolvedProgress,
           href: `/student/learn/${unit.id}/${lesson.slug}`,
           assignmentTitle: linkedAssignment?.title,
+          dueDateIso: linkedAssignment?.dueDate ?? undefined,
           dueDateLabel: formatDueLabel(linkedAssignment?.dueDate),
         };
       });
     });
-  }, [learningAssignments]);
+  }, [learningAssignments, progressMap, visibleUnitIds]);
 
-  const visible =
-    filter === "all" ? lessons : lessons.filter((l) => l.status === filter);
+  const visible = (
+    filter === "all" ? lessons : lessons.filter((l) => l.status === filter)
+  ).sort((left, right) => {
+    if (left.status !== right.status) {
+      const order: Record<LessonStatus, number> = {
+        in_progress: 0,
+        not_started: 1,
+        complete: 2,
+      };
+      return order[left.status] - order[right.status];
+    }
+    return dueSortValue(left.dueDateIso) - dueSortValue(right.dueDateIso);
+  });
 
   const completedCount = lessons.filter((l) => l.status === "complete").length;
   const overallProgress =
@@ -200,7 +250,7 @@ export default function LearningHub({ streak, accuracy }: LearningHubProps) {
             key={f.key}
             type="button"
             onClick={() => setFilter(f.key)}
-            className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
+            className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors hover:scale-100 ${
               filter === f.key
                 ? "bg-slate-900 text-white border-slate-900"
                 : "bg-white text-slate-700 hover:bg-slate-50"
@@ -297,7 +347,7 @@ export default function LearningHub({ streak, accuracy }: LearningHubProps) {
         </div>
         <Link
           href="/student/assignments?kind=assignment"
-          className="rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition"
+          className="rounded-full bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors hover:scale-100"
         >
           Open Assignments
         </Link>

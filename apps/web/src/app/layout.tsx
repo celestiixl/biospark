@@ -2,6 +2,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import PageShell from "@/components/ui/PageShell";
 import ThemeToggle from "@/components/ia/ThemeToggle";
+import OfflineSupport from "@/components/common/OfflineSupport";
 
 const initThemeScript = `(() => {
   try {
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-dvh antialiased">
         <PageShell>{children}</PageShell>
         <ThemeToggle />
+        <OfflineSupport />
       </body>
     </html>
   );

@@ -16,281 +16,317 @@ export type LearningLesson = {
   keyTerms: string[];
 };
 
+export type LearningProgression = {
+  developing: string;
+  progressing: string;
+  proficient: string;
+  advanced: string;
+};
+
 export type LearningUnit = {
   id: string;
+  unitNumber: 1 | 2;
+  gradingPeriod: 1;
+  linkedAssignmentId?: string;
   title: string;
   teks: string[];
+  priorityTeks: string[];
   objective: string;
+  vocabulary: string[];
+  misconceptions: string[];
+  successCriteria: string[];
+  bigIdeas: string[];
+  essentialQuestions: string[];
+  learningProgression: LearningProgression;
+  contentVersion: string;
+  approvalStatus: "draft" | "approved";
+  changeLog: { date: string; note: string }[];
   lessons: LearningLesson[];
+};
+
+export const LESSON_ASSIGNMENT_MAP: Record<string, string> = {
+  "u1-l1": "asgn-u1-core",
+  "u1-l2": "asgn-u1-core",
+  "u1-l3": "asgn-u1-core",
+  "u2-l1": "asgn-u2-core",
+  "u2-l2": "asgn-u2-core",
+  "u2-l3": "asgn-u2-core",
 };
 
 export const LEARNING_UNITS: LearningUnit[] = [
   {
-    id: "cell-structure-function",
-    title: "Cell Structure & Function",
-    teks: ["BIO.5A", "BIO.5B", "BIO.5C"],
+    id: "unit-1",
+    unitNumber: 1,
+    gradingPeriod: 1,
+    linkedAssignmentId: "asgn-u1-core",
+    title: "Biomolecules and Cells",
+    teks: ["B.1B", "B.1D", "B.3A", "B.5A", "B.5B", "B.5C", "B.11A", "B.11B"],
+    priorityTeks: ["B.1B", "B.1D", "B.3A", "B.5A", "B.5B", "B.11A", "B.11B"],
     objective:
-      "Explain how cell structures work together and how transport supports homeostasis.",
+      "Explain how biomolecules, cells, transport, and enzyme-driven energy processes support life and homeostasis.",
+    vocabulary: [
+      "amino acid",
+      "carbohydrate",
+      "lipid",
+      "nucleic acid",
+      "enzyme",
+      "homeostasis",
+      "photosynthesis",
+      "cellular respiration",
+    ],
+    misconceptions: [
+      "All fats are unhealthy",
+      "DNA is only in the nucleus",
+      "All molecules pass freely through the cell membrane",
+      "ATP is stored long-term in cells",
+    ],
+    successCriteria: [
+      "Students can compare biomolecule functions in cells.",
+      "Students can model cellular transport and homeostasis.",
+      "Students can explain matter and energy transfer in photosynthesis and respiration.",
+    ],
+    bigIdeas: [
+      "Structure and function are linked in biomolecules and organelles.",
+      "Cells regulate internal balance through selective transport and enzyme action.",
+    ],
+    essentialQuestions: [
+      "How do biomolecule functions determine their roles in cells?",
+      "How do cells maintain balance while transferring matter and energy?",
+    ],
+    learningProgression: {
+      developing:
+        "Recognizes key biomolecules and names major organelles and transport terms.",
+      progressing:
+        "Describes biomolecule roles and explains basic transport patterns with examples.",
+      proficient:
+        "Compares cell structures and uses evidence/equations for energy conversions.",
+      advanced:
+        "Analyzes disruptions to transport/enzyme systems and evaluates biological data.",
+    },
+    contentVersion: "v2.0",
+    approvalStatus: "approved",
+    changeLog: [
+      { date: "2026-03-05", note: "Aligned to FBISD Unit 1 TEKS scope." },
+    ],
     lessons: [
       {
         id: "u1-l1",
-        slug: "cell-organelles",
-        title: "Cell Organelles: What Each Part Does",
-        minutes: 12,
+        slug: "biomolecules-and-cell-structure",
+        title: "Biomolecules and Cell Structure",
+        minutes: 14,
         type: "Reading",
         summary:
-          "A textbook-style walkthrough of nucleus, mitochondria, ribosomes, and membranes with real-world analogies.",
+          "Relates carbohydrate, lipid, protein, and nucleic acid functions to cell structures and processes.",
         sections: [
           {
-            heading: "Big Idea",
+            heading: "Biomolecule Roles",
             body: [
-              "Cells are organized systems. Each organelle has a role, but the roles only make sense when seen together.",
-              "You can think of a cell like a city: the nucleus stores instructions, ribosomes build products, and mitochondria power the system.",
+              "Carbohydrates provide short-term energy and structural support in some organisms.",
+              "Lipids support long-term energy storage and membrane structure.",
+              "Proteins and nucleic acids support cellular function and information flow.",
             ],
           },
           {
-            heading: "How Organelles Coordinate",
+            heading: "Cell Structure Connections",
             body: [
-              "DNA in the nucleus provides directions for proteins. Ribosomes read those directions and build proteins.",
-              "The endoplasmic reticulum and Golgi apparatus modify and transport those proteins to where they are needed.",
-            ],
-          },
-          {
-            heading: "Why It Matters",
-            body: [
-              "When one organelle fails, the whole system can be affected. That is why diseases often involve multiple cell functions, not just one part.",
+              "Organelles depend on biomolecule structure for specific functions.",
+              "Changes in molecule structure can disrupt normal cellular behavior.",
             ],
           },
         ],
-        keyTerms: ["organelle", "nucleus", "ribosome", "mitochondria"],
+        keyTerms: ["carbohydrate", "lipid", "protein", "nucleic acid"],
       },
       {
         id: "u1-l2",
-        slug: "membrane-transport",
-        title: "Membrane Transport Mini Lecture",
-        minutes: 8,
+        slug: "cell-transport-and-homeostasis",
+        title: "Cell Transport and Homeostasis",
+        minutes: 11,
         type: "Lecture",
         summary:
-          "Diffusion, osmosis, and active transport explained with annotated diagrams and examples.",
+          "Compares passive and active transport and investigates how transport supports cellular homeostasis.",
         sections: [
           {
-            heading: "Passive vs Active",
+            heading: "Transport Types",
             body: [
-              "Passive transport moves substances down a concentration gradient without energy input.",
-              "Active transport moves substances against the gradient and requires ATP.",
+              "Passive transport moves substances down concentration gradients without ATP.",
+              "Active transport moves substances against gradients using ATP.",
             ],
           },
           {
-            heading: "Osmosis in Context",
+            heading: "Homeostasis",
             body: [
-              "Water movement across membranes affects cell shape and function.",
-              "In biology labs, tonicity scenarios help predict whether cells swell, shrink, or stay stable.",
+              "Transport mechanisms stabilize internal cell conditions.",
+              "Osmosis scenarios help predict changes in cell volume and function.",
             ],
           },
         ],
-        keyTerms: ["diffusion", "osmosis", "active transport", "ATP"],
+        keyTerms: ["homeostasis", "osmosis", "active transport", "diffusion"],
       },
       {
         id: "u1-l3",
-        slug: "guided-notes-cell-systems",
-        title: "Guided Notes: Cell Systems",
-        minutes: 10,
+        slug: "enzymes-photosynthesis-respiration",
+        title: "Enzymes, Photosynthesis, and Respiration",
+        minutes: 12,
         type: "Notes",
         summary:
-          "Complete scaffolded notes and key terms to prepare for class discussion and quick checks.",
+          "Explains enzyme roles and models conservation of matter and energy transfer in photosynthesis and cellular respiration.",
         sections: [
           {
-            heading: "Complete the Pattern",
+            heading: "Enzymes in Cell Processes",
             body: [
-              "Structure supports function: membrane structure controls what enters and exits.",
-              "Energy demand affects organelle activity: high-demand cells often contain more mitochondria.",
+              "Enzymes lower activation energy and increase reaction efficiency.",
+              "Enzyme shape and environmental conditions affect reaction rate.",
             ],
           },
           {
-            heading: "Self-Check",
+            heading: "Energy Conversion Models",
             body: [
-              "Can you explain how protein synthesis depends on both nucleus and ribosomes?",
-              "Can you compare one passive and one active transport example?",
+              "Photosynthesis stores energy in glucose through chemical reactions.",
+              "Cellular respiration releases usable energy from glucose for ATP production.",
+            ],
+          },
+        ],
+        keyTerms: ["enzyme", "photosynthesis", "cellular respiration", "ATP"],
+      },
+    ],
+  },
+  {
+    id: "unit-2",
+    unitNumber: 2,
+    gradingPeriod: 1,
+    linkedAssignmentId: "asgn-u2-core",
+    title: "Nucleic Acids and Protein Synthesis",
+    teks: ["B.7A", "B.7B", "B.7C"],
+    priorityTeks: ["B.7A", "B.7B", "B.7C"],
+    objective:
+      "Model how DNA structure and sequence drive gene expression and protein synthesis, and evaluate mutation significance.",
+    vocabulary: [
+      "transcription",
+      "translation",
+      "codon",
+      "anticodon",
+      "base pairs",
+      "mRNA",
+      "mutation",
+      "frameshift mutation",
+    ],
+    misconceptions: [
+      "DNA is only composed of nucleotides (missing sugar-phosphate backbone)",
+      "Nitrogenous bases are interchangeable",
+      "RNA and DNA are identical molecules",
+      "A change in DNA always causes a visible trait change",
+    ],
+    successCriteria: [
+      "Students can identify DNA/RNA components and base-pairing rules.",
+      "Students can explain transcription and translation using models.",
+      "Students can illustrate point and frameshift mutations and predict likely impacts.",
+    ],
+    bigIdeas: [
+      "Genetic information flows from DNA to RNA to protein.",
+      "Changes in sequence can alter gene expression and protein outcomes.",
+    ],
+    essentialQuestions: [
+      "How does DNA sequence specify traits through protein synthesis?",
+      "When are mutation changes biologically significant?",
+    ],
+    learningProgression: {
+      developing:
+        "Recognizes DNA/RNA terms and identifies basic mutation vocabulary.",
+      progressing:
+        "Illustrates transcription/translation steps and simple mutation effects.",
+      proficient:
+        "Predicts impacts of sequence changes on protein outcomes with models.",
+      advanced:
+        "Evaluates mutation significance with evidence from biological scenarios.",
+    },
+    contentVersion: "v2.0",
+    approvalStatus: "approved",
+    changeLog: [
+      { date: "2026-03-05", note: "Aligned to FBISD Unit 2 TEKS scope." },
+    ],
+    lessons: [
+      {
+        id: "u2-l1",
+        slug: "dna-structure-and-replication",
+        title: "DNA Structure and Replication",
+        minutes: 12,
+        type: "Reading",
+        summary:
+          "Identifies DNA components, base pairing, and replication fundamentals.",
+        sections: [
+          {
+            heading: "DNA Components",
+            body: [
+              "DNA includes a sugar-phosphate backbone and nitrogenous bases.",
+              "Base-pairing specificity supports accurate information storage.",
+            ],
+          },
+          {
+            heading: "Replication Basics",
+            body: [
+              "Replication copies DNA before cell division using enzyme systems.",
+              "Accurate copying is essential for trait continuity.",
+            ],
+          },
+        ],
+        keyTerms: ["double helix", "base pairs", "DNA polymerase", "helicase"],
+      },
+      {
+        id: "u2-l2",
+        slug: "transcription-and-translation",
+        title: "Transcription and Translation",
+        minutes: 11,
+        type: "Lecture",
+        summary:
+          "Describes gene expression and explains protein synthesis using DNA/RNA models.",
+        sections: [
+          {
+            heading: "Transcription",
+            body: [
+              "RNA polymerase builds mRNA using DNA as a template.",
+              "mRNA carries codon information for protein assembly.",
+            ],
+          },
+          {
+            heading: "Translation",
+            body: [
+              "Ribosomes and tRNA decode codons into amino acid chains.",
+              "Codon changes can alter resulting proteins.",
+            ],
+          },
+        ],
+        keyTerms: ["transcription", "translation", "mRNA", "codon"],
+      },
+      {
+        id: "u2-l3",
+        slug: "mutations-and-significance",
+        title: "Mutations and Their Significance",
+        minutes: 10,
+        type: "Notes",
+        summary:
+          "Illustrates point and frameshift mutations and evaluates likely effects on proteins and traits.",
+        sections: [
+          {
+            heading: "Mutation Types",
+            body: [
+              "Point mutations affect individual bases and may be silent, missense, or nonsense.",
+              "Frameshift mutations can alter many downstream codons.",
+            ],
+          },
+          {
+            heading: "Significance",
+            body: [
+              "Not all mutations cause visible phenotype changes.",
+              "Impact depends on where and how the sequence changes.",
             ],
           },
         ],
         keyTerms: [
-          "homeostasis",
-          "selective permeability",
-          "protein synthesis",
+          "mutation",
+          "point mutation",
+          "frameshift mutation",
+          "gene expression",
         ],
-      },
-    ],
-  },
-  {
-    id: "genetics-inheritance",
-    title: "Genetics & Inheritance",
-    teks: ["BIO.7A", "BIO.7B", "BIO.8A"],
-    objective:
-      "Connect DNA structure to inheritance patterns and predict outcomes from genetic data.",
-    lessons: [
-      {
-        id: "u2-l1",
-        slug: "dna-to-trait",
-        title: "DNA to Trait: Core Reading",
-        minutes: 14,
-        type: "Reading",
-        summary:
-          "Textbook-style explanation of DNA, genes, proteins, and how traits are expressed.",
-        sections: [
-          {
-            heading: "Information Flow",
-            body: [
-              "Genetic information moves from DNA to RNA to protein. Proteins create most visible traits.",
-              "Changes in DNA sequence can alter proteins and therefore alter observable traits.",
-            ],
-          },
-          {
-            heading: "Genes and Variation",
-            body: [
-              "Different versions of a gene are alleles. Allele combinations influence phenotype.",
-              "Variation in populations provides the raw material for inheritance patterns and evolution.",
-            ],
-          },
-        ],
-        keyTerms: ["gene", "allele", "phenotype", "transcription"],
-      },
-      {
-        id: "u2-l2",
-        slug: "punnett-squares",
-        title: "Punnett Squares in 10 Minutes",
-        minutes: 10,
-        type: "Lecture",
-        summary:
-          "A concise lecture on dominant/recessive traits and probability with worked examples.",
-        sections: [
-          {
-            heading: "Modeling Outcomes",
-            body: [
-              "Punnett squares show all possible allele combinations for offspring.",
-              "Use probability language carefully: predictions describe likelihood, not guarantees.",
-            ],
-          },
-          {
-            heading: "Interpreting Ratios",
-            body: [
-              "Genotypic ratios track allele combinations, while phenotypic ratios track visible traits.",
-              "Some traits are not simple dominant-recessive; always check the trait model before predicting.",
-            ],
-          },
-        ],
-        keyTerms: ["dominant", "recessive", "genotype", "probability"],
-      },
-      {
-        id: "u2-l3",
-        slug: "genetics-vocabulary-notes",
-        title: "Vocabulary + Concept Notes",
-        minutes: 9,
-        type: "Notes",
-        summary:
-          "Practice-ready notes for genotype, phenotype, allele, and mutation with checkpoints.",
-        sections: [
-          {
-            heading: "Vocabulary Anchors",
-            body: [
-              "Genotype = genetic code combination. Phenotype = observable trait.",
-              "Mutation = DNA sequence change; effects range from neutral to significant.",
-            ],
-          },
-          {
-            heading: "Checkpoint Prompts",
-            body: [
-              "Explain one way mutations can affect proteins.",
-              "Give one example where genotype and phenotype are not the same word-for-word.",
-            ],
-          },
-        ],
-        keyTerms: ["mutation", "trait", "homozygous", "heterozygous"],
-      },
-    ],
-  },
-  {
-    id: "evolution-ecology",
-    title: "Evolution & Ecology",
-    teks: ["BIO.9A", "BIO.10A", "BIO.13A"],
-    objective:
-      "Use evidence to explain natural selection and ecosystem interactions over time.",
-    lessons: [
-      {
-        id: "u3-l1",
-        slug: "natural-selection-reading",
-        title: "Natural Selection Reading",
-        minutes: 11,
-        type: "Reading",
-        summary:
-          "Textbook chapter excerpt on variation, selection pressures, and adaptation.",
-        sections: [
-          {
-            heading: "Variation and Fitness",
-            body: [
-              "Individuals in a population vary. Some variations improve survival in specific environments.",
-              "Those individuals are more likely to reproduce and pass those traits forward.",
-            ],
-          },
-          {
-            heading: "Evidence",
-            body: [
-              "Fossils, DNA, and observed population changes all provide evidence for evolutionary processes.",
-            ],
-          },
-        ],
-        keyTerms: ["adaptation", "selection pressure", "fitness", "evidence"],
-      },
-      {
-        id: "u3-l2",
-        slug: "food-webs-energy-flow",
-        title: "Food Webs and Energy Flow Lecture",
-        minutes: 9,
-        type: "Lecture",
-        summary:
-          "Visual lecture connecting trophic levels, energy transfer, and ecosystem balance.",
-        sections: [
-          {
-            heading: "Energy Transfer",
-            body: [
-              "Energy decreases as it moves up trophic levels; only a fraction is transferred each step.",
-              "That constraint shapes population sizes and ecosystem structure.",
-            ],
-          },
-          {
-            heading: "Stability",
-            body: [
-              "More diverse food webs are often more resilient to disruption.",
-              "Removing one species can ripple across many relationships.",
-            ],
-          },
-        ],
-        keyTerms: ["trophic level", "producer", "consumer", "resilience"],
-      },
-      {
-        id: "u3-l3",
-        slug: "unit-wrap-up-notes",
-        title: "Unit Wrap-Up Notes",
-        minutes: 7,
-        type: "Notes",
-        summary:
-          "Quick-reference notes and review prompts for class exit tickets and assessments.",
-        sections: [
-          {
-            heading: "Review Prompts",
-            body: [
-              "Describe one adaptation and explain why it helps in a specific environment.",
-              "Trace one example of energy flow through a simple food chain.",
-            ],
-          },
-          {
-            heading: "Exam Readiness",
-            body: [
-              "Focus on cause-and-effect language and evidence-based explanations.",
-            ],
-          },
-        ],
-        keyTerms: ["biodiversity", "ecosystem", "energy flow", "adaptation"],
       },
     ],
   },
@@ -305,4 +341,20 @@ export function getLessonBySlug(
   lessonSlug: string,
 ): LearningLesson | undefined {
   return unit.lessons.find((lesson) => lesson.slug === lessonSlug);
+}
+
+export function getLessonById(
+  lessonId: string,
+): { unit: LearningUnit; lesson: LearningLesson } | undefined {
+  for (const unit of LEARNING_UNITS) {
+    const lesson = unit.lessons.find((row) => row.id === lessonId);
+    if (lesson) return { unit, lesson };
+  }
+  return undefined;
+}
+
+export function getUnitsByGradingPeriod(
+  gradingPeriod: 1 | 2 | 3 | 4,
+): LearningUnit[] {
+  return LEARNING_UNITS.filter((unit) => unit.gradingPeriod === gradingPeriod);
 }
