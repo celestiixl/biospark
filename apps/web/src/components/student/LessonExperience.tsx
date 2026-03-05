@@ -9,6 +9,8 @@ import {
   getLessonProgress,
   updateLessonProgress,
 } from "@/lib/learningProgress";
+import PhenomenonBanner from "@/components/student/PhenomenonBanner";
+import { getPhenomenonForLesson } from "@/lib/texasPhenomena";
 
 type LessonExperienceProps = {
   unit: LearningUnit;
@@ -173,6 +175,8 @@ export default function LessonExperience({
     });
   }
 
+  const phenomenon = getPhenomenonForLesson(lesson.id);
+
   return (
     <main className="ia-vh-page relative min-h-dvh px-3 py-3 text-slate-900 sm:px-4 sm:py-4">
       <div className="mx-auto grid w-full max-w-4xl gap-3">
@@ -244,6 +248,8 @@ export default function LessonExperience({
             ))}
           </div>
         </section>
+
+        {phenomenon ? <PhenomenonBanner phenomenon={phenomenon} /> : null}
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="space-y-5">
