@@ -11,6 +11,8 @@ import {
 } from "@/lib/learningProgress";
 import PhenomenonBanner from "@/components/student/PhenomenonBanner";
 import { getPhenomenonForLesson } from "@/lib/texasPhenomena";
+import LessonNotebook from "@/components/student/LessonNotebook";
+import { loadStudentProfile } from "@/lib/studentProfile";
 
 const HOOK_DISMISSED_KEY = "biospark.hook.dismissed.v1";
 
@@ -99,6 +101,15 @@ export default function LessonExperience({
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<number | null>(null);
+  // Lazy-initialize student ID from profile (read-once on mount)
+  const [studentId] = useState<string>(() => {
+    try {
+      const profile = loadStudentProfile();
+      return profile.name || "anonymous";
+    } catch {
+      return "anonymous";
+    }
+  });
 
   useEffect(() => {
     const saved = getLessonProgress(lesson.id);
@@ -325,6 +336,9 @@ export default function LessonExperience({
             ))}
           </div>
         </section>
+
+        {/* Lab Notebook — between lesson content and quick-checks */}
+        <LessonNotebook lessonSlug={lesson.slug} studentId={studentId} />
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="text-sm font-semibold text-slate-900">
