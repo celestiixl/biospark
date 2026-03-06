@@ -134,6 +134,7 @@ export function buildLearningFunnel(
 export type StuckPoint = {
   lessonId: string;
   lessonTitle: string;
+  lessonSlug: string;
   avgScore: number;
   attempts: number;
   href: string;
@@ -149,6 +150,7 @@ export function buildStuckPoints(
       return {
         lessonId: lesson.id,
         lessonTitle: lesson.title,
+        lessonSlug: lesson.slug,
         avgScore: row?.checkScore ?? 0,
         attempts: row?.checkAttempts ?? 0,
         href: `/student/learn/${unit.id}/${lesson.slug}`,

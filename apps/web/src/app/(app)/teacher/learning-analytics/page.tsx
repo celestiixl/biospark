@@ -4,11 +4,21 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { buildLearningFunnel, buildStuckPoints } from "@/lib/learningInsights";
 import { loadLearningProgress } from "@/lib/learningProgress";
+import TeacherNotebookPeek from "@/components/teacher/TeacherNotebookPeek";
+import { loadStudentProfile } from "@/lib/studentProfile";
 
 export default function TeacherLearningAnalyticsPage() {
   const progress = useMemo(() => loadLearningProgress(), []);
   const funnel = useMemo(() => buildLearningFunnel(progress), [progress]);
   const stuck = useMemo(() => buildStuckPoints(progress, 6), [progress]);
+  const studentId = useMemo(() => {
+    try {
+      const profile = loadStudentProfile();
+      return profile.name || "anonymous";
+    } catch {
+      return "anonymous";
+    }
+  }, []);
 
   const startedPct = funnel.totalLessons
     ? Math.round((funnel.started / funnel.totalLessons) * 100)
@@ -73,18 +83,24 @@ export default function TeacherLearningAnalyticsPage() {
             <div className="text-sm text-slate-500">No stuck points yet.</div>
           ) : (
             stuck.map((row) => (
-              <Link
-                key={row.lessonId}
-                href={row.href}
-                className="rounded-2xl border border-amber-200 bg-amber-50 p-3 hover:bg-amber-100"
-              >
-                <div className="text-sm font-semibold text-amber-900">
-                  {row.lessonTitle}
-                </div>
-                <div className="text-xs text-amber-800">
-                  Avg score: {row.avgScore}% • Attempts: {row.attempts}
-                </div>
-              </Link>
+              <div key={row.lessonId} className="rounded-2xl border border-amber-200 bg-amber-50 p-3">
+                <Link
+                  href={row.href}
+                  className="block hover:underline"
+                >
+                  <div className="text-sm font-semibold text-amber-900">
+                    {row.lessonTitle}
+                  </div>
+                  <div className="text-xs text-amber-800">
+                    Avg score: {row.avgScore}% • Attempts: {row.attempts}
+                  </div>
+                </Link>
+                <TeacherNotebookPeek
+                  studentId={studentId}
+                  lessonSlug={row.lessonSlug}
+                  lessonTitle={row.lessonTitle}
+                />
+              </div>
             ))
           )}
         </div>
