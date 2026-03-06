@@ -146,6 +146,12 @@ export default function TeacherDashboardPage() {
                   >
                     Learning Analytics
                   </Link>
+                  <Link
+                    href="/student/learn/simulations/population-genetics"
+                    className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 sm:col-span-2"
+                  >
+                    🧬 Population Genetics Simulator
+                  </Link>
                 </div>
               </Card>
             </div>
