@@ -360,6 +360,25 @@ export default function StudentDashboard() {
               </div>
             </section>
 
+            <section className="mt-5 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-indigo-900">
+                    🧬 Population Genetics Simulator
+                  </div>
+                  <div className="mt-1 text-xs text-indigo-700">
+                    Explore Hardy-Weinberg equilibrium, genetic drift, natural selection, and bottleneck events interactively.
+                  </div>
+                </div>
+                <Link
+                  href="/student/learn/simulations/population-genetics"
+                  className="rounded-full bg-indigo-700 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-600"
+                >
+                  Launch Simulation
+                </Link>
+              </div>
+            </section>
+
             <section className="mt-5 grid gap-4 md:grid-cols-3">
               <Card variant="sm">
                 <div className="text-sm font-semibold text-slate-800">

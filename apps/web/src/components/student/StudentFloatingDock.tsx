@@ -3,6 +3,7 @@
 import { FloatingDock } from "@/components/ui/floating-dock";
 import {
   IconBook2,
+  IconChartDots3,
   IconFlask2,
   IconLayoutDashboard,
   IconListCheck,
@@ -27,6 +28,11 @@ export default function StudentFloatingDock() {
       title: "Assignments",
       icon: <IconListCheck className="h-full w-full text-neutral-600 dark:text-neutral-300" />,
       href: "/student/assignments",
+    },
+    {
+      title: "Simulations",
+      icon: <IconChartDots3 className="h-full w-full text-neutral-600 dark:text-neutral-300" />,
+      href: "/student/learn/simulations/population-genetics",
     },
     {
       title: "Assessment Lab",
