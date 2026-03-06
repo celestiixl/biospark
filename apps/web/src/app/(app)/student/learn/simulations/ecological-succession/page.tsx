@@ -169,8 +169,10 @@ export default function EcologicalSuccessionPage() {
           score: 1,
           lessonSlug: LESSON_SLUG,
         }),
-      }).catch(() => {
-        // Mastery POST is best-effort; ignore errors silently
+      }).catch((err) => {
+        if (process.env.NODE_ENV !== "production") {
+          console.error("[EcologicalSuccession] mastery POST failed:", err);
+        }
       });
     }
   }, [isAtClimaxStage]);
@@ -228,9 +230,12 @@ export default function EcologicalSuccessionPage() {
           "Good attempt! Remember: secondary succession occurs when a disturbance removes organisms but leaves the soil intact — unlike primary succession which starts on bare rock.",
         );
       }
-    } catch {
+    } catch (err) {
+      if (process.env.NODE_ENV !== "production") {
+        console.error("[EcologicalSuccession] reflection scoring failed:", err);
+      }
       setReflectionFeedback(
-        "Reflection submitted! Key idea: this is secondary succession because the disturbance left soil in place, allowing faster recovery than primary succession.",
+        "Unable to score your reflection right now. Key idea: this is secondary succession because the disturbance left soil in place, allowing faster recovery than primary succession.",
       );
     }
     setReflectionSubmitted(true);

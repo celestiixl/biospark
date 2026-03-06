@@ -201,7 +201,7 @@ export default function SuccessionScene({
     <svg
       viewBox="0 0 600 280"
       xmlns="http://www.w3.org/2000/svg"
-      aria-label={`Ecosystem scene: ${stage.name}`}
+      aria-label={`Ecosystem scene: ${stage.name} — canopy cover ${Math.round(canopyCover * 100)}%, soil health ${Math.round(soilHealth * 100)}%`}
       role="img"
       style={{ width: "100%", height: "auto", display: "block" }}
     >

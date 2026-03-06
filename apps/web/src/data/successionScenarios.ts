@@ -23,7 +23,7 @@ export const successionScenarios: SuccessionScenario[] = [
     },
     teks: ["B.6D", "B.11A"],
     phenomenon:
-      "On September 4, 2011, the Bastrop Complex Fire swept through the Lost Pines Forest — an isolated loblolly pine ecosystem 100 miles from the main East Texas Piney Woods. The blaze consumed 96% of Bastrop State Park and forced the evacuation of 5,500 residents. Park superintendent Travis Greer estimated full forest recovery would take approximately 70 years.",
+      "On September 4, 2011, the Bastrop Complex Fire swept through the Lost Pines Forest — an isolated loblolly pine ecosystem 100 miles from the main East Texas Piney Woods. The blaze consumed 96% of Bastrop State Park and forced the evacuation of 5,500 residents. Park officials estimated full forest recovery would take approximately 70 years.",
     stages: [
       {
         id: "bastrop-stage-0",
@@ -124,7 +124,7 @@ export const successionScenarios: SuccessionScenario[] = [
     },
     teks: ["B.6D", "B.11A"],
     phenomenon:
-      "In August 2017, Hurricane Harvey stalled over Houston and released a record 51 inches of rain in four days. The resulting floods submerged the city's bayou ecosystems and riparian corridors for weeks, uprooting vegetation, saturating soils with anaerobic conditions, and disrupting the complex food webs that depend on healthy wetland habitats.",
+      "In August 2017, Hurricane Harvey stalled over Houston and released a record 51 inches of rain in four days. The resulting floods submerged the city's bayou ecosystems and riparian corridors for weeks, uprooting vegetation, creating anaerobic soil conditions, and disrupting the complex food webs that depend on healthy wetland habitats.",
     stages: [
       {
         id: "harvey-stage-0",
