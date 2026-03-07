@@ -1158,7 +1158,14 @@
               repeatCount="indefinite"
             />
           </path>
-          <ellipse cx="372" cy="224" rx="72" ry="12" fill="#7dd3fc" opacity=".07">
+          <ellipse
+            cx="372"
+            cy="224"
+            rx="72"
+            ry="12"
+            fill="#7dd3fc"
+            opacity=".07"
+          >
             <animateTransform
               attributeName="transform"
               type="translate"
@@ -1167,7 +1174,14 @@
               repeatCount="indefinite"
             />
           </ellipse>
-          <ellipse cx="520" cy="276" rx="96" ry="14" fill="#38bdf8" opacity=".05">
+          <ellipse
+            cx="520"
+            cy="276"
+            rx="96"
+            ry="14"
+            fill="#38bdf8"
+            opacity=".05"
+          >
             <animateTransform
               attributeName="transform"
               type="translate"
@@ -1211,7 +1225,14 @@
         </circle>
 
         <!-- oxygen depletion pocket below bloom -->
-        <ellipse cx="622" cy="286" rx="156" ry="48" fill="url(#iOxyDrop)" opacity=".34">
+        <ellipse
+          cx="622"
+          cy="286"
+          rx="156"
+          ry="48"
+          fill="url(#iOxyDrop)"
+          opacity=".34"
+        >
           <animate
             attributeName="ry"
             values="48;52;48"
@@ -2580,7 +2601,14 @@
         <rect x="615" y="0" width="285" height="420" fill="url(#cBloom)" />
         <!-- Shoreline divider -->
         <rect x="612" y="220" width="5" height="200" fill="#1a3c08" />
-        <rect x="614" y="0" width="2" height="420" fill="#38bdf8" opacity=".2" />
+        <rect
+          x="614"
+          y="0"
+          width="2"
+          height="420"
+          fill="#38bdf8"
+          opacity=".2"
+        />
         <!-- Ocean surface shimmer + gentle current drift -->
         <path
           d="M615,220 Q662,214 712,219 Q780,225 900,218"
@@ -2842,161 +2870,134 @@
           opacity=".35"
         />
 
-        <!-- ══ COW — proper dairy cow, center stage (x≈390, y≈190) ══ -->
-        <g transform="translate(390,188)">
-          <!-- BODY — large horizontal oval -->
-          <ellipse cx="0" cy="14" rx="50" ry="24" fill="#f0ece0" />
-          <!-- Black patches on body -->
+        <!-- ══ COW — cohesive silhouette (legs connected to body) ══ -->
+        <g transform="translate(392,192)">
+          <!-- body and underbelly -->
+          <ellipse cx="0" cy="12" rx="56" ry="25" fill="#f2eee2" />
           <ellipse
-            cx="-18"
-            cy="6"
-            rx="18"
-            ry="13"
-            fill="#2a2218"
-            opacity=".72"
-          />
-          <ellipse
-            cx="18"
-            cy="24"
-            rx="14"
-            ry="9"
-            fill="#2a2218"
-            opacity=".58"
-          />
-          <ellipse
-            cx="-5"
-            cy="28"
-            rx="10"
-            ry="7"
-            fill="#2a2218"
-            opacity=".45"
-          />
-          <!-- UDDER (pink, under belly) -->
-          <ellipse cx="-6" cy="37" rx="18" ry="9" fill="#f0b0a0" />
-          <line
-            x1="-16"
-            y1="46"
-            x2="-17"
-            y2="54"
-            stroke="#d89080"
-            stroke-width="2.2"
-            stroke-linecap="round"
-          />
-          <line
-            x1="-8"
-            y1="46"
-            x2="-8"
-            y2="55"
-            stroke="#d89080"
-            stroke-width="2.2"
-            stroke-linecap="round"
-          />
-          <line
-            x1="0"
-            y1="46"
-            x2="1"
-            y2="54"
-            stroke="#d89080"
-            stroke-width="2.2"
-            stroke-linecap="round"
-          />
-          <!-- TAIL (left side) -->
-          <path
-            d="M-50,10 Q-62,4 -60,20 Q-58,30 -54,34"
-            stroke="#c8b880"
-            stroke-width="3"
-            fill="none"
-            stroke-linecap="round"
-          />
-          <ellipse cx="-54" cy="36" rx="6" ry="4" fill="#c8b880" />
-          <!-- NECK -->
-          <ellipse cx="38" cy="2" rx="16" ry="18" fill="#f0ece0" />
-          <!-- BLACK NECK PATCH -->
-          <ellipse
-            cx="40"
-            cy="2"
-            rx="10"
+            cx="-22"
+            cy="9"
+            rx="17"
             ry="12"
             fill="#2a2218"
-            opacity=".45"
+            opacity=".68"
           />
-          <!-- HEAD (large, facing right) -->
-          <ellipse cx="58" cy="-10" rx="22" ry="18" fill="#f0ece0" />
-          <!-- Head patch -->
           <ellipse
-            cx="60"
-            cy="-8"
-            rx="14"
+            cx="17"
+            cy="24"
+            rx="15"
+            ry="10"
+            fill="#2a2218"
+            opacity=".56"
+          />
+          <ellipse
+            cx="-2"
+            cy="29"
+            rx="11"
+            ry="7"
+            fill="#2a2218"
+            opacity=".44"
+          />
+          <ellipse
+            cx="-8"
+            cy="35"
+            rx="20"
+            ry="8"
+            fill="#f0b0a0"
+            opacity=".92"
+          />
+          <path
+            d="M-34,35 H28"
+            stroke="#e2d9c6"
+            stroke-width="6"
+            stroke-linecap="round"
+          />
+
+          <!-- legs (start inside belly so they never look detached) -->
+          <rect x="-39" y="30" width="11" height="34" fill="#e8d8b0" rx="2" />
+          <rect x="-22" y="30" width="11" height="34" fill="#e8d8b0" rx="2" />
+          <rect x="4" y="30" width="11" height="34" fill="#e8d8b0" rx="2" />
+          <rect x="22" y="30" width="11" height="34" fill="#e8d8b0" rx="2" />
+          <rect x="-39" y="61" width="11" height="5" fill="#3a2a10" rx="1.5" />
+          <rect x="-22" y="61" width="11" height="5" fill="#3a2a10" rx="1.5" />
+          <rect x="4" y="61" width="11" height="5" fill="#3a2a10" rx="1.5" />
+          <rect x="22" y="61" width="11" height="5" fill="#3a2a10" rx="1.5" />
+
+          <!-- neck and head -->
+          <ellipse cx="38" cy="2" rx="16" ry="18" fill="#f2eee2" />
+          <ellipse
+            cx="40"
+            cy="1"
+            rx="10"
             ry="11"
             fill="#2a2218"
-            opacity=".48"
+            opacity=".42"
           />
-          <!-- SNOUT / muzzle area -->
-          <ellipse cx="76" cy="-4" rx="12" ry="9" fill="#e8c8b0" />
-          <!-- nostrils -->
-          <ellipse cx="72" cy="-3" rx="2.5" ry="2" fill="#8a5848" />
-          <ellipse cx="80" cy="-2" rx="2.5" ry="2" fill="#8a5848" />
-          <!-- Mouth -->
+          <ellipse cx="60" cy="-10" rx="23" ry="18" fill="#f2eee2" />
+          <ellipse
+            cx="62"
+            cy="-9"
+            rx="14"
+            ry="10"
+            fill="#2a2218"
+            opacity=".45"
+          />
+          <ellipse cx="79" cy="-4" rx="13" ry="9" fill="#e8c8b0" />
+          <ellipse cx="75" cy="-3" rx="2.3" ry="1.8" fill="#8a5848" />
+          <ellipse cx="83" cy="-2" rx="2.3" ry="1.8" fill="#8a5848" />
           <path
-            d="M70,4 Q76,8 82,4"
+            d="M72,4 Q79,8 86,4"
             stroke="#8a5848"
             stroke-width="1.4"
             fill="none"
           />
-          <!-- EYE — large expressive cow eye -->
-          <circle cx="50" cy="-18" r="6" fill="white" />
-          <circle cx="50" cy="-18" r="4" fill="#6b3a10" />
-          <circle cx="50" cy="-18" r="2.2" fill="#1a0800" />
-          <circle cx="51.5" cy="-19.5" r="1.2" fill="white" />
-          <!-- Eyelashes -->
-          <path
-            d="M44,-23 Q50,-27 56,-23"
-            stroke="#4a2c08"
-            stroke-width="1.5"
-            fill="none"
-          />
-          <!-- EAR -->
+
+          <!-- face details -->
+          <circle cx="52" cy="-18" r="5.5" fill="white" />
+          <circle cx="52" cy="-18" r="3.6" fill="#5b3412" />
+          <circle cx="52" cy="-18" r="1.9" fill="#1a0800" />
+          <circle cx="53.2" cy="-19.2" r="1" fill="white" />
           <ellipse
-            cx="40"
+            cx="42"
             cy="-26"
             rx="7"
             ry="5"
-            fill="#f0ece0"
-            transform="rotate(-25,40,-26)"
+            fill="#f2eee2"
+            transform="rotate(-25,42,-26)"
           />
           <ellipse
-            cx="40"
+            cx="42"
             cy="-26"
             rx="4"
             ry="2.8"
             fill="#e8c8b0"
-            transform="rotate(-25,40,-26)"
+            transform="rotate(-25,42,-26)"
           />
-          <!-- HORNS -->
           <path
-            d="M44,-28 Q38,-40 33,-35"
+            d="M46,-28 Q40,-38 35,-34"
             stroke="#c8b060"
-            stroke-width="3"
+            stroke-width="2.8"
             fill="none"
             stroke-linecap="round"
           />
           <path
-            d="M54,-28 Q60,-40 65,-34"
+            d="M56,-28 Q62,-38 67,-34"
             stroke="#c8b060"
-            stroke-width="3"
+            stroke-width="2.8"
             fill="none"
             stroke-linecap="round"
           />
-          <!-- LEGS — four solid rectangular legs with hooves -->
-          <rect x="-36" y="36" width="10" height="28" fill="#e8d8b0" rx="2" />
-          <rect x="-20" y="36" width="10" height="28" fill="#e8d8b0" rx="2" />
-          <rect x="4" y="36" width="10" height="28" fill="#e8d8b0" rx="2" />
-          <rect x="20" y="36" width="10" height="28" fill="#e8d8b0" rx="2" />
-          <!-- Hooves (dark) -->
-          <rect x="-36" y="60" width="10" height="5" fill="#3a2a10" rx="1.5" />
-          <rect x="-20" y="60" width="10" height="5" fill="#3a2a10" rx="1.5" />
-          <rect x="4" y="60" width="10" height="5" fill="#3a2a10" rx="1.5" />
-          <rect x="20" y="60" width="10" height="5" fill="#3a2a10" rx="1.5" />
+
+          <!-- tail -->
+          <path
+            d="M-56,8 Q-66,2 -64,18 Q-62,28 -58,32"
+            stroke="#c8b880"
+            stroke-width="2.8"
+            fill="none"
+            stroke-linecap="round"
+          />
+          <ellipse cx="-58" cy="34" rx="5" ry="3.6" fill="#c8b880" />
+
           <!-- Labels BELOW cow, clear of hooves -->
           <text
             x="10"
@@ -3156,6 +3157,15 @@
 
         <!-- ══ UNDERGROUND ZONE — labels in soil, well spaced ══ -->
         <!-- Root respiration label — far left, below grass line -->
+        <rect
+          x="24"
+          y="274"
+          width="64"
+          height="38"
+          rx="6"
+          fill="#1a0808"
+          opacity=".34"
+        />
         <text
           x="34"
           y="290"
@@ -3178,6 +3188,15 @@
           respiration
         </text>
         <!-- Organic Carbon label -->
+        <rect
+          x="152"
+          y="281"
+          width="126"
+          height="21"
+          rx="5"
+          fill="#1a0808"
+          opacity=".28"
+        />
         <text
           x="160"
           y="296"
@@ -3221,6 +3240,15 @@
           Dead organisms &amp; waste
         </text>
         <!-- Decay organisms — center soil -->
+        <rect
+          x="372"
+          y="281"
+          width="130"
+          height="21"
+          rx="5"
+          fill="#1a0808"
+          opacity=".24"
+        />
         <text
           x="380"
           y="296"
@@ -3560,7 +3588,7 @@
         <!-- A. CO₂ → Photosynthesis: big GREEN arc from atmosphere down-left to treetop -->
         <!-- Goes from x=200,y=60 curving down to tree label at ~108,88 -->
         <path
-          d="M196,64 Q155,52 130,88"
+          d="M206,70 Q176,96 128,112"
           stroke="#4ade80"
           stroke-width="3.5"
           fill="none"
@@ -3577,7 +3605,7 @@
 
         <!-- B. Tree releases organic carbon / respiration — short green arc from tree back up to CO₂ zone -->
         <path
-          d="M136,88 Q172,62 200,62"
+          d="M130,114 Q176,88 214,70"
           stroke="#4ade80"
           stroke-width="2.5"
           fill="none"
@@ -3598,7 +3626,7 @@
         <!-- Factory is at translate(490,124), chimneys top around y=124+4=128 → absolute y≈128, x≈528 center -->
         <!-- Arc goes to CO₂ label at 310,60 -->
         <path
-          d="M555,118 Q490,60 420,62"
+          d="M556,118 Q500,70 420,66"
           stroke="#ef4444"
           stroke-width="3.5"
           fill="none"
@@ -3615,17 +3643,17 @@
         </path>
         <!-- Emission label — sits on arc midpoint in the clear sky zone above factory, no overlap -->
         <rect
-          x="488"
-          y="76"
-          width="112"
+          x="484"
+          y="122"
+          width="118"
           height="32"
           rx="6"
           fill="#1a0808"
-          opacity=".65"
+          opacity=".72"
         />
         <text
           x="544"
-          y="90"
+          y="136"
           fill="#ef4444"
           font-size="10.5"
           font-family="monospace"
@@ -3636,7 +3664,7 @@
         </text>
         <text
           x="544"
-          y="104"
+          y="149"
           fill="#ef4444"
           font-size="10"
           font-family="monospace"
@@ -3719,7 +3747,7 @@
         <!-- G. Algae bloom disrupts ocean carbon: RED dashed arc from algae over to CO₂ area -->
         <!-- Algae is at ~757,190; arc goes to CO₂ at ~420,60 -->
         <path
-          d="M756,176 Q756,110 680,72 Q610,44 500,58"
+          d="M756,176 Q742,150 702,142 Q626,128 500,90"
           stroke="#ef4444"
           stroke-width="2.8"
           fill="none"

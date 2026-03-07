@@ -1,0 +1,4 @@
+{
+  "name": "interactive-assess",
+  "postStartCommand": "bash -lc 'if ! pgrep -f \"pnpm --filter web dev\" >/dev/null; then nohup pnpm dev:web >/tmp/pnpm-dev-web.log 2>&1 & fi'"
+}

@@ -41,9 +41,7 @@ export default function ItemRenderer({ item, onAfterCheck, supports }: Props) {
 
   // ✅ MCQ
   if (t === "mcq" || t === "multiple_choice" || t === "multiplechoice") {
-    return (
-      <MCQ item={item} onAfterCheck={onAfterCheck} />
-    );
+    return <MCQ item={item} onChecked={(_r) => onAfterCheck?.()} />;
   }
 
   // ✅ Short Response
@@ -53,12 +51,7 @@ export default function ItemRenderer({ item, onAfterCheck, supports }: Props) {
     t === "constructed_response" ||
     t === "crq"
   ) {
-    return (
-      <ShortResponse
-        item={item}
-        onChecked={(_r) => onAfterCheck?.()}
-      />
-    );
+    return <ShortResponse item={item} onChecked={(_r) => onAfterCheck?.()} />;
   }
 
   // ✅ Drag & Drop (only render if data shape is valid)
@@ -98,12 +91,7 @@ export default function ItemRenderer({ item, onAfterCheck, supports }: Props) {
       );
     }
 
-    return (
-      <DragDrop
-        item={item}
-        onChecked={(_r) => onAfterCheck?.()}
-      />
-    );
+    return <DragDrop item={item} onChecked={(_r) => onAfterCheck?.()} />;
   }
 
   // ✅ Fallback (unknown item type)
