@@ -420,7 +420,8 @@ export default function StudentDashboard() {
                     🧬 Population Genetics Simulator
                   </div>
                   <div className="mt-1 text-xs text-indigo-700">
-                    Explore Hardy-Weinberg equilibrium, genetic drift, natural selection, and bottleneck events interactively.
+                    Explore Hardy-Weinberg equilibrium, genetic drift, natural
+                    selection, and bottleneck events interactively.
                   </div>
                 </div>
                 <Link

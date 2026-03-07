@@ -685,22 +685,22 @@ code,
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* BioSpark token color utilities (bs-*) */
-  --color-bs-bg:          var(--bs-bg);
-  --color-bs-surface:     var(--bs-surface);
-  --color-bs-raised:      var(--bs-raised);
-  --color-bs-overlay:     var(--bs-overlay);
-  --color-bs-border:      var(--bs-border);
+  --color-bs-bg: var(--bs-bg);
+  --color-bs-surface: var(--bs-surface);
+  --color-bs-raised: var(--bs-raised);
+  --color-bs-overlay: var(--bs-overlay);
+  --color-bs-border: var(--bs-border);
   --color-bs-border-soft: var(--bs-border-soft);
-  --color-bs-teal:        var(--bs-teal);
-  --color-bs-amber:       var(--bs-amber);
-  --color-bs-coral:       var(--bs-coral);
-  --color-bs-success:     var(--bs-success);
-  --color-bs-warning:     var(--bs-warning);
-  --color-bs-danger:      var(--bs-danger);
-  --color-bs-info:        var(--bs-info);
-  --color-bs-text:        var(--bs-text);
-  --color-bs-text-sub:    var(--bs-text-sub);
-  --color-bs-text-muted:  var(--bs-text-muted);
+  --color-bs-teal: var(--bs-teal);
+  --color-bs-amber: var(--bs-amber);
+  --color-bs-coral: var(--bs-coral);
+  --color-bs-success: var(--bs-success);
+  --color-bs-warning: var(--bs-warning);
+  --color-bs-danger: var(--bs-danger);
+  --color-bs-info: var(--bs-info);
+  --color-bs-text: var(--bs-text);
+  --color-bs-text-sub: var(--bs-text-sub);
+  --color-bs-text-muted: var(--bs-text-muted);
 }
 
 .dark {
