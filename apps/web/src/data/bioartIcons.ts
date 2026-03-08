@@ -6,6 +6,10 @@
  *
  * Attribution: NIH BioArt Source, National Institute of Allergy and Infectious Diseases (NIAID).
  * Most images are public domain; see https://bioart.niaid.nih.gov/faqs for license details.
+ *
+ * Image URL pattern: https://bioart.niaid.nih.gov/api/bioarts/{bioartId}/files/{bioartFileId}
+ * BioArt IDs and file IDs are sourced from https://bioart.niaid.nih.gov and corroborated via
+ * Wikimedia Commons filenames (format: "[Subject] (NIH BioArt [id] - [fileId]).svg").
  */
 
 export type BioArtIcon = {
@@ -13,8 +17,19 @@ export type BioArtIcon = {
   label: string;
   /** Emoji fallback for environments without image support */
   emoji: string;
-  /** NIH BioArt illustration ID (e.g. "302" → https://bioart.niaid.nih.gov/bioart/302) */
+  /**
+   * NIH BioArt illustration page ID (e.g. "668" → https://bioart.niaid.nih.gov/bioart/668).
+   * Used for source attribution links.
+   */
   bioartId?: string;
+  /**
+   * NIH BioArt Drupal file ID for the SVG asset.
+   * When combined with bioartId, forms the direct SVG download URL:
+   *   https://bioart.niaid.nih.gov/api/bioarts/{bioartId}/files/{bioartFileId}
+   * File IDs are verified via Wikimedia Commons filenames in the format
+   *   "[Subject] (NIH BioArt [bioartId] - [bioartFileId]).svg"
+   */
+  bioartFileId?: string;
   /** TEKS codes this icon is relevant to */
   teks: string[];
   /** Biology category for grouping */
@@ -30,8 +45,36 @@ export type BioArtIcon = {
 };
 
 /**
+ * Returns the direct SVG download URL for a BioArt icon when both the
+ * artwork ID and Drupal file ID are known.
+ *
+ * URL format: https://bioart.niaid.nih.gov/api/bioarts/{bioartId}/files/{bioartFileId}
+ */
+export function getBioArtSvgUrl(icon: BioArtIcon): string | undefined {
+  if (icon.bioartId && icon.bioartFileId) {
+    return `https://bioart.niaid.nih.gov/api/bioarts/${icon.bioartId}/files/${icon.bioartFileId}`;
+  }
+  return undefined;
+}
+
+/**
+ * Returns the BioArt detail page URL for a given icon.
+ * Always available when bioartId is set, even without a file ID.
+ */
+export function getBioArtPageUrl(icon: BioArtIcon): string | undefined {
+  if (icon.bioartId) {
+    return `https://bioart.niaid.nih.gov/bioart/${icon.bioartId}`;
+  }
+  return undefined;
+}
+
+/**
  * Master icon registry for BioSpark biology specimens.
  * Each entry corresponds to one or more TEKS learning standards.
+ *
+ * BioArt IDs sourced from https://bioart.niaid.nih.gov.
+ * File IDs (bioartFileId) verified via Wikimedia Commons naming convention:
+ *   "File:[Subject] (NIH BioArt [id] - [fileId]).svg"
  */
 export const BIOART_ICONS: BioArtIcon[] = [
   // ── Cells & Organelles ─────────────────────────────────────────────────────
@@ -43,12 +86,20 @@ export const BIOART_ICONS: BioArtIcon[] = [
     matchKeywords: ["cell", "amoeba", "microbe"],
   },
   {
-    label: "E. coli Bacteria",
-    emoji: "🧫",
+    // BioArt 150 = Ferret (verified via Wikimedia "Ferret (NIH BioArt 150).svg")
+    label: "Ferret",
+    emoji: "🐾",
     bioartId: "150",
     teks: ["BIO.5.B"],
     category: "organism",
-    matchKeywords: ["bacteria", "prokaryote", "prokaryotic", "bacterium"],
+    matchKeywords: ["ferret", "mammal", "model organism"],
+  },
+  {
+    label: "E. coli Bacteria",
+    emoji: "🧫",
+    teks: ["BIO.5.B"],
+    category: "organism",
+    matchKeywords: ["bacteria", "prokaryote", "prokaryotic", "bacterium", "e. coli", "ecoli", "escherichia"],
   },
   {
     label: "Animal Cell",
@@ -146,6 +197,7 @@ export const BIOART_ICONS: BioArtIcon[] = [
 
   // ── Organisms ────────────────────────────────────────────────────────────────
   {
+    // BioArt 220 = Bacteriophage Virus (labeled in this registry)
     label: "Bacteriophage Virus",
     emoji: "🦠",
     bioartId: "220",
@@ -194,6 +246,26 @@ export const BIOART_ICONS: BioArtIcon[] = [
     teks: ["BIO.11.A"],
     category: "organism",
     matchKeywords: ["fungi", "decompos", "mushroom"],
+  },
+  {
+    // BIOART-000668 = Rabbit (verified via Wikimedia "Rabbit (NIH BioArt 668 - 759149).svg")
+    label: "Rabbit",
+    emoji: "🐰",
+    bioartId: "668",
+    bioartFileId: "759149",
+    teks: ["BIO.5.B", "BIO.7.C"],
+    category: "organism",
+    matchKeywords: ["rabbit", "mammal", "lagomorph", "model organism"],
+  },
+  {
+    // BIOART-000279 = Lab Mouse (verified via Wikimedia "Lab Mouse (NIH BioArt 279 - 631476).svg")
+    label: "Lab Mouse",
+    emoji: "🐭",
+    bioartId: "279",
+    bioartFileId: "631476",
+    teks: ["BIO.7.C"],
+    category: "organism",
+    matchKeywords: ["mouse", "mice", "mus musculus", "model organism", "rodent"],
   },
 
   // ── Processes ────────────────────────────────────────────────────────────────
