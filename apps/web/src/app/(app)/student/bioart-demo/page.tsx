@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import Image from "next/image";
+import { useState, memo } from "react";
 import {
   BIOART_ICONS,
   getIconsByCategory,
+  getBioArtSvgUrl,
+  getBioArtPageUrl,
   type BioArtIcon,
 } from "@/data/bioartIcons";
 import SpecimenGrid from "@/components/student/SpecimenGrid";
@@ -94,15 +97,50 @@ const DEMO_SEGMENTS: Segment[] = [
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
+/**
+ * Renders the BioArt SVG image when available, falling back to the emoji.
+ * Memoized so that `imgError` state persists across parent filter re-renders,
+ * preventing repeated failed network requests for the same icon.
+ */
+const BioArtImage = memo(function BioArtImage({ icon }: { icon: BioArtIcon }) {
+  const [imgError, setImgError] = useState(false);
+  const svgUrl = getBioArtSvgUrl(icon);
+
+  if (svgUrl && !imgError) {
+    return (
+      <div className="relative h-10 w-10 flex-shrink-0">
+        {/*
+         * `unoptimized` is intentional: BioArt serves SVG files which are
+         * already vector-optimized and cannot benefit from Next.js raster
+         * image compression. Using `unoptimized` avoids an unnecessary
+         * round-trip through the Next.js image proxy for these assets.
+         */}
+        <Image
+          src={svgUrl}
+          alt={icon.label}
+          fill
+          unoptimized
+          className="object-contain"
+          onError={() => setImgError(true)}
+        />
+      </div>
+    );
+  }
+
+  return <span className="text-4xl leading-none">{icon.emoji}</span>;
+});
+
 function IconCard({ icon }: { icon: BioArtIcon }) {
   const meta = CATEGORY_META[icon.category];
+  const pageUrl = getBioArtPageUrl(icon);
+  const svgUrl = getBioArtSvgUrl(icon);
   return (
     <div
       className={`rounded-2xl border ${meta.border} ${meta.bg} p-4 flex flex-col gap-2`}
     >
-      {/* Emoji + label */}
+      {/* Image/emoji + label */}
       <div className="flex items-center gap-3">
-        <span className="text-4xl leading-none">{icon.emoji}</span>
+        <BioArtImage icon={icon} />
         <div>
           <div className="font-semibold text-slate-900 text-sm leading-tight">
             {icon.label}
@@ -129,16 +167,28 @@ function IconCard({ icon }: { icon: BioArtIcon }) {
         </div>
       )}
 
-      {/* BioArt source link */}
-      {icon.bioartId && (
-        <a
-          href={`https://bioart.niaid.nih.gov/bioart/${icon.bioartId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[10px] text-blue-600 hover:underline"
-        >
-          NIH BioArt #{icon.bioartId} ↗
-        </a>
+      {/* BioArt source links */}
+      {pageUrl && (
+        <div className="flex flex-wrap gap-2 text-[10px]">
+          <a
+            href={pageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            NIH BioArt #{icon.bioartId} ↗
+          </a>
+          {svgUrl && (
+            <a
+              href={svgUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline"
+            >
+              SVG ↗
+            </a>
+          )}
+        </div>
       )}
 
       {/* Match keywords */}
@@ -353,45 +403,25 @@ export default function BioArtDemoPage() {
               {/* After */}
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
                 <div className="mb-3 text-sm font-bold text-emerald-800">
-                  After — 22 deduplicated entries (+ 25-entry registry)
+                  After — {BIOART_ICONS.length} registry entries with BioArt images
                 </div>
                 <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { icon: "🧫", name: "E. coli" },
-                    { icon: "🫧", name: "Cell Membrane" },
-                    { icon: "⚡", name: "Mitochondria" },
-                    { icon: "🌿", name: "Chloroplast" },
-                    { icon: "🔮", name: "Nucleus" },
-                    { icon: "🔵", name: "Ribosome" },
-                    { icon: "🦠", name: "Amoeba" },
-                    { icon: "⚗️", name: "Enzyme" },
-                    { icon: "🔗", name: "Protein" },
-                    { icon: "🍬", name: "Carbohydrate" },
-                    { icon: "💧", name: "Lipid" },
-                    { icon: "🧬", name: "DNA" },
-                    { icon: "🧶", name: "RNA" },
-                    { icon: "📖", name: "Gene Expr." },
-                    { icon: "🔄", name: "Mutation" },
-                    { icon: "🪰", name: "Fruit Fly" },
-                    { icon: "🪴", name: "Elodea" },
-                    { icon: "🍄", name: "Mushroom" },
-                    { icon: "🦠", name: "Virus" },
-                    { icon: "🐟", name: "Zebrafish" },
-                    { icon: "🐦", name: "Finch" },
-                    { icon: "🐺", name: "Wolf" },
-                  ].map(({ icon, name }) => (
+                  {BIOART_ICONS.filter((ic) => ic.category === "organism")
+                    .slice(0, 12)
+                    .map((ic) => (
                     <div
-                      key={name}
+                      key={ic.label}
                       className="flex flex-col items-center gap-1 rounded-xl border border-emerald-200 bg-white p-2 text-center"
                     >
-                      <span className="text-2xl">{icon}</span>
-                      <span className="text-[9px] text-slate-600">{name}</span>
+                      <BioArtImage icon={ic} />
+                      <span className="text-[9px] text-slate-600 leading-tight">{ic.label}</span>
                     </div>
                   ))}
                 </div>
                 <p className="mt-3 text-xs text-emerald-700">
-                  Multi-keyword arrays. TEKS codes per icon. BioArt source IDs where available.
-                  Category groupings and helper functions included.
+                  Multi-keyword arrays. TEKS codes per icon. BioArt SVG images where
+                  file IDs are known (e.g. Rabbit BIOART-000668, Lab Mouse BIOART-000279).
+                  Emoji fallback for remaining entries.
                 </p>
               </div>
             </div>
@@ -419,8 +449,26 @@ export default function BioArtDemoPage() {
             >
               bioart.niaid.nih.gov/faqs
             </a>{" "}
-            for license details. Emoji fallbacks are used in this demo; original
-            SVG/PNG illustrations can be downloaded from the BioArt site.
+            for license details. Illustrations with a known BioArt file ID (e.g.{" "}
+            <a
+              href="https://bioart.niaid.nih.gov/bioart/668"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Rabbit BIOART-000668
+            </a>
+            {", "}
+            <a
+              href="https://bioart.niaid.nih.gov/bioart/279"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Lab Mouse BIOART-000279
+            </a>
+            ) are displayed as SVG images directly from the NIH BioArt CDN.
+            Remaining entries use emoji fallbacks until their BioArt file IDs are added.
           </section>
         </div>
       </PageContent>
