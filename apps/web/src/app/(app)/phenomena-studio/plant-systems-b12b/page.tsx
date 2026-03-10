@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-export default function GulfDeadZoneLessonPage() {
+export default function PlantSystemsB12BInExplorerPage() {
   return (
     <main
       style={{
@@ -37,8 +37,8 @@ export default function GulfDeadZoneLessonPage() {
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <a
-            href="/animations/gulf_dead_zone.html"
-            download="gulf-dead-zone-experience.html"
+            href="/lessons/plant-systems-b12b.html"
+            download="plant-systems-b12b.html"
             style={{
               border: "1px solid var(--bs-border)",
               borderRadius: 999,
@@ -59,7 +59,7 @@ export default function GulfDeadZoneLessonPage() {
               color: "var(--bs-text-sub)",
             }}
           >
-            B.10C
+            Unit 7
           </span>
           <span
             style={{
@@ -70,24 +70,13 @@ export default function GulfDeadZoneLessonPage() {
               color: "var(--bs-text-sub)",
             }}
           >
-            B.13C
-          </span>
-          <span
-            style={{
-              border: "1px solid var(--bs-border)",
-              borderRadius: 999,
-              padding: "4px 10px",
-              fontSize: 12,
-              color: "var(--bs-text-sub)",
-            }}
-          >
-            B.13D
+            B.12B
           </span>
         </div>
       </header>
 
       <iframe
-        src="/animations/gulf_dead_zone.html"
+        src="/lessons/plant-systems-b12b.html"
         width="100%"
         height="calc(100vh - 64px)"
         style={{
@@ -96,7 +85,7 @@ export default function GulfDeadZoneLessonPage() {
           height: "calc(100dvh - 64px)",
           flex: 1,
         }}
-        title="Gulf Dead Zone Interactive Lesson"
+        title="Plant Systems B.12B Lesson"
       />
     </main>
   );

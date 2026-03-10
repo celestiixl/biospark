@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageContent, Card } from "@/components/ui";
+import ImportedPhenomenaGrid from "@/components/phenomena/ImportedPhenomenaGrid";
 
 const FEATURED_PHENOMENA = [
   {
@@ -8,6 +9,8 @@ const FEATURED_PHENOMENA = [
     href: "/phenomena-studio/gulf-dead-zone-animation-v17",
     note: "Cycle-based animation connecting nitrogen, carbon, and water in the Gulf hypoxia phenomenon.",
     previewSrc: "/phenomena-preview-gulf-dead-zone.svg",
+    downloadHref: "/animations/gulf_dead_zone.html",
+    downloadName: "gulf-dead-zone-experience.html",
     topic: "Ecosystems",
     unit: "Unit 6",
     tags: ["hypoxia", "water cycle", "biogeochemical cycles"],
@@ -18,9 +21,23 @@ const FEATURED_PHENOMENA = [
     href: "/phenomena-studio/buffalo-bayou-harvey-ecosystem-lab",
     note: "Guided story plus lab mode modeling Hurricane Harvey runoff, hypoxia, and ecosystem recovery in Buffalo Bayou.",
     previewSrc: "/phenomena-preview-buffalo-bayou.svg",
+    downloadHref: "/phenomena/buffalo-bayou-harvey-ecosystem-lab.html",
+    downloadName: "buffalo-bayou-harvey-ecosystem-lab.html",
     topic: "Ecosystems",
     unit: "Unit 6",
     tags: ["harvey", "runoff", "hypoxia", "biodiversity"],
+  },
+  {
+    id: "plant-systems-b12b",
+    title: "Plant Systems - B.12B Lesson",
+    href: "/phenomena-studio/plant-systems-b12b",
+    note: "Interactive Unit 7 lesson focused on plant transport, reproduction, and response systems with TEKS B.12B alignment.",
+    previewSrc: "/phenomena-preview-buffalo-bayou.svg",
+    downloadHref: "/lessons/plant-systems-b12b.html",
+    downloadName: "plant-systems-b12b.html",
+    topic: "Plants",
+    unit: "Unit 7",
+    tags: ["b12b", "xylem", "phloem", "tropism"],
   },
   {
     id: "upload-your-own",
@@ -28,6 +45,8 @@ const FEATURED_PHENOMENA = [
     href: "/phenomena-studio/upload-guide",
     note: "Upload an HTML phenomenon file and open it in BioSpark.",
     previewSrc: "/phenomena-preview-upload-guide.svg",
+    downloadHref: null,
+    downloadName: null,
     topic: "Authoring",
     unit: "Toolkit",
     tags: ["custom", "html", "import"],
@@ -163,44 +182,57 @@ export default function PhenomenaStudioPage({
 
           <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
             {filteredPhenomena.map((item) => (
-              <Link key={item.id} href={item.href} className="group">
-                <Card
-                  className="h-full rounded-3xl border border-bs-border bg-bs-surface p-4"
-                  glow
-                >
-                  <div className="overflow-hidden rounded-2xl border border-bs-border bg-bs-bg">
-                    <img
-                      src={item.previewSrc}
-                      alt={`${item.title} preview`}
-                      className="h-40 w-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                  <h2 className="text-xl font-semibold text-bs-text">
-                    {item.title}
-                  </h2>
-                  <p className="mt-2 text-sm text-bs-text-sub">{item.note}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-full border border-bs-border bg-bs-raised px-2.5 py-1 text-[11px] font-semibold text-bs-text-sub">
-                      Topic: {item.topic}
+              <Card
+                key={item.id}
+                className="h-full rounded-3xl border border-bs-border bg-bs-surface p-4"
+                glow
+              >
+                <div className="overflow-hidden rounded-2xl border border-bs-border bg-bs-bg">
+                  <img
+                    src={item.previewSrc}
+                    alt={`${item.title} preview`}
+                    className="h-40 w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <h2 className="text-xl font-semibold text-bs-text">
+                  {item.title}
+                </h2>
+                <p className="mt-2 text-sm text-bs-text-sub">{item.note}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-bs-border bg-bs-raised px-2.5 py-1 text-[11px] font-semibold text-bs-text-sub">
+                    Topic: {item.topic}
+                  </span>
+                  <span className="rounded-full border border-bs-border bg-bs-raised px-2.5 py-1 text-[11px] font-semibold text-bs-text-sub">
+                    {item.unit}
+                  </span>
+                  {item.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-bs-teal/45 bg-(--bs-teal-dim) px-2.5 py-1 text-[11px] font-semibold text-bs-teal"
+                    >
+                      #{tag}
                     </span>
-                    <span className="rounded-full border border-bs-border bg-bs-raised px-2.5 py-1 text-[11px] font-semibold text-bs-text-sub">
-                      {item.unit}
-                    </span>
-                    {item.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-bs-teal/45 bg-(--bs-teal-dim) px-2.5 py-1 text-[11px] font-semibold text-bs-teal"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-4 inline-flex rounded-xl border border-bs-teal/50 bg-(--bs-teal-dim) px-3 py-2 text-xs font-semibold text-bs-teal">
+                  ))}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link
+                    href={item.href}
+                    className="inline-flex rounded-xl border border-bs-teal/50 bg-(--bs-teal-dim) px-3 py-2 text-xs font-semibold text-bs-teal"
+                  >
                     Open {"->"}
-                  </div>
-                </Card>
-              </Link>
+                  </Link>
+                  {item.downloadHref ? (
+                    <a
+                      href={item.downloadHref}
+                      download={item.downloadName ?? undefined}
+                      className="inline-flex rounded-xl border border-bs-border bg-bs-raised px-3 py-2 text-xs font-semibold text-bs-text-sub hover:border-bs-teal/55 hover:text-bs-teal"
+                    >
+                      Download HTML
+                    </a>
+                  ) : null}
+                </div>
+              </Card>
             ))}
           </div>
 
@@ -209,6 +241,8 @@ export default function PhenomenaStudioPage({
               No phenomena match the current filters.
             </Card>
           ) : null}
+
+          <ImportedPhenomenaGrid />
 
           <Card className="mt-5 rounded-3xl border border-bs-border bg-bs-surface p-5">
             <div className="text-sm font-semibold text-bs-text">
@@ -226,6 +260,12 @@ export default function PhenomenaStudioPage({
                 className="rounded-full border border-bs-border bg-bs-raised px-4 py-2 text-xs font-semibold text-bs-text-sub hover:border-bs-teal/55 hover:text-bs-teal"
               >
                 Buffalo Bayou Lab
+              </Link>
+              <Link
+                href="/phenomena-studio/plant-systems-b12b"
+                className="rounded-full border border-bs-border bg-bs-raised px-4 py-2 text-xs font-semibold text-bs-text-sub hover:border-bs-teal/55 hover:text-bs-teal"
+              >
+                Plant Systems B.12B
               </Link>
               <Link
                 href="/simulations"

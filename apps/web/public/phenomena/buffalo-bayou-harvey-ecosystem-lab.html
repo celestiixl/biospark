@@ -1258,6 +1258,18 @@
           transform: translateX(38px);
         }
       }
+
+      .download-html-btn {
+        border: 1px solid var(--teal-border);
+        background: var(--teal-dim);
+        color: var(--teal);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 11px;
+        font-family: var(--font-body);
+        font-weight: 700;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -1279,6 +1291,14 @@
         </div>
       </div>
       <div class="tb-right">
+        <button
+          class="download-html-btn"
+          id="downloadHtmlBtn"
+          type="button"
+          title="Download a clean HTML copy"
+        >
+          Download HTML
+        </button>
         <div class="health-chip health-healthy" id="healthChip">
           <div class="hc-dot"></div>
           <span id="healthText">Ecosystem Healthy</span>
@@ -5141,6 +5161,25 @@
           .forEach((p, i) => p.classList.toggle("active", i === n));
         curLabTab = n;
         if (n === 1) renderLabMetrics("labMetrics1", computeMetrics(labState));
+      }
+
+      function downloadCleanHtml() {
+        const clone = document.documentElement.cloneNode(true);
+        const html = "<!doctype html>\n" + clone.outerHTML;
+        const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "buffalo-bayou-harvey-ecosystem-lab.html";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 250);
+      }
+
+      const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
+      if (downloadHtmlBtn) {
+        downloadHtmlBtn.addEventListener("click", downloadCleanHtml);
       }
 
       // ── INIT ──

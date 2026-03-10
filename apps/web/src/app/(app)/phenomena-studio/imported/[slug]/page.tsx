@@ -1,8 +1,37 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { getImportedPhenomenonBySlug } from "@/lib/phenomenaImports";
 
-export default function GulfDeadZoneLessonPage() {
+export default function ImportedPhenomenonPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params?.slug ?? "";
+
+  const item = useMemo(() => getImportedPhenomenonBySlug(slug), [slug]);
+
+  if (!item || item.status !== "approved") {
+    return (
+      <main className="mx-auto max-w-4xl p-6 text-slate-900">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h1 className="text-xl font-semibold text-slate-900">
+            Imported phenomenon not available
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            This imported HTML is missing or still pending approval.
+          </p>
+          <Link
+            href="/phenomena-studio"
+            className="mt-4 inline-flex rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Back to Phenomena Explorer
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main
       style={{
@@ -36,20 +65,6 @@ export default function GulfDeadZoneLessonPage() {
         </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <a
-            href="/animations/gulf_dead_zone.html"
-            download="gulf-dead-zone-experience.html"
-            style={{
-              border: "1px solid var(--bs-border)",
-              borderRadius: 999,
-              padding: "4px 10px",
-              fontSize: 12,
-              color: "var(--bs-text-sub)",
-              textDecoration: "none",
-            }}
-          >
-            Download HTML
-          </a>
           <span
             style={{
               border: "1px solid var(--bs-border)",
@@ -59,7 +74,7 @@ export default function GulfDeadZoneLessonPage() {
               color: "var(--bs-text-sub)",
             }}
           >
-            B.10C
+            Imported
           </span>
           <span
             style={{
@@ -70,24 +85,13 @@ export default function GulfDeadZoneLessonPage() {
               color: "var(--bs-text-sub)",
             }}
           >
-            B.13C
-          </span>
-          <span
-            style={{
-              border: "1px solid var(--bs-border)",
-              borderRadius: 999,
-              padding: "4px 10px",
-              fontSize: 12,
-              color: "var(--bs-text-sub)",
-            }}
-          >
-            B.13D
+            {item.slug}
           </span>
         </div>
       </header>
 
       <iframe
-        src="/animations/gulf_dead_zone.html"
+        srcDoc={item.html}
         width="100%"
         height="calc(100vh - 64px)"
         style={{
@@ -96,7 +100,8 @@ export default function GulfDeadZoneLessonPage() {
           height: "calc(100dvh - 64px)",
           flex: 1,
         }}
-        title="Gulf Dead Zone Interactive Lesson"
+        title={item.title}
+        sandbox="allow-scripts allow-same-origin allow-forms"
       />
     </main>
   );

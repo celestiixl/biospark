@@ -7609,18 +7609,17 @@
         const on = document.body.classList.toggle("spotlight-on");
         spotlightBtn.classList.toggle("active", on);
       };
+
+      function buildCleanHtmlSnapshot() {
+        const clone = document.documentElement.cloneNode(true);
+        clone.querySelectorAll("#SC .p").forEach((node) => node.remove());
+        const html = "<!doctype html>\n" + clone.outerHTML;
+        return html;
+      }
+
       if (downloadBtn) {
         downloadBtn.onclick = async () => {
-          let html;
-          try {
-            const res = await fetch(window.location.href, {
-              cache: "no-store",
-            });
-            if (!res.ok) throw new Error("fetch failed");
-            html = await res.text();
-          } catch (_err) {
-            html = "<!doctype html>\n" + document.documentElement.outerHTML;
-          }
+          const html = buildCleanHtmlSnapshot();
           const blob = new Blob([html], { type: "text/html;charset=utf-8" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");

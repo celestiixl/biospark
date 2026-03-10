@@ -940,6 +940,21 @@
         line-height: 1.5;
       }
 
+      .download-html-btn {
+        position: fixed;
+        right: 14px;
+        bottom: 14px;
+        z-index: 9999;
+        border: 1px solid #1f2937;
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
       @media (max-width: 620px) {
         .systems-grid,
         .pathway-cards,
@@ -965,6 +980,10 @@
     </style>
   </head>
   <body>
+    <button class="download-html-btn" id="downloadHtmlBtn" type="button">
+      Download HTML
+    </button>
+
     <!-- ════ HEADER ════ -->
     <div class="header">
       <div class="teks-tag">B.12B · Readiness Standard · Unit 7</div>
@@ -2452,6 +2471,26 @@
           ];
           document.getElementById("scoreMsg").textContent = msgs[score] || "";
         }
+      }
+
+      function downloadCleanHtml() {
+        const clone = document.documentElement.cloneNode(true);
+        clone.querySelectorAll(".particle").forEach((node) => node.remove());
+        const html = "<!doctype html>\n" + clone.outerHTML;
+        const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "plant-systems-b12b.html";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 250);
+      }
+
+      const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
+      if (downloadHtmlBtn) {
+        downloadHtmlBtn.addEventListener("click", downloadCleanHtml);
       }
 
       // ═══════════════════ INIT ═══════════════════
