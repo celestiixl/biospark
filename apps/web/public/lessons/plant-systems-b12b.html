@@ -1011,102 +1011,182 @@
         <div class="phenomenon-image">
           <svg viewBox="0 0 900 200" preserveAspectRatio="xMidYMid slice">
             <defs>
+              <!-- Sky gradient -->
               <linearGradient id="skyG" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#87ceeb" />
-                <stop offset="100%" stop-color="#c8e6ff" />
+                <stop offset="0%" stop-color="#5aacdc" />
+                <stop offset="100%" stop-color="#b8e2f8" />
               </linearGradient>
-              <linearGradient id="gndG" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#5a8a3a" />
-                <stop offset="100%" stop-color="#3a5a25" />
+              <!-- Distant hill -->
+              <linearGradient id="hillBG" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#90bc5c" />
+                <stop offset="100%" stop-color="#5e8030" />
               </linearGradient>
+              <!-- Mid hill -->
+              <linearGradient id="hillMG" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#6ea042" />
+                <stop offset="100%" stop-color="#4a6c24" />
+              </linearGradient>
+              <!-- Foreground hill -->
+              <linearGradient id="hillFG" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#5c9235" />
+                <stop offset="100%" stop-color="#3a5e1a" />
+              </linearGradient>
+
+              <!--
+                BLUEBONNET PLANT — base at (0,0), extends upward ~65 px.
+                Modelled on Lupinus texensis: basal-leaf rosette, single spike
+                with 3 open-flower whorls + near-top buds + cream terminal bud.
+                The white banner-petal spot is the signature field mark.
+              -->
+              <g id="bb">
+                <!-- Basal leaf rosette -->
+                <ellipse cx="-11" cy="-4" rx="12" ry="4" fill="#3a6e22" transform="rotate(-38 -11 -4)" opacity=".9" />
+                <ellipse cx="11" cy="-4" rx="12" ry="4" fill="#3a6e22" transform="rotate(38 11 -4)" opacity=".9" />
+                <ellipse cx="-4" cy="-9" rx="9" ry="3.2" fill="#4a7c2f" transform="rotate(-18 -4 -9)" opacity=".85" />
+                <ellipse cx="4" cy="-9" rx="9" ry="3.2" fill="#4a7c2f" transform="rotate(18 4 -9)" opacity=".85" />
+                <!-- Main stem -->
+                <rect x="-1.8" y="-62" width="3.6" height="62" fill="#4a7c2f" rx="1.8" />
+                <!-- Whorl 1 — bottommost open blooms (y = -20) -->
+                <g transform="translate(0,-20)">
+                  <ellipse cx="-8" cy="1" rx="6" ry="9" fill="#3d62d4" transform="rotate(-32 -8 1)" />
+                  <ellipse cx="8" cy="1" rx="6" ry="9" fill="#2f50c2" transform="rotate(32 8 1)" />
+                  <ellipse cx="0" cy="-7" rx="4.5" ry="7.5" fill="#4a72de" />
+                  <ellipse cx="0" cy="-10.5" rx="2.2" ry="3" fill="rgba(255,255,255,0.80)" />
+                </g>
+                <!-- Whorl 2 (y = -33) -->
+                <g transform="translate(0,-33)">
+                  <ellipse cx="-7" cy="1" rx="5.5" ry="8" fill="#4169e1" transform="rotate(-26 -7 1)" />
+                  <ellipse cx="7" cy="1" rx="5.5" ry="8" fill="#3358cc" transform="rotate(26 7 1)" />
+                  <ellipse cx="0" cy="-6" rx="4" ry="7" fill="#5073e0" />
+                  <ellipse cx="0" cy="-9" rx="2" ry="2.5" fill="rgba(255,255,255,0.72)" />
+                </g>
+                <!-- Whorl 3 (y = -45) -->
+                <g transform="translate(0,-45)">
+                  <ellipse cx="-6" cy="1" rx="5" ry="7" fill="#5070d5" transform="rotate(-20 -6 1)" />
+                  <ellipse cx="6" cy="1" rx="5" ry="7" fill="#4562c8" transform="rotate(20 6 1)" />
+                  <ellipse cx="0" cy="-5" rx="3.5" ry="6" fill="#607ae2" />
+                  <ellipse cx="0" cy="-7.5" rx="1.8" ry="2" fill="rgba(255,255,255,0.60)" />
+                </g>
+                <!-- Near-top buds (y = -54) -->
+                <g transform="translate(0,-54)">
+                  <ellipse cx="-3.5" cy="0" rx="3.5" ry="5" fill="#7090ea" transform="rotate(-12 -3.5 0)" />
+                  <ellipse cx="3.5" cy="0" rx="3.5" ry="5" fill="#6a84e6" transform="rotate(12 3.5 0)" />
+                  <ellipse cx="0" cy="-3" rx="2.5" ry="3.5" fill="#8098ee" />
+                </g>
+                <!-- Terminal bud — cream/white (signature Texas Bluebonnet look) -->
+                <ellipse cx="0" cy="-61" rx="3" ry="5.5" fill="#d8dcf8" />
+                <ellipse cx="0" cy="-64" rx="2" ry="3" fill="#eef0ff" />
+              </g>
             </defs>
+
+            <!-- ── SKY ── -->
             <rect width="900" height="200" fill="url(#skyG)" />
-            <rect y="140" width="900" height="60" fill="url(#gndG)" />
-            <circle cx="820" cy="35" r="28" fill="#FFD700" opacity=".9" />
-            <!-- bluebonnets -->
-            <g opacity=".92">
-              <g transform="translate(100,100)">
-                <rect
-                  x="-2"
-                  y="0"
-                  width="4"
-                  height="50"
-                  fill="#4a7c2f"
-                  rx="2"
-                />
-                <ellipse cx="0" cy="-6" rx="9" ry="13" fill="#4169e1" />
-              </g>
-              <g transform="translate(200,105)">
-                <rect
-                  x="-2"
-                  y="0"
-                  width="4"
-                  height="45"
-                  fill="#4a7c2f"
-                  rx="2"
-                />
-                <ellipse cx="0" cy="-6" rx="9" ry="13" fill="#5b78d6" />
-              </g>
-              <g transform="translate(320,98)">
-                <rect
-                  x="-2"
-                  y="0"
-                  width="4"
-                  height="52"
-                  fill="#4a7c2f"
-                  rx="2"
-                />
-                <ellipse cx="0" cy="-6" rx="9" ry="13" fill="#3a5fcc" />
-              </g>
-              <g transform="translate(450,102)">
-                <rect
-                  x="-2"
-                  y="0"
-                  width="4"
-                  height="48"
-                  fill="#4a7c2f"
-                  rx="2"
-                />
-                <ellipse cx="0" cy="-6" rx="9" ry="13" fill="#4169e1" />
-              </g>
-              <g transform="translate(580,100)">
-                <rect
-                  x="-2"
-                  y="0"
-                  width="4"
-                  height="50"
-                  fill="#4a7c2f"
-                  rx="2"
-                />
-                <ellipse cx="0" cy="-6" rx="9" ry="13" fill="#6070d0" />
-              </g>
-              <g transform="translate(700,103)">
-                <rect
-                  x="-2"
-                  y="0"
-                  width="4"
-                  height="47"
-                  fill="#4a7c2f"
-                  rx="2"
-                />
-                <ellipse cx="0" cy="-6" rx="9" ry="13" fill="#4169e1" />
-              </g>
-            </g>
-            <path
-              d="M0 170 Q450 155 900 170"
-              stroke="#c8b89a"
-              stroke-width="16"
-              fill="none"
-              opacity=".5"
-            />
-            <text
-              x="450"
-              y="192"
-              text-anchor="middle"
-              fill="rgba(255,255,255,.45)"
-              font-size="12"
-              font-family="DM Sans"
-            >
+
+            <!-- Sun with warm atmospheric glow -->
+            <circle cx="820" cy="36" r="42" fill="#FFE070" opacity=".18" />
+            <circle cx="820" cy="36" r="28" fill="#FFD700" opacity=".88" />
+
+            <!-- ── ROLLING HILLS (Brenham / Hwy 290 style) ── -->
+            <!-- Far/distant hill — pale, slightly hazy -->
+            <path d="M-5 138 C55 118 115 132 198 121 C268 112 328 126 412 117
+                     C488 108 554 120 634 113 C708 106 778 122 910 115
+                     L910 200 L-5 200 Z"
+                  fill="url(#hillBG)" opacity=".55" />
+
+            <!-- Mid-distance hill -->
+            <path d="M-5 154 C44 136 118 150 208 140 C288 130 358 147 452 136
+                     C532 126 618 143 708 134 C778 127 842 143 910 137
+                     L910 200 L-5 200 Z"
+                  fill="url(#hillMG)" />
+
+            <!-- Foreground hill — richest, nearest -->
+            <path d="M-5 169 C74 151 158 166 258 156 C347 147 442 164 542 153
+                     C622 144 708 162 802 153 C850 149 880 157 910 154
+                     L910 200 L-5 200 Z"
+                  fill="url(#hillFG)" />
+
+            <!-- Highway shoulder -->
+            <path d="M-5 183 Q450 175 910 183"
+                  stroke="#cdbf9a" stroke-width="18" fill="none" opacity=".50" />
+            <!-- Center-line dashes -->
+            <path d="M-5 183 Q450 175 910 183"
+                  stroke="#e0d5b5" stroke-width="1.5" fill="none" opacity=".35"
+                  stroke-dasharray="28,18" />
+
+            <!-- ══════════════ BLUEBONNETS ══════════════ -->
+            <!-- Far row — small, on distant hill -->
+            <use href="#bb" transform="translate(28,126) scale(0.34)" />
+            <use href="#bb" transform="translate(56,122) scale(0.31)" />
+            <use href="#bb" transform="translate(87,125) scale(0.33)" />
+            <use href="#bb" transform="translate(120,121) scale(0.30)" />
+            <use href="#bb" transform="translate(158,124) scale(0.32)" />
+            <use href="#bb" transform="translate(200,119) scale(0.29)" />
+            <use href="#bb" transform="translate(244,122) scale(0.31)" />
+            <use href="#bb" transform="translate(290,118) scale(0.29)" />
+            <use href="#bb" transform="translate(338,121) scale(0.30)" />
+            <use href="#bb" transform="translate(385,117) scale(0.28)" />
+            <use href="#bb" transform="translate(432,120) scale(0.31)" />
+            <use href="#bb" transform="translate(480,116) scale(0.28)" />
+            <use href="#bb" transform="translate(526,119) scale(0.30)" />
+            <use href="#bb" transform="translate(572,116) scale(0.29)" />
+            <use href="#bb" transform="translate(618,120) scale(0.31)" />
+            <use href="#bb" transform="translate(662,116) scale(0.28)" />
+            <use href="#bb" transform="translate(706,119) scale(0.30)" />
+            <use href="#bb" transform="translate(750,122) scale(0.32)" />
+            <use href="#bb" transform="translate(792,118) scale(0.29)" />
+            <use href="#bb" transform="translate(832,121) scale(0.31)" />
+            <use href="#bb" transform="translate(868,118) scale(0.29)" />
+
+            <!-- Mid row — medium, on mid hill -->
+            <use href="#bb" transform="translate(18,141) scale(0.51)" />
+            <use href="#bb" transform="translate(52,138) scale(0.48)" />
+            <use href="#bb" transform="translate(88,141) scale(0.52)" />
+            <use href="#bb" transform="translate(128,137) scale(0.46)" />
+            <use href="#bb" transform="translate(169,140) scale(0.50)" />
+            <use href="#bb" transform="translate(212,136) scale(0.47)" />
+            <use href="#bb" transform="translate(256,139) scale(0.51)" />
+            <use href="#bb" transform="translate(302,135) scale(0.45)" />
+            <use href="#bb" transform="translate(347,138) scale(0.49)" />
+            <use href="#bb" transform="translate(394,134) scale(0.46)" />
+            <use href="#bb" transform="translate(440,137) scale(0.50)" />
+            <use href="#bb" transform="translate(486,133) scale(0.45)" />
+            <use href="#bb" transform="translate(531,137) scale(0.48)" />
+            <use href="#bb" transform="translate(575,135) scale(0.49)" />
+            <use href="#bb" transform="translate(620,138) scale(0.51)" />
+            <use href="#bb" transform="translate(664,134) scale(0.45)" />
+            <use href="#bb" transform="translate(708,137) scale(0.49)" />
+            <use href="#bb" transform="translate(752,140) scale(0.52)" />
+            <use href="#bb" transform="translate(795,136) scale(0.46)" />
+            <use href="#bb" transform="translate(838,139) scale(0.50)" />
+            <use href="#bb" transform="translate(878,137) scale(0.47)" />
+
+            <!-- Front row — large, on foreground hill -->
+            <use href="#bb" transform="translate(12,159) scale(0.72)" />
+            <use href="#bb" transform="translate(52,156) scale(0.67)" />
+            <use href="#bb" transform="translate(96,159) scale(0.73)" />
+            <use href="#bb" transform="translate(144,155) scale(0.64)" />
+            <use href="#bb" transform="translate(190,158) scale(0.69)" />
+            <use href="#bb" transform="translate(236,155) scale(0.66)" />
+            <use href="#bb" transform="translate(282,158) scale(0.71)" />
+            <use href="#bb" transform="translate(328,154) scale(0.63)" />
+            <use href="#bb" transform="translate(372,157) scale(0.68)" />
+            <use href="#bb" transform="translate(416,154) scale(0.65)" />
+            <use href="#bb" transform="translate(460,157) scale(0.70)" />
+            <use href="#bb" transform="translate(504,153) scale(0.63)" />
+            <use href="#bb" transform="translate(548,156) scale(0.67)" />
+            <use href="#bb" transform="translate(591,155) scale(0.69)" />
+            <use href="#bb" transform="translate(634,158) scale(0.73)" />
+            <use href="#bb" transform="translate(677,154) scale(0.63)" />
+            <use href="#bb" transform="translate(720,157) scale(0.68)" />
+            <use href="#bb" transform="translate(762,159) scale(0.72)" />
+            <use href="#bb" transform="translate(804,155) scale(0.64)" />
+            <use href="#bb" transform="translate(846,158) scale(0.69)" />
+            <use href="#bb" transform="translate(882,156) scale(0.66)" />
+
+            <!-- Location label -->
+            <text x="450" y="196" text-anchor="middle"
+                  fill="rgba(255,255,255,.48)" font-size="11"
+                  font-family="DM Sans, sans-serif">
               Highway 290, Brenham, TX — April
             </text>
           </svg>
