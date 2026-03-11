@@ -7,6 +7,14 @@ import StudentFloatingDock from "@/components/student/StudentFloatingDock";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
+interface AssemblyState {
+  bottle1Cut: boolean;
+  bottle2Cut: boolean;
+  topFlipped: boolean;
+  assembled: boolean;
+  stringThreaded: boolean;
+}
+
 interface BottleOrganism {
   id: string;
   name: string;
@@ -19,6 +27,17 @@ interface BottleOrganism {
 
 type CycleType = "water" | "carbon" | "nitrogen";
 
+// CycleStep: id, cycleType ("water"|"carbon"|"nitrogen"), label, description, animationKey string
+// Documented type for future cycle content authoring (not yet instantiated in this file)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface CycleStep {
+  id: string;
+  cycleType: CycleType;
+  label: string;
+  description: string;
+  animationKey: string;
+}
+
 interface StudentPrediction {
   sceneId: string;
   questionText: string;
@@ -27,6 +46,7 @@ interface StudentPrediction {
 }
 
 interface BottleLabState {
+  assemblyState: AssemblyState;
   organisms: BottleOrganism[];
   placedOrganisms: string[];
   completedScenes: string[];
@@ -38,51 +58,11 @@ interface BottleLabState {
 // ── Static data ─────────────────────────────────────────────────────────────
 
 const ALL_ORGANISMS: BottleOrganism[] = [
-  {
-    id: "plant",
-    name: "Aquatic Plant",
-    role: "producer",
-    zone: "aquatic",
-    svgKey: "plant",
-    emoji: "🌿",
-    color: "#22c55e",
-  },
-  {
-    id: "fish",
-    name: "Fish",
-    role: "consumer",
-    zone: "aquatic",
-    svgKey: "fish",
-    emoji: "🐟",
-    color: "#60a5fa",
-  },
-  {
-    id: "cricket",
-    name: "Cricket",
-    role: "consumer",
-    zone: "terrestrial",
-    svgKey: "cricket",
-    emoji: "🦗",
-    color: "#a78bfa",
-  },
-  {
-    id: "worm",
-    name: "Worm",
-    role: "decomposer",
-    zone: "terrestrial",
-    svgKey: "worm",
-    emoji: "🪱",
-    color: "#f59e0b",
-  },
-  {
-    id: "seeds",
-    name: "Seeds",
-    role: "producer",
-    zone: "terrestrial",
-    svgKey: "seeds",
-    emoji: "🌱",
-    color: "#4ade80",
-  },
+  { id: "plant", name: "Aquatic Plant", role: "producer", zone: "aquatic", svgKey: "plant", emoji: "🌿", color: "#22c55e" },
+  { id: "fish", name: "Fish", role: "consumer", zone: "aquatic", svgKey: "fish", emoji: "🐟", color: "#60a5fa" },
+  { id: "cricket", name: "Cricket", role: "consumer", zone: "terrestrial", svgKey: "cricket", emoji: "🦗", color: "#a78bfa" },
+  { id: "worm", name: "Worm", role: "decomposer", zone: "terrestrial", svgKey: "worm", emoji: "🪱", color: "#f59e0b" },
+  { id: "seeds", name: "Seeds", role: "producer", zone: "terrestrial", svgKey: "seeds", emoji: "🌱", color: "#4ade80" },
 ];
 
 const CYCLE_COLORS: Record<CycleType, string> = {
@@ -91,17 +71,457 @@ const CYCLE_COLORS: Record<CycleType, string> = {
   nitrogen: "#f59e0b",
 };
 
+// ── CER scoring constants ────────────────────────────────────────────────
+const DEFAULT_CER_MAX_SCORE = 3; // matches the number of rubric criteria
+const CER_PROFICIENCY_THRESHOLD = 0.66; // 66% — minimum fraction to earn "proficient" feedback
+
 const SCENE_META = [
-  { id: "setup", label: "Setup", icon: "🍶", cycleType: null },
+  { id: "assemble", label: "Cut & Assemble", icon: "✂️", cycleType: null },
+  { id: "organisms", label: "Add Organisms", icon: "🧬", cycleType: null },
   { id: "water", label: "Water Cycle", icon: "💧", cycleType: "water" as CycleType },
   { id: "carbon", label: "Carbon Cycle", icon: "🌿", cycleType: "carbon" as CycleType },
   { id: "nitrogen", label: "Nitrogen Cycle", icon: "🪱", cycleType: "nitrogen" as CycleType },
   { id: "reflect", label: "Reflect & Connect", icon: "✍️", cycleType: null },
 ];
 
-// ── Sub-components ───────────────────────────────────────────────────────────
+// ── Shake CSS injection ───────────────────────────────────────────────────
 
-// ── Bottle SVG ────────────────────────────────────────────────────────────
+const SHAKE_KEYFRAMES = `
+@keyframes bel-shake {
+  0%,100% { transform: translateX(0); }
+  15%     { transform: translateX(-8px); }
+  35%     { transform: translateX(8px); }
+  55%     { transform: translateX(-6px); }
+  75%     { transform: translateX(6px); }
+}
+@keyframes bel-flash-red {
+  0%,100% { box-shadow: none; }
+  30%     { box-shadow: 0 0 0 3px #ef444488; }
+  60%     { box-shadow: 0 0 0 3px #ef4444cc; }
+}
+.bel-shake { animation: bel-shake 0.45s ease, bel-flash-red 0.45s ease; }
+
+@keyframes bel-scalpel-progress {
+  from { width: 0; }
+}
+@keyframes bel-cut-split {
+  0%   { opacity:1; transform: translateY(0); }
+  100% { opacity:0.6; transform: translateY(4px); }
+}
+@keyframes bel-flip-in {
+  0%   { transform: scaleY(1) translateY(-20px); opacity: 0; }
+  50%  { transform: scaleY(-1) translateY(0);  opacity: 1; }
+  100% { transform: scaleY(1) translateY(0);   opacity: 1; }
+}
+`;
+
+// ── Assembly SVG (Scene 0) ────────────────────────────────────────────────
+
+interface BottleAssemblySVGProps {
+  assembly: AssemblyState;
+}
+
+function BottleAssemblySVG({ assembly }: BottleAssemblySVGProps) {
+  const { bottle1Cut, bottle2Cut, assembled, stringThreaded } = assembly;
+
+  // After assembly, show the single assembled bottle
+  if (assembled) {
+    return (
+      <svg viewBox="0 0 200 340" width="200" height="340" aria-label="Assembled bottle ecosystem">
+        {/* Cap + string */}
+        <rect x="70" y="10" width="60" height="14" rx="5" fill="#1e3a52" stroke="#2a4a62" strokeWidth="1" />
+        {stringThreaded && (
+          <line x1="100" y1="10" x2="100" y2="0" stroke="#d4a574" strokeWidth="2" strokeDasharray="3,2" />
+        )}
+        {/* Bottle body */}
+        <rect x="25" y="20" width="150" height="310" rx="28" fill="#0d2a3e" stroke="#00d4aa" strokeWidth="1.5" />
+        {/* Seam line where bottles joined */}
+        <line x1="25" y1="155" x2="175" y2="155" stroke="#00d4aa88" strokeWidth="1" strokeDasharray="4,3" />
+        {/* Water/aquatic zone */}
+        <rect x="26" y="195" width="148" height="134" rx="0" fill="#0a2540" />
+        <rect x="26" y="193" width="148" height="5" rx="0" fill="#1e4a7a" opacity="0.8" />
+        {/* Soil zone */}
+        <rect x="26" y="270" width="148" height="59" rx="0" fill="#2d1a0a" />
+        <rect x="26" y="268" width="148" height="5" fill="#4a2e12" />
+        {/* Zone labels */}
+        <text x="100" y="45" textAnchor="middle" fontSize="8" fill="#94a3b8" fontFamily="Outfit,sans-serif">AIR</text>
+        <text x="100" y="218" textAnchor="middle" fontSize="8" fill="#60a5fa" fontFamily="Outfit,sans-serif">AQUATIC</text>
+        <text x="100" y="300" textAnchor="middle" fontSize="8" fill="#a16207" fontFamily="Outfit,sans-serif">SOIL</text>
+        {/* Joined label */}
+        <rect x="55" y="148" width="90" height="13" rx="6" fill="#00d4aa22" />
+        <text x="100" y="158" textAnchor="middle" fontSize="7" fill="#00d4aa" fontFamily="Outfit,sans-serif" fontWeight="bold">JOINED ✓</text>
+        {/* Glow */}
+        <rect x="25" y="20" width="150" height="310" rx="28" fill="none" stroke="#00d4aa" strokeWidth="0.5" opacity="0.4" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 260 340" width="260" height="340" aria-label="Two bottles for assembly">
+      {/* Bottle 1 */}
+      <g>
+        <text x="55" y="15" textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="Outfit,sans-serif">Bottle 1</text>
+        {/* Cap */}
+        <rect x="25" y="20" width="60" height="12" rx="5" fill="#1e3a52" />
+        {/* Top section */}
+        <rect x="20" y="30" width="70" height={bottle1Cut ? 80 : 170} rx="12" fill="#0d2a3e" stroke={bottle1Cut ? "#ef4444" : "#1e3a52"} strokeWidth="1.5" />
+        {/* Cut line on bottle 1 */}
+        {!bottle1Cut ? (
+          <g>
+            <line x1="20" y1="112" x2="90" y2="112" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,3" />
+            <text x="55" y="108" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="Outfit,sans-serif">✂ cut here</text>
+          </g>
+        ) : (
+          <g>
+            {/* Bottom section – visually separated */}
+            <rect x="20" y="118" width="70" height="82" rx="12" fill="#0d2a3e" stroke="#ef4444" strokeWidth="1.5" opacity="0.7" />
+            <line x1="18" y1="113" x2="92" y2="113" stroke="#ef4444" strokeWidth="2" />
+            <text x="55" y="128" textAnchor="middle" fontSize="7" fill="#ef4444" fontFamily="Outfit,sans-serif">CUT ✓</text>
+          </g>
+        )}
+      </g>
+
+      {/* Bottle 2 */}
+      <g transform="translate(150,0)">
+        <text x="55" y="15" textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="Outfit,sans-serif">Bottle 2</text>
+        {/* Cap */}
+        <rect x="25" y="20" width="60" height="12" rx="5" fill="#1e3a52" />
+        {/* Body */}
+        <rect x="20" y="30" width="70" height={bottle2Cut ? 80 : 170} rx="12" fill="#0d2a3e" stroke={bottle2Cut ? "#ef4444" : "#1e3a52"} strokeWidth="1.5" />
+        {!bottle2Cut ? (
+          <g>
+            <line x1="20" y1="112" x2="90" y2="112" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,3" />
+            <text x="55" y="108" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="Outfit,sans-serif">✂ cut here</text>
+          </g>
+        ) : (
+          <g>
+            <rect x="20" y="118" width="70" height="82" rx="12" fill="#0d2a3e" stroke="#ef4444" strokeWidth="1.5" opacity="0.7" />
+            <line x1="18" y1="113" x2="92" y2="113" stroke="#ef4444" strokeWidth="2" />
+            <text x="55" y="128" textAnchor="middle" fontSize="7" fill="#ef4444" fontFamily="Outfit,sans-serif">CUT ✓</text>
+          </g>
+        )}
+      </g>
+    </svg>
+  );
+}
+
+// ── Scene 0: Cut & Assemble ───────────────────────────────────────────────
+
+type CutBottle = "bottle1" | "bottle2";
+
+interface CutAndAssembleSceneProps {
+  assembly: AssemblyState;
+  onAssemblyChange: (next: AssemblyState) => void;
+}
+
+function CutAndAssembleScene({ assembly, onAssemblyChange }: CutAndAssembleSceneProps) {
+  const [scalpelActive, setScalpelActive] = useState(false);
+  const [dragProgress, setDragProgress] = useState(0); // 0-100
+  const [activeCut, setActiveCut] = useState<CutBottle | null>(null);
+  const [wrongFlash, setWrongFlash] = useState<CutBottle | null>(null);
+  const [shakingEl, setShakingEl] = useState<string | null>(null);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const cutZoneRef1 = useRef<HTMLDivElement>(null);
+  const cutZoneRef2 = useRef<HTMLDivElement>(null);
+
+  function triggerShake(id: string) {
+    setShakingEl(id);
+    setTimeout(() => setShakingEl(null), 500);
+  }
+
+  function handleCutPointerDown(bottle: CutBottle, e: React.PointerEvent<HTMLDivElement>) {
+    if (!scalpelActive) {
+      triggerShake(`no-scalpel-${bottle}`);
+      return;
+    }
+    const already = bottle === "bottle1" ? assembly.bottle1Cut : assembly.bottle2Cut;
+    if (already) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    isDragging.current = true;
+    dragStartX.current = e.clientX;
+    setActiveCut(bottle);
+    setDragProgress(0);
+  }
+
+  function handleCutPointerMove(bottle: CutBottle, e: React.PointerEvent<HTMLDivElement>) {
+    if (!isDragging.current || activeCut !== bottle) return;
+    const ref = bottle === "bottle1" ? cutZoneRef1 : cutZoneRef2;
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    const moved = e.clientX - dragStartX.current;
+    const pct = Math.max(0, Math.min(100, (moved / rect.width) * 100));
+    setDragProgress(pct);
+    if (pct >= 85) {
+      isDragging.current = false;
+      setActiveCut(null);
+      setDragProgress(0);
+      onAssemblyChange({ ...assembly, [bottle === "bottle1" ? "bottle1Cut" : "bottle2Cut"]: true });
+    }
+  }
+
+  function handleCutPointerUp(bottle: CutBottle) {
+    if (!isDragging.current || activeCut !== bottle) return;
+    isDragging.current = false;
+    if (dragProgress < 85) {
+      setWrongFlash(bottle);
+      triggerShake(`cut-${bottle}`);
+      setTimeout(() => setWrongFlash(null), 500);
+    }
+    setDragProgress(0);
+    setActiveCut(null);
+  }
+
+  function handleFlipNest() {
+    onAssemblyChange({ ...assembly, topFlipped: true, assembled: true });
+  }
+
+  function handleThreadString() {
+    onAssemblyChange({ ...assembly, stringThreaded: true });
+  }
+
+  const bothCut = assembly.bottle1Cut && assembly.bottle2Cut;
+  const step = !bothCut ? "cut" : !assembly.assembled ? "nest" : !assembly.stringThreaded ? "string" : "done";
+
+  return (
+    <div className="space-y-4">
+      <style>{SHAKE_KEYFRAMES}</style>
+      <div className="rounded-2xl p-4" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+        <h3 style={{ fontFamily: "Outfit,sans-serif", fontWeight: 700, fontSize: 15, color: "#e2e8f0", marginBottom: 6 }}>
+          ✂️ Cut &amp; Assemble Your Bottle
+        </h3>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
+          You need two plastic bottles. Cut each at the marked line, flip the top of Bottle 1, and nest it into Bottle 2 to form the terrarium.
+        </p>
+      </div>
+
+      {/* Step indicator */}
+      <div className="flex gap-2 flex-wrap">
+        {[
+          { key: "cut1", label: "1. Cut Bottle 1", done: assembly.bottle1Cut },
+          { key: "cut2", label: "2. Cut Bottle 2", done: assembly.bottle2Cut },
+          { key: "nest", label: "3. Flip & Nest", done: assembly.assembled },
+          { key: "string", label: "4. Thread String", done: assembly.stringThreaded },
+        ].map((s) => (
+          <span
+            key={s.key}
+            className="rounded-full px-3 py-1 text-xs font-semibold"
+            style={{
+              background: s.done ? "#00d4aa22" : "#0d1e2c",
+              border: `1px solid ${s.done ? "#00d4aa" : "#1e3a52"}`,
+              color: s.done ? "#00d4aa" : "#64748b",
+              fontFamily: "Outfit,sans-serif",
+            }}
+          >
+            {s.done ? "✅" : "○"} {s.label}
+          </span>
+        ))}
+      </div>
+
+      {/* Scalpel pickup */}
+      {step === "cut" && (
+        <div className="rounded-2xl p-4" style={{ background: "#0d1e2c", border: "1px solid #1e3a52" }}>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#e2e8f0", marginBottom: 10 }}>
+            {scalpelActive
+              ? "🔪 Scalpel ready! Drag left → right across a dashed cut line."
+              : "First, pick up the scalpel tool to start cutting."}
+          </p>
+          {!scalpelActive && (
+            <button
+              type="button"
+              aria-label="Pick up scalpel tool"
+              onClick={() => setScalpelActive(true)}
+              className="rounded-full px-5 py-2 text-sm font-semibold transition-opacity hover:opacity-80"
+              style={{ background: "#f59e0b", color: "#0d1e2c", fontFamily: "Outfit,sans-serif" }}
+            >
+              🔪 Pick Up Scalpel
+            </button>
+          )}
+
+          {scalpelActive && (
+            <div className="flex flex-col gap-4">
+              {/* Bottle 1 cut zone */}
+              {!assembly.bottle1Cut && (
+                <div>
+                  <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 12, color: "#f59e0b", marginBottom: 6 }}>
+                    Drag across Bottle 1 cut line:
+                  </p>
+                  <div
+                    ref={cutZoneRef1}
+                    className={`relative select-none overflow-hidden rounded-xl ${shakingEl === "cut-bottle1" ? "bel-shake" : ""}`}
+                    style={{
+                      height: 48,
+                      background: wrongFlash === "bottle1" ? "#ef444422" : "#132638",
+                      border: `2px dashed ${wrongFlash === "bottle1" ? "#ef4444" : "#f59e0b"}`,
+                      cursor: "ew-resize",
+                      touchAction: "none",
+                    }}
+                    onPointerDown={(e) => handleCutPointerDown("bottle1", e)}
+                    onPointerMove={(e) => handleCutPointerMove("bottle1", e)}
+                    onPointerUp={() => handleCutPointerUp("bottle1")}
+                    onPointerLeave={() => handleCutPointerUp("bottle1")}
+                    role="slider"
+                    aria-label="Drag to cut Bottle 1"
+                    aria-valuenow={Math.round(activeCut === "bottle1" ? dragProgress : 0)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div
+                      style={{
+                        position: "absolute", top: 0, left: 0, height: "100%",
+                        width: `${activeCut === "bottle1" ? dragProgress : 0}%`,
+                        background: "#f59e0b33",
+                        transition: activeCut === "bottle1" ? "none" : "width 0.2s",
+                      }}
+                    />
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                      <span style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#f59e0b" }}>
+                        {activeCut === "bottle1" ? `🔪 ${Math.round(dragProgress)}%` : "→ drag here →"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {assembly.bottle1Cut && (
+                <div className="rounded-xl p-3" style={{ background: "#00d4aa11", border: "1px solid #00d4aa44" }}>
+                  <span style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#00d4aa" }}>✅ Bottle 1 cut!</span>
+                </div>
+              )}
+
+              {/* Bottle 2 cut zone */}
+              {!assembly.bottle2Cut && (
+                <div>
+                  <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 12, color: "#f59e0b", marginBottom: 6 }}>
+                    Now drag across Bottle 2 cut line:
+                  </p>
+                  <div
+                    ref={cutZoneRef2}
+                    className={`relative select-none overflow-hidden rounded-xl ${shakingEl === "cut-bottle2" ? "bel-shake" : ""}`}
+                    style={{
+                      height: 48,
+                      background: wrongFlash === "bottle2" ? "#ef444422" : "#132638",
+                      border: `2px dashed ${wrongFlash === "bottle2" ? "#ef4444" : "#f59e0b"}`,
+                      cursor: assembly.bottle1Cut ? "ew-resize" : "not-allowed",
+                      opacity: assembly.bottle1Cut ? 1 : 0.4,
+                      touchAction: "none",
+                    }}
+                    onPointerDown={(e) => assembly.bottle1Cut && handleCutPointerDown("bottle2", e)}
+                    onPointerMove={(e) => assembly.bottle1Cut && handleCutPointerMove("bottle2", e)}
+                    onPointerUp={() => assembly.bottle1Cut && handleCutPointerUp("bottle2")}
+                    onPointerLeave={() => assembly.bottle1Cut && handleCutPointerUp("bottle2")}
+                    role="slider"
+                    aria-label="Drag to cut Bottle 2"
+                    aria-disabled={!assembly.bottle1Cut}
+                    aria-valuenow={Math.round(activeCut === "bottle2" ? dragProgress : 0)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div
+                      style={{
+                        position: "absolute", top: 0, left: 0, height: "100%",
+                        width: `${activeCut === "bottle2" ? dragProgress : 0}%`,
+                        background: "#f59e0b33",
+                        transition: activeCut === "bottle2" ? "none" : "width 0.2s",
+                      }}
+                    />
+                    <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+                      <span style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: assembly.bottle1Cut ? "#f59e0b" : "#64748b" }}>
+                        {activeCut === "bottle2" ? `🔪 ${Math.round(dragProgress)}%` : assembly.bottle1Cut ? "→ drag here →" : "Cut Bottle 1 first"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {assembly.bottle2Cut && (
+                <div className="rounded-xl p-3" style={{ background: "#00d4aa11", border: "1px solid #00d4aa44" }}>
+                  <span style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#00d4aa" }}>✅ Bottle 2 cut!</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Flip & Nest step */}
+      {step === "nest" && (
+        <div className="rounded-2xl p-5" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+          <h4 style={{ fontFamily: "Outfit,sans-serif", fontWeight: 700, fontSize: 14, color: "#e2e8f0", marginBottom: 8 }}>
+            🔄 Flip &amp; Nest the Top Piece
+          </h4>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6, marginBottom: 12 }}>
+            Take the <strong style={{ color: "#e2e8f0" }}>top section of Bottle 1</strong> (the part with the cap). Flip it upside-down
+            so the cap points downward, then nest it inside the <strong style={{ color: "#e2e8f0" }}>bottom of Bottle 2</strong>.
+            The cap hangs down like a funnel, connecting the two chambers.
+          </p>
+          {/* Visual diagram */}
+          <div className="flex items-center justify-center gap-6 mb-4" aria-hidden="true">
+            <div className="flex flex-col items-center gap-1">
+              <span style={{ fontSize: 28 }}>🍶</span>
+              <span style={{ fontSize: 10, color: "#64748b", fontFamily: "Outfit,sans-serif" }}>top piece</span>
+            </div>
+            <span style={{ fontSize: 20, color: "#94a3b8" }}>→</span>
+            <div className="flex flex-col items-center gap-1">
+              <span style={{ fontSize: 28 }}>🔄</span>
+              <span style={{ fontSize: 10, color: "#64748b", fontFamily: "Outfit,sans-serif" }}>flip</span>
+            </div>
+            <span style={{ fontSize: 20, color: "#94a3b8" }}>→</span>
+            <div className="flex flex-col items-center gap-1">
+              <span style={{ fontSize: 28 }}>🫙</span>
+              <span style={{ fontSize: 10, color: "#64748b", fontFamily: "Outfit,sans-serif" }}>nest in Bottle 2</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Flip and nest top piece of Bottle 1 into Bottle 2"
+            onClick={handleFlipNest}
+            className="rounded-full px-6 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
+            style={{ background: "#6366f1", color: "#fff", fontFamily: "Outfit,sans-serif" }}
+          >
+            🔄 Flip &amp; Nest Top Piece
+          </button>
+        </div>
+      )}
+
+      {/* Thread string step */}
+      {step === "string" && (
+        <div className="rounded-2xl p-5" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+          <h4 style={{ fontFamily: "Outfit,sans-serif", fontWeight: 700, fontSize: 14, color: "#e2e8f0", marginBottom: 8 }}>
+            🧵 Thread the Cotton String
+          </h4>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6, marginBottom: 12 }}>
+            Thread a piece of cotton string through the bottle cap hole. This acts as a wick, allowing water to travel
+            from the aquatic zone down through the soil — connecting the two chambers.
+          </p>
+          <div className="flex items-center gap-3 mb-4" aria-hidden="true">
+            <span style={{ fontSize: 24 }}>🧵</span>
+            <span style={{ fontSize: 18, color: "#94a3b8" }}>→</span>
+            <span style={{ fontSize: 24 }}>🔩</span>
+            <span style={{ fontSize: 12, color: "#94a3b8", fontFamily: "Outfit,sans-serif" }}>(cap hole)</span>
+          </div>
+          <button
+            type="button"
+            aria-label="Thread cotton string through cap"
+            onClick={handleThreadString}
+            className="rounded-full px-6 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80"
+            style={{ background: "#d4a574", color: "#1a0a00", fontFamily: "Outfit,sans-serif" }}
+          >
+            🧵 Thread String Through Cap
+          </button>
+        </div>
+      )}
+
+      {step === "done" && (
+        <div className="rounded-2xl p-4" style={{ background: "#00d4aa11", border: "1px solid #00d4aa44" }}>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 14, color: "#00d4aa", fontWeight: 700 }}>
+            ✅ Bottle assembled! Your terrarium is ready to receive organisms.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Assembled Bottle SVG (Scenes 1+) ─────────────────────────────────────
 
 interface BottleSVGProps {
   placedOrganisms: string[];
@@ -116,163 +536,103 @@ function BottleSVG({ placedOrganisms, activeOrganismIds, cycleType, animating }:
   const terrestrial = placed.filter((o) => o.zone === "terrestrial");
 
   return (
-    <svg
-      viewBox="0 0 220 380"
-      width="220"
-      height="380"
-      aria-label="Bottle ecosystem diagram"
-      style={{ filter: "drop-shadow(0 0 24px #00d4aa33)" }}
-    >
-      {/* Bottle outline */}
-      <rect x="30" y="20" width="160" height="340" rx="30" ry="30"
-        fill="#0d2a3e" stroke="#1e3a52" strokeWidth="2" />
+    <svg viewBox="0 0 220 380" width="220" height="380" aria-label="Bottle ecosystem diagram"
+      style={{ filter: "drop-shadow(0 0 24px #00d4aa33)" }}>
+      <rect x="30" y="20" width="160" height="340" rx="30" ry="30" fill="#0d2a3e" stroke="#1e3a52" strokeWidth="2" />
+      <rect x="31" y="220" width="158" height="139" rx="0" fill="#0a2540" />
+      <rect x="31" y="218" width="158" height="6" rx="2" fill="#1e4a7a" opacity="0.7" />
+      <rect x="31" y="300" width="158" height="59" rx="0" fill="#2d1a0a" />
+      <rect x="31" y="298" width="158" height="5" rx="0" fill="#4a2e12" />
+      <text x="110" y="50" textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="Outfit,sans-serif">AIR</text>
+      <text x="110" y="245" textAnchor="middle" fontSize="9" fill="#60a5fa" fontFamily="Outfit,sans-serif">AQUATIC</text>
+      <text x="110" y="325" textAnchor="middle" fontSize="9" fill="#a16207" fontFamily="Outfit,sans-serif">SOIL</text>
 
-      {/* Aquatic zone */}
-      <rect x="31" y="220" width="158" height="139" rx="0" ry="0"
-        fill="#0a2540" />
-      <rect x="31" y="218" width="158" height="6" rx="2"
-        fill="#1e4a7a" opacity="0.7" />
-
-      {/* Soil zone */}
-      <rect x="31" y="300" width="158" height="59" rx="0" ry="0"
-        fill="#2d1a0a" />
-      <rect x="31" y="298" width="158" height="5" rx="0"
-        fill="#4a2e12" />
-
-      {/* Air zone label */}
-      <text x="110" y="50" textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="Outfit, sans-serif">
-        AIR
-      </text>
-      <text x="110" y="245" textAnchor="middle" fontSize="9" fill="#60a5fa" fontFamily="Outfit, sans-serif">
-        AQUATIC
-      </text>
-      <text x="110" y="325" textAnchor="middle" fontSize="9" fill="#a16207" fontFamily="Outfit, sans-serif">
-        SOIL
-      </text>
-
-      {/* Organisms */}
       {aquatic.map((org, i) => {
         const isActive = activeOrganismIds.includes(org.id);
-        const cx = 70 + i * 50;
-        const cy = 265;
+        const cx = 70 + i * 50; const cy = 265;
         return (
           <g key={org.id}>
-            {isActive && (
-              <circle cx={cx} cy={cy} r="18" fill={org.color} opacity="0.18">
-                <animate attributeName="r" values="18;24;18" dur="1.5s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.18;0.32;0.18" dur="1.5s" repeatCount="indefinite" />
-              </circle>
-            )}
-            <text x={cx} y={cy + 6} textAnchor="middle" fontSize="20" fontFamily="serif">
-              {org.emoji}
-            </text>
+            {isActive && <circle cx={cx} cy={cy} r="18" fill={org.color} opacity="0.18">
+              <animate attributeName="r" values="18;24;18" dur="1.5s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.18;0.32;0.18" dur="1.5s" repeatCount="indefinite" />
+            </circle>}
+            <text x={cx} y={cy + 6} textAnchor="middle" fontSize="20" fontFamily="serif">{org.emoji}</text>
           </g>
         );
       })}
       {terrestrial.map((org, i) => {
         const isActive = activeOrganismIds.includes(org.id);
-        const cx = 65 + i * 40;
-        const cy = 175;
+        const cx = 65 + i * 40; const cy = 175;
         return (
           <g key={org.id}>
-            {isActive && (
-              <circle cx={cx} cy={cy} r="16" fill={org.color} opacity="0.18">
-                <animate attributeName="r" values="16;22;16" dur="1.5s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.18;0.32;0.18" dur="1.5s" repeatCount="indefinite" />
-              </circle>
-            )}
-            <text x={cx} y={cy + 6} textAnchor="middle" fontSize="18" fontFamily="serif">
-              {org.emoji}
-            </text>
+            {isActive && <circle cx={cx} cy={cy} r="16" fill={org.color} opacity="0.18">
+              <animate attributeName="r" values="16;22;16" dur="1.5s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.18;0.32;0.18" dur="1.5s" repeatCount="indefinite" />
+            </circle>}
+            <text x={cx} y={cy + 6} textAnchor="middle" fontSize="18" fontFamily="serif">{org.emoji}</text>
           </g>
         );
       })}
 
-      {/* Bottle cap */}
       <rect x="75" y="10" width="70" height="15" rx="6" fill="#1e3a52" stroke="#2a4a62" strokeWidth="1" />
 
       {/* Water cycle animation */}
       {cycleType === "water" && animating && (
         <g>
-          {/* Evaporation droplets */}
           <circle cx="100" cy="220" r="4" fill="#60a5fa" opacity="0.8">
-            <animateMotion dur="2s" repeatCount="indefinite"
-              path="M 0 0 C 0 -80 20 -160 10 -180" />
+            <animateMotion dur="2s" repeatCount="indefinite" path="M 0 0 C 0 -80 20 -160 10 -180" />
             <animate attributeName="opacity" values="0.8;0.2;0" dur="2s" repeatCount="indefinite" />
           </circle>
           <circle cx="130" cy="220" r="3" fill="#60a5fa" opacity="0.7">
-            <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.5s"
-              path="M 0 0 C 10 -70 -10 -140 5 -170" />
+            <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.5s" path="M 0 0 C 10 -70 -10 -140 5 -170" />
             <animate attributeName="opacity" values="0.7;0.3;0" dur="2.5s" repeatCount="indefinite" begin="0.5s" />
           </circle>
-          {/* Condensation on bottle walls */}
           <circle cx="40" cy="80" r="3" fill="#60a5fa" opacity="0.6">
-            <animateMotion dur="3s" repeatCount="indefinite" begin="1s"
-              path="M 0 0 L 0 120" />
+            <animateMotion dur="3s" repeatCount="indefinite" begin="1s" path="M 0 0 L 0 120" />
           </circle>
           <circle cx="180" cy="100" r="3" fill="#60a5fa" opacity="0.6">
-            <animateMotion dur="3.5s" repeatCount="indefinite" begin="1.5s"
-              path="M 0 0 L 0 100" />
+            <animateMotion dur="3.5s" repeatCount="indefinite" begin="1.5s" path="M 0 0 L 0 100" />
           </circle>
-          {/* Label */}
-          <text x="110" y="130" textAnchor="middle" fontSize="8" fill="#60a5fa" fontFamily="Outfit, sans-serif" opacity="0.8">
-            evaporation ↑
-          </text>
-          <text x="55" y="160" textAnchor="middle" fontSize="7" fill="#60a5fa" fontFamily="Outfit, sans-serif" opacity="0.7">
-            condensation
-          </text>
+          <text x="110" y="130" textAnchor="middle" fontSize="8" fill="#60a5fa" fontFamily="Outfit,sans-serif" opacity="0.8">evaporation ↑</text>
+          <text x="55" y="160" textAnchor="middle" fontSize="7" fill="#60a5fa" fontFamily="Outfit,sans-serif" opacity="0.7">condensation</text>
         </g>
       )}
 
       {/* Carbon cycle animation */}
       {cycleType === "carbon" && animating && (
         <g>
-          {/* CO2 from fish */}
-          <text x="95" y="250" fontSize="8" fill="#22c55e" fontFamily="Outfit, sans-serif" opacity="0">
+          <text x="95" y="250" fontSize="8" fill="#22c55e" fontFamily="Outfit,sans-serif" opacity="0">
             CO₂
             <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
             <animateMotion dur="2s" repeatCount="indefinite" path="M 0 0 L -20 -80" />
           </text>
-          {/* CO2 from cricket */}
-          <text x="140" y="160" fontSize="8" fill="#22c55e" fontFamily="Outfit, sans-serif" opacity="0">
+          <text x="140" y="160" fontSize="8" fill="#22c55e" fontFamily="Outfit,sans-serif" opacity="0">
             CO₂
             <animate attributeName="opacity" values="0;1;0" dur="2.5s" repeatCount="indefinite" begin="0.5s" />
             <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.5s" path="M 0 0 L -30 -60" />
           </text>
-          {/* O2 arrow from plant */}
-          <text x="65" y="150" fontSize="8" fill="#4ade80" fontFamily="Outfit, sans-serif" opacity="0">
+          <text x="65" y="150" fontSize="8" fill="#4ade80" fontFamily="Outfit,sans-serif" opacity="0">
             O₂ →
             <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" begin="1s" />
             <animateMotion dur="2s" repeatCount="indefinite" begin="1s" path="M 0 0 L 0 -40" />
           </text>
-          <text x="110" y="90" textAnchor="middle" fontSize="8" fill="#22c55e" fontFamily="Outfit, sans-serif" opacity="0.8">
-            photosynthesis ↓
-          </text>
-          <text x="110" y="200" textAnchor="middle" fontSize="8" fill="#22c55e" fontFamily="Outfit, sans-serif" opacity="0.7">
-            respiration ↑
-          </text>
+          <text x="110" y="90" textAnchor="middle" fontSize="8" fill="#22c55e" fontFamily="Outfit,sans-serif" opacity="0.8">photosynthesis ↓</text>
+          <text x="110" y="200" textAnchor="middle" fontSize="8" fill="#22c55e" fontFamily="Outfit,sans-serif" opacity="0.7">respiration ↑</text>
         </g>
       )}
 
       {/* Nitrogen cycle animation */}
       {cycleType === "nitrogen" && animating && (
         <g>
-          {/* Dead matter to soil */}
           <circle cx="90" cy="285" r="4" fill="#f59e0b" opacity="0">
             <animate attributeName="opacity" values="0;0.9;0" dur="2s" repeatCount="indefinite" />
             <animateMotion dur="2s" repeatCount="indefinite" path="M 0 0 L 10 30" />
           </circle>
-          {/* Nitrogen arrow to roots */}
           <line x1="80" y1="310" x2="80" y2="340" stroke="#f59e0b" strokeWidth="2" opacity="0">
             <animate attributeName="opacity" values="0;0.8;0" dur="2s" repeatCount="indefinite" begin="0.8s" />
           </line>
-          <text x="110" y="285" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="Outfit, sans-serif" opacity="0.8">
-            decomposition
-          </text>
-          <text x="110" y="350" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="Outfit, sans-serif" opacity="0.8">
-            N absorbed by roots
-          </text>
-          {/* Worm movement hint */}
+          <text x="110" y="285" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="Outfit,sans-serif" opacity="0.8">decomposition</text>
+          <text x="110" y="350" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="Outfit,sans-serif" opacity="0.8">N absorbed by roots</text>
           <circle cx="100" cy="305" r="5" fill="#f59e0b" opacity="0">
             <animate attributeName="opacity" values="0;0.7;0" dur="1.5s" repeatCount="indefinite" begin="0.3s" />
             <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.3s" path="M 0 0 C 10 5 -5 10 5 15" />
@@ -280,12 +640,200 @@ function BottleSVG({ placedOrganisms, activeOrganismIds, cycleType, animating }:
         </g>
       )}
 
-      {/* Bottle label */}
       <rect x="65" y="355" width="90" height="16" rx="8" fill="#132638" />
-      <text x="110" y="367" textAnchor="middle" fontSize="8" fill="#00d4aa" fontFamily="Outfit, sans-serif" fontWeight="bold">
+      <text x="110" y="367" textAnchor="middle" fontSize="8" fill="#00d4aa" fontFamily="Outfit,sans-serif" fontWeight="bold">
         BOTTLE ECOSYSTEM
       </text>
     </svg>
+  );
+}
+
+// ── Scene 1: Add Organisms (drag-to-zone) ────────────────────────────────
+
+interface AddOrganismsSceneProps {
+  placedOrganisms: string[];
+  onPlace: (id: string, zone: "terrestrial" | "aquatic") => void;
+  onRemove: (id: string) => void;
+  shakeId: string | null;
+}
+
+function AddOrganismsScene({ placedOrganisms, onPlace, onRemove, shakeId }: AddOrganismsSceneProps) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const trayOrganisms = ALL_ORGANISMS.filter((o) => !placedOrganisms.includes(o.id));
+  const allPlaced = placedOrganisms.length === ALL_ORGANISMS.length;
+
+  function handleOrganismClick(id: string) {
+    setSelected((prev) => (prev === id ? null : id));
+  }
+
+  function handleZoneDrop(zone: "terrestrial" | "aquatic") {
+    if (!selected) return;
+    const org = ALL_ORGANISMS.find((o) => o.id === selected);
+    if (!org) return;
+    onPlace(selected, zone);
+    setSelected(null);
+  }
+
+  return (
+    <div className="space-y-4">
+      <style>{SHAKE_KEYFRAMES}</style>
+      <div className="rounded-2xl p-4" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+        <h3 style={{ fontFamily: "Outfit,sans-serif", fontWeight: 700, fontSize: 15, color: "#e2e8f0", marginBottom: 6 }}>
+          🧬 Add Your Organisms
+        </h3>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
+          Select an organism from the tray below, then click the correct zone in the bottle.
+          Terrestrial organisms live in the top (air/soil) chamber. Aquatic organisms live in the bottom chamber.
+        </p>
+      </div>
+
+      {/* Drop zones */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Terrestrial zone */}
+        <button
+          type="button"
+          aria-label="Drop in terrestrial zone (top)"
+          onClick={() => handleZoneDrop("terrestrial")}
+          disabled={!selected}
+          className="rounded-2xl p-4 text-left transition-all"
+          style={{
+            background: selected ? "#1a2a1a" : "#0d1e2c",
+            border: `2px ${selected ? "solid" : "dashed"} ${selected ? "#4ade80" : "#1e3a52"}`,
+            cursor: selected ? "pointer" : "default",
+            minHeight: 90,
+          }}
+        >
+          <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 12, color: "#4ade80", fontWeight: 700, marginBottom: 4 }}>
+            🌱 TERRESTRIAL (top)
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {ALL_ORGANISMS.filter((o) => o.zone === "terrestrial" && placedOrganisms.includes(o.id)).map((o) => (
+              <span
+                key={o.id}
+                className={shakeId === o.id ? "bel-shake" : ""}
+                style={{ fontSize: 20 }}
+                title={o.name}
+              >{o.emoji}</span>
+            ))}
+          </div>
+          {selected && ALL_ORGANISMS.find((o) => o.id === selected)?.zone === "terrestrial" && (
+            <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 11, color: "#4ade80", marginTop: 4 }}>
+              ↑ Click to place here
+            </div>
+          )}
+          {selected && ALL_ORGANISMS.find((o) => o.id === selected)?.zone !== "terrestrial" && (
+            <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 11, color: "#ef4444", marginTop: 4 }}>
+              ✗ Wrong zone for this organism
+            </div>
+          )}
+        </button>
+
+        {/* Aquatic zone */}
+        <button
+          type="button"
+          aria-label="Drop in aquatic zone (bottom)"
+          onClick={() => handleZoneDrop("aquatic")}
+          disabled={!selected}
+          className="rounded-2xl p-4 text-left transition-all"
+          style={{
+            background: selected ? "#0a2540" : "#0d1e2c",
+            border: `2px ${selected ? "solid" : "dashed"} ${selected ? "#60a5fa" : "#1e3a52"}`,
+            cursor: selected ? "pointer" : "default",
+            minHeight: 90,
+          }}
+        >
+          <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 12, color: "#60a5fa", fontWeight: 700, marginBottom: 4 }}>
+            💧 AQUATIC (bottom)
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {ALL_ORGANISMS.filter((o) => o.zone === "aquatic" && placedOrganisms.includes(o.id)).map((o) => (
+              <span
+                key={o.id}
+                className={shakeId === o.id ? "bel-shake" : ""}
+                style={{ fontSize: 20 }}
+                title={o.name}
+              >{o.emoji}</span>
+            ))}
+          </div>
+          {selected && ALL_ORGANISMS.find((o) => o.id === selected)?.zone === "aquatic" && (
+            <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 11, color: "#60a5fa", marginTop: 4 }}>
+              ↑ Click to place here
+            </div>
+          )}
+          {selected && ALL_ORGANISMS.find((o) => o.id === selected)?.zone !== "aquatic" && (
+            <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 11, color: "#ef4444", marginTop: 4 }}>
+              ✗ Wrong zone for this organism
+            </div>
+          )}
+        </button>
+      </div>
+
+      {/* Organism tray */}
+      <div className="rounded-2xl p-3" style={{ background: "#0d1e2c", border: "1px solid #1e3a52" }}>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+          🗂 Organism Tray — click to select
+        </p>
+        {trayOrganisms.length === 0 ? (
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#00d4aa" }}>All organisms placed! ✓</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {trayOrganisms.map((org) => (
+              <button
+                key={org.id}
+                type="button"
+                aria-pressed={selected === org.id}
+                aria-label={`Select ${org.name} (${org.role}, ${org.zone})`}
+                onClick={() => handleOrganismClick(org.id)}
+                className={`rounded-xl p-2 transition-all hover:opacity-80 ${shakeId === org.id ? "bel-shake" : ""}`}
+                style={{
+                  background: selected === org.id ? `${org.color}33` : "#132638",
+                  border: `2px solid ${selected === org.id ? org.color : "#1e3a52"}`,
+                }}
+              >
+                <div style={{ fontSize: 22 }}>{org.emoji}</div>
+                <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 10, color: selected === org.id ? org.color : "#94a3b8", marginTop: 2 }}>
+                  {org.name}
+                </div>
+                <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 9, color: "#64748b", textTransform: "capitalize" }}>
+                  {org.zone}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Placed list */}
+      {placedOrganisms.length > 0 && (
+        <div className="rounded-xl p-3" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+            Placed — click to return to tray
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ALL_ORGANISMS.filter((o) => placedOrganisms.includes(o.id)).map((org) => (
+              <button
+                key={org.id}
+                type="button"
+                aria-label={`Remove ${org.name} back to tray`}
+                onClick={() => onRemove(org.id)}
+                className="rounded-xl px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-70"
+                style={{ background: `${org.color}22`, border: `1px solid ${org.color}`, color: org.color, fontFamily: "Outfit,sans-serif" }}
+              >
+                {org.emoji} {org.name} ×
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {allPlaced && (
+        <div className="rounded-xl p-3" style={{ background: "#00d4aa11", border: "1px solid #00d4aa44" }}>
+          <span style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#00d4aa" }}>
+            ✅ All organisms placed in their correct zones — ecosystem is ready!
+          </span>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -304,32 +852,11 @@ function PredictionGate({ question, options, onSubmit, submitted }: PredictionGa
   if (submitted) return null;
 
   return (
-    <div
-      className="rounded-2xl p-5"
-      style={{ background: "#132638", border: "1px solid #1e3a52" }}
-    >
-      <p
-        style={{
-          fontFamily: "Outfit, sans-serif",
-          fontSize: 13,
-          color: "#f59e0b",
-          fontWeight: 600,
-          marginBottom: 6,
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-        }}
-      >
+    <div className="rounded-2xl p-5" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+      <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
         🔒 Prediction Gate
       </p>
-      <p
-        style={{
-          fontFamily: "Outfit, sans-serif",
-          fontSize: 14,
-          color: "#e2e8f0",
-          marginBottom: 12,
-          lineHeight: 1.6,
-        }}
-      >
+      <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 14, color: "#e2e8f0", marginBottom: 12, lineHeight: 1.6 }}>
         {question}
       </p>
       {options ? (
@@ -345,7 +872,7 @@ function PredictionGate({ question, options, onSubmit, submitted }: PredictionGa
                 background: answer === opt ? "#00d4aa22" : "#0d1e2c",
                 border: `1px solid ${answer === opt ? "#00d4aa" : "#1e3a52"}`,
                 color: answer === opt ? "#00d4aa" : "#94a3b8",
-                fontFamily: "Outfit, sans-serif",
+                fontFamily: "Outfit,sans-serif",
               }}
             >
               {opt}
@@ -360,12 +887,7 @@ function PredictionGate({ question, options, onSubmit, submitted }: PredictionGa
           rows={2}
           placeholder="Type your prediction…"
           className="w-full resize-none rounded-xl p-3 text-sm outline-none"
-          style={{
-            background: "#0d1e2c",
-            border: "1px solid #1e3a52",
-            color: "#e2e8f0",
-            fontFamily: "Outfit, sans-serif",
-          }}
+          style={{ background: "#0d1e2c", border: "1px solid #1e3a52", color: "#e2e8f0", fontFamily: "Outfit,sans-serif" }}
         />
       )}
       <button
@@ -374,11 +896,7 @@ function PredictionGate({ question, options, onSubmit, submitted }: PredictionGa
         onClick={() => answer.trim() && onSubmit(answer)}
         disabled={!answer.trim()}
         className="mt-3 rounded-full px-5 py-2 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-40"
-        style={{
-          background: "#00d4aa",
-          color: "#0d1e2c",
-          fontFamily: "Outfit, sans-serif",
-        }}
+        style={{ background: "#00d4aa", color: "#0d1e2c", fontFamily: "Outfit,sans-serif" }}
       >
         Submit Prediction →
       </button>
@@ -386,113 +904,7 @@ function PredictionGate({ question, options, onSubmit, submitted }: PredictionGa
   );
 }
 
-// ── Scene 0: Setup ────────────────────────────────────────────────────────
-
-interface SetupSceneProps {
-  placedOrganisms: string[];
-  onPlace: (id: string) => void;
-}
-
-function SetupScene({ placedOrganisms, onPlace }: SetupSceneProps) {
-  return (
-    <div className="space-y-4">
-      <div
-        className="rounded-2xl p-4"
-        style={{ background: "#132638", border: "1px solid #1e3a52" }}
-      >
-        <h3
-          style={{
-            fontFamily: "Outfit, sans-serif",
-            fontWeight: 700,
-            fontSize: 15,
-            color: "#e2e8f0",
-            marginBottom: 6,
-          }}
-        >
-          🍶 Build Your Bottle Ecosystem
-        </h3>
-        <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
-          Click each organism to add it to your bottle. You need all five to activate the simulation.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {ALL_ORGANISMS.map((org) => {
-          const placed = placedOrganisms.includes(org.id);
-          return (
-            <button
-              key={org.id}
-              type="button"
-              aria-pressed={placed}
-              aria-label={`${placed ? "Remove" : "Add"} ${org.name}`}
-              onClick={() => onPlace(org.id)}
-              className="rounded-2xl p-3 text-left transition-all hover:opacity-80"
-              style={{
-                background: placed ? `${org.color}22` : "#0d1e2c",
-                border: `1.5px solid ${placed ? org.color : "#1e3a52"}`,
-              }}
-            >
-              <div style={{ fontSize: 24 }}>{org.emoji}</div>
-              <div
-                style={{
-                  fontFamily: "Outfit, sans-serif",
-                  fontWeight: 600,
-                  fontSize: 13,
-                  color: placed ? org.color : "#e2e8f0",
-                  marginTop: 4,
-                }}
-              >
-                {org.name}
-              </div>
-              <div
-                style={{
-                  fontFamily: "Outfit, sans-serif",
-                  fontSize: 11,
-                  color: "#64748b",
-                  marginTop: 2,
-                  textTransform: "capitalize",
-                }}
-              >
-                {org.role} · {org.zone}
-              </div>
-              {placed && (
-                <div
-                  style={{
-                    fontFamily: "Outfit, sans-serif",
-                    fontSize: 10,
-                    color: org.color,
-                    marginTop: 4,
-                    fontWeight: 700,
-                  }}
-                >
-                  ✓ In bottle
-                </div>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      <div
-        className="rounded-xl p-3"
-        style={{
-          background: placedOrganisms.length === ALL_ORGANISMS.length ? "#00d4aa11" : "#0d1e2c",
-          border: `1px solid ${placedOrganisms.length === ALL_ORGANISMS.length ? "#00d4aa44" : "#1e3a52"}`,
-          fontFamily: "Outfit, sans-serif",
-          fontSize: 13,
-          color: placedOrganisms.length === ALL_ORGANISMS.length ? "#00d4aa" : "#64748b",
-          transition: "all 0.3s",
-        }}
-      >
-        {placedOrganisms.length === ALL_ORGANISMS.length
-          ? "✅ All organisms placed — your ecosystem is ready!"
-          : `${placedOrganisms.length} / ${ALL_ORGANISMS.length} organisms placed`}
-      </div>
-    </div>
-  );
-}
-
-// ── Scene 1: Water Cycle ──────────────────────────────────────────────────
+// ── Scene 2: Water Cycle ──────────────────────────────────────────────────
 
 interface WaterCycleSceneProps {
   prediction: StudentPrediction | undefined;
@@ -503,18 +915,12 @@ interface WaterCycleSceneProps {
 function WaterCycleScene({ prediction, onPrediction, animating }: WaterCycleSceneProps) {
   return (
     <div className="space-y-4">
-      <div
-        className="rounded-2xl p-4"
-        style={{ background: "#132638", border: "1px solid #1e3a52" }}
-      >
-        <h3 style={{ fontFamily: "Outfit, sans-serif", fontWeight: 700, fontSize: 15, color: "#60a5fa", marginBottom: 6 }}>
-          💧 Water Cycle
-        </h3>
-        <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
+      <div className="rounded-2xl p-4" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+        <h3 style={{ fontFamily: "Outfit,sans-serif", fontWeight: 700, fontSize: 15, color: "#60a5fa", marginBottom: 6 }}>💧 Water Cycle</h3>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
           Water evaporates from the aquatic zone, condenses on the bottle walls, and drips back down. This is a closed loop — no water enters or leaves the sealed bottle.
         </p>
       </div>
-
       <PredictionGate
         question="Before the animation plays: Where does the water go after it evaporates from the aquatic zone?"
         options={[
@@ -526,16 +932,10 @@ function WaterCycleScene({ prediction, onPrediction, animating }: WaterCycleScen
         onSubmit={onPrediction}
         submitted={!!prediction}
       />
-
       {animating && prediction && (
-        <div
-          className="rounded-2xl p-4"
-          style={{ background: "#0a2540", border: "1px solid #1e4a7a" }}
-        >
-          <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#60a5fa", fontWeight: 600, marginBottom: 8 }}>
-            🔵 Water Cycle Steps (animated in bottle)
-          </p>
-          <ol style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 2, paddingLeft: 20 }}>
+        <div className="rounded-2xl p-4" style={{ background: "#0a2540", border: "1px solid #1e4a7a" }}>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#60a5fa", fontWeight: 600, marginBottom: 8 }}>🔵 Water Cycle Steps (animated in bottle)</p>
+          <ol style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 2, paddingLeft: 20 }}>
             <li>☀️ Heat evaporates water from the aquatic zone</li>
             <li>💨 Water vapor rises and hits the cool bottle walls</li>
             <li>💧 Vapor condenses into droplets on glass surface</li>
@@ -543,27 +943,16 @@ function WaterCycleScene({ prediction, onPrediction, animating }: WaterCycleScen
           </ol>
         </div>
       )}
-
       {prediction && (
-        <div
-          className="rounded-xl p-3"
-          style={{
-            background: "#132638",
-            border: "1px solid #1e3a52",
-            fontFamily: "Outfit, sans-serif",
-            fontSize: 13,
-            color: "#94a3b8",
-          }}
-        >
-          <span style={{ color: "#60a5fa", fontWeight: 600 }}>Your prediction: </span>
-          {prediction.studentAnswer}
+        <div className="rounded-xl p-3" style={{ background: "#132638", border: "1px solid #1e3a52", fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8" }}>
+          <span style={{ color: "#60a5fa", fontWeight: 600 }}>Your prediction: </span>{prediction.studentAnswer}
         </div>
       )}
     </div>
   );
 }
 
-// ── Scene 2: Carbon Cycle ─────────────────────────────────────────────────
+// ── Scene 3: Carbon Cycle ─────────────────────────────────────────────────
 
 interface CarbonCycleSceneProps {
   prediction: StudentPrediction | undefined;
@@ -574,18 +963,12 @@ interface CarbonCycleSceneProps {
 function CarbonCycleScene({ prediction, onPrediction, animating }: CarbonCycleSceneProps) {
   return (
     <div className="space-y-4">
-      <div
-        className="rounded-2xl p-4"
-        style={{ background: "#132638", border: "1px solid #1e3a52" }}
-      >
-        <h3 style={{ fontFamily: "Outfit, sans-serif", fontWeight: 700, fontSize: 15, color: "#22c55e", marginBottom: 6 }}>
-          🌿 Carbon Cycle
-        </h3>
-        <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
+      <div className="rounded-2xl p-4" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+        <h3 style={{ fontFamily: "Outfit,sans-serif", fontWeight: 700, fontSize: 15, color: "#22c55e", marginBottom: 6 }}>🌿 Carbon Cycle</h3>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
           Carbon flows as CO₂ is released by the fish and cricket during cellular respiration, then captured by the plant during photosynthesis to produce oxygen and glucose.
         </p>
       </div>
-
       <PredictionGate
         question="Identify the producer in this carbon cycle before the arrows appear. Which organism converts CO₂ into glucose using light energy?"
         options={[
@@ -597,56 +980,33 @@ function CarbonCycleScene({ prediction, onPrediction, animating }: CarbonCycleSc
         onSubmit={onPrediction}
         submitted={!!prediction}
       />
-
       {animating && prediction && (
-        <div
-          className="rounded-2xl p-4"
-          style={{ background: "#0a1f0a", border: "1px solid #1a3a1a" }}
-        >
-          <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#22c55e", fontWeight: 600, marginBottom: 8 }}>
-            🟢 Carbon Cycle Arrows (animated in bottle)
-          </p>
-          <div className="space-y-2" style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ color: "#22c55e", fontWeight: 700 }}>→</span>
-              Fish &amp; Cricket respiration releases CO₂
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ color: "#22c55e", fontWeight: 700 }}>→</span>
-              Aquatic Plant absorbs CO₂ for photosynthesis
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ color: "#22c55e", fontWeight: 700 }}>→</span>
-              Plant releases O₂ — consumed by fish &amp; cricket
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ color: "#22c55e", fontWeight: 700 }}>→</span>
-              Glucose stored in plant tissues feeds consumers
-            </div>
+        <div className="rounded-2xl p-4" style={{ background: "#0a1f0a", border: "1px solid #1a3a1a" }}>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#22c55e", fontWeight: 600, marginBottom: 8 }}>🟢 Carbon Cycle Arrows (animated in bottle)</p>
+          <div className="space-y-2" style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8" }}>
+            {[
+              "Fish & Cricket respiration releases CO₂",
+              "Aquatic Plant absorbs CO₂ for photosynthesis",
+              "Plant releases O₂ — consumed by fish & cricket",
+              "Glucose stored in plant tissues feeds consumers",
+            ].map((line) => (
+              <div key={line} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ color: "#22c55e", fontWeight: 700 }}>→</span>{line}
+              </div>
+            ))}
           </div>
         </div>
       )}
-
       {prediction && (
-        <div
-          className="rounded-xl p-3"
-          style={{
-            background: "#132638",
-            border: "1px solid #1e3a52",
-            fontFamily: "Outfit, sans-serif",
-            fontSize: 13,
-            color: "#94a3b8",
-          }}
-        >
-          <span style={{ color: "#22c55e", fontWeight: 600 }}>Your prediction: </span>
-          {prediction.studentAnswer}
+        <div className="rounded-xl p-3" style={{ background: "#132638", border: "1px solid #1e3a52", fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8" }}>
+          <span style={{ color: "#22c55e", fontWeight: 600 }}>Your prediction: </span>{prediction.studentAnswer}
         </div>
       )}
     </div>
   );
 }
 
-// ── Scene 3: Nitrogen Cycle ───────────────────────────────────────────────
+// ── Scene 4: Nitrogen Cycle ───────────────────────────────────────────────
 
 type NitrogenRankItem = { id: string; label: string };
 
@@ -669,15 +1029,10 @@ function NitrogenCycleScene({ prediction, onPrediction, animating }: NitrogenCyc
   const [order, setOrder] = useState<NitrogenRankItem[]>([...NITROGEN_STEPS]);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
+  const isCorrect = order.map((o) => o.id).join(",") === CORRECT_NITROGEN_ORDER.join(",");
 
-  function handleDragStart(index: number) {
-    dragItem.current = index;
-  }
-
-  function handleDragEnter(index: number) {
-    dragOverItem.current = index;
-  }
-
+  function handleDragStart(index: number) { dragItem.current = index; }
+  function handleDragEnter(index: number) { dragOverItem.current = index; }
   function handleDragEnd() {
     if (dragItem.current === null || dragOverItem.current === null) return;
     const newOrder = [...order];
@@ -688,36 +1043,19 @@ function NitrogenCycleScene({ prediction, onPrediction, animating }: NitrogenCyc
     dragOverItem.current = null;
   }
 
-  function handleSubmitRanking() {
-    const answer = order.map((item) => item.label).join(" → ");
-    onPrediction(answer);
-  }
-
-  const isCorrect = order.map((o) => o.id).join(",") === CORRECT_NITROGEN_ORDER.join(",");
-
   return (
     <div className="space-y-4">
-      <div
-        className="rounded-2xl p-4"
-        style={{ background: "#132638", border: "1px solid #1e3a52" }}
-      >
-        <h3 style={{ fontFamily: "Outfit, sans-serif", fontWeight: 700, fontSize: 15, color: "#f59e0b", marginBottom: 6 }}>
-          🪱 Nitrogen Cycle
-        </h3>
-        <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
+      <div className="rounded-2xl p-4" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+        <h3 style={{ fontFamily: "Outfit,sans-serif", fontWeight: 700, fontSize: 15, color: "#f59e0b", marginBottom: 6 }}>🪱 Nitrogen Cycle</h3>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
           Worms are decomposers that break down dead organic matter into nitrogen compounds. These compounds are absorbed by plant roots, completing the nitrogen cycle inside the bottle.
         </p>
       </div>
 
       {!prediction ? (
-        <div
-          className="rounded-2xl p-4"
-          style={{ background: "#132638", border: "1px solid #1e3a52" }}
-        >
-          <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 4 }}>
-            🔒 Prediction Gate
-          </p>
-          <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#e2e8f0", marginBottom: 12, lineHeight: 1.6 }}>
+        <div className="rounded-2xl p-4" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 4 }}>🔒 Prediction Gate</p>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#e2e8f0", marginBottom: 12, lineHeight: 1.6 }}>
             Drag to rank these events in the correct order — what happens first, second, third, fourth?
           </p>
           <div className="space-y-2">
@@ -733,12 +1071,8 @@ function NitrogenCycleScene({ prediction, onPrediction, animating }: NitrogenCyc
                 style={{ background: "#0d1e2c", border: "1px solid #1e3a52" }}
                 aria-label={`Step ${index + 1}: ${item.label}. Drag to reorder.`}
               >
-                <span style={{ color: "#64748b", fontSize: 12, fontFamily: "Outfit, sans-serif", minWidth: 20 }}>
-                  {index + 1}.
-                </span>
-                <span style={{ color: "#94a3b8", fontSize: 13, fontFamily: "Outfit, sans-serif", lineHeight: 1.4 }}>
-                  {item.label}
-                </span>
+                <span style={{ color: "#64748b", fontSize: 12, fontFamily: "Outfit,sans-serif", minWidth: 20 }}>{index + 1}.</span>
+                <span style={{ color: "#94a3b8", fontSize: 13, fontFamily: "Outfit,sans-serif", lineHeight: 1.4 }}>{item.label}</span>
                 <span style={{ color: "#64748b", marginLeft: "auto" }}>⠿</span>
               </div>
             ))}
@@ -746,9 +1080,9 @@ function NitrogenCycleScene({ prediction, onPrediction, animating }: NitrogenCyc
           <button
             type="button"
             aria-label="Submit nitrogen cycle ranking"
-            onClick={handleSubmitRanking}
+            onClick={() => onPrediction(order.map((i) => i.label).join(" → "))}
             className="mt-4 rounded-full px-5 py-2 text-sm font-semibold transition-opacity hover:opacity-80"
-            style={{ background: "#f59e0b", color: "#0d1e2c", fontFamily: "Outfit, sans-serif" }}
+            style={{ background: "#f59e0b", color: "#0d1e2c", fontFamily: "Outfit,sans-serif" }}
           >
             Submit Ranking →
           </button>
@@ -756,48 +1090,27 @@ function NitrogenCycleScene({ prediction, onPrediction, animating }: NitrogenCyc
       ) : null}
 
       {animating && prediction && (
-        <div
-          className="rounded-2xl p-4"
-          style={{ background: "#1a0f00", border: "1px solid #3a2200" }}
-        >
-          <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 8 }}>
-            🟡 Nitrogen Cycle (animated in bottle)
-          </p>
-          <ol style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 2, paddingLeft: 20 }}>
+        <div className="rounded-2xl p-4" style={{ background: "#1a0f00", border: "1px solid #3a2200" }}>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#f59e0b", fontWeight: 600, marginBottom: 8 }}>🟡 Nitrogen Cycle (animated in bottle)</p>
+          <ol style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 2, paddingLeft: 20 }}>
             {NITROGEN_STEPS.map((step, i) => (
-              <li key={step.id} style={{ color: isCorrect && order[i]?.id === step.id ? "#f59e0b" : "#94a3b8" }}>
-                {step.label}
-              </li>
+              <li key={step.id} style={{ color: isCorrect && order[i]?.id === step.id ? "#f59e0b" : "#94a3b8" }}>{step.label}</li>
             ))}
           </ol>
-          {isCorrect && (
-            <div style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#f59e0b", marginTop: 8, fontWeight: 600 }}>
-              ✅ You ranked the steps correctly!
-            </div>
-          )}
+          {isCorrect && <div style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#f59e0b", marginTop: 8, fontWeight: 600 }}>✅ You ranked the steps correctly!</div>}
         </div>
       )}
 
       {prediction && (
-        <div
-          className="rounded-xl p-3"
-          style={{
-            background: "#132638",
-            border: "1px solid #1e3a52",
-            fontFamily: "Outfit, sans-serif",
-            fontSize: 13,
-            color: "#94a3b8",
-          }}
-        >
-          <span style={{ color: "#f59e0b", fontWeight: 600 }}>Your ranking: </span>
-          submitted ✓
+        <div className="rounded-xl p-3" style={{ background: "#132638", border: "1px solid #1e3a52", fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8" }}>
+          <span style={{ color: "#f59e0b", fontWeight: 600 }}>Your ranking: </span>submitted ✓
         </div>
       )}
     </div>
   );
 }
 
-// ── Scene 4: Reflect & Connect ────────────────────────────────────────────
+// ── Scene 5: Reflect & Connect ────────────────────────────────────────────
 
 interface ReflectSceneProps {
   predictions: StudentPrediction[];
@@ -819,52 +1132,30 @@ function ReflectScene({ predictions, submitted, feedback, onSubmit }: ReflectSce
 
   return (
     <div className="space-y-4">
-      <div
-        className="rounded-2xl p-4"
-        style={{ background: "#132638", border: "1px solid #1e3a52" }}
-      >
-        <h3 style={{ fontFamily: "Outfit, sans-serif", fontWeight: 700, fontSize: 15, color: "#e2e8f0", marginBottom: 6 }}>
-          ✍️ Reflect &amp; Connect
-        </h3>
-        <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
+      <div className="rounded-2xl p-4" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+        <h3 style={{ fontFamily: "Outfit,sans-serif", fontWeight: 700, fontSize: 15, color: "#e2e8f0", marginBottom: 6 }}>✍️ Reflect &amp; Connect</h3>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.6 }}>
           Now that you&apos;ve observed all three cycles, use what you know to answer this CER prompt.
         </p>
       </div>
 
-      {/* Evidence scaffolding from earlier predictions */}
       {predictions.length > 0 && (
-        <div
-          className="rounded-2xl p-4 space-y-2"
-          style={{ background: "#0d1e2c", border: "1px solid #1e3a52" }}
-        >
-          <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 12, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+        <div className="rounded-2xl p-4 space-y-2" style={{ background: "#0d1e2c", border: "1px solid #1e3a52" }}>
+          <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 12, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
             📋 Your Earlier Predictions (use as evidence)
           </p>
           {predictions.map((p) => (
-            <div
-              key={p.sceneId}
-              className="rounded-xl p-3"
-              style={{ background: "#132638", border: "1px solid #1e3a52" }}
-            >
-              <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 11, color: "#64748b", marginBottom: 2 }}>
-                {p.questionText.slice(0, 60)}…
-              </p>
-              <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 13, color: "#94a3b8" }}>
-                {p.studentAnswer}
-              </p>
+            <div key={p.sceneId} className="rounded-xl p-3" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+              <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 11, color: "#64748b", marginBottom: 2 }}>{p.questionText.slice(0, 60)}…</p>
+              <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8" }}>{p.studentAnswer}</p>
             </div>
           ))}
         </div>
       )}
 
-      <div
-        className="rounded-2xl p-5"
-        style={{ background: "#132638", border: "1px solid #1e3a52" }}
-      >
-        <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 14, color: "#e2e8f0", fontWeight: 600, marginBottom: 4 }}>
-          CER Prompt
-        </p>
-        <p style={{ fontFamily: "Outfit, sans-serif", fontSize: 14, color: "#cbd5e1", lineHeight: 1.6, marginBottom: 12 }}>
+      <div className="rounded-2xl p-5" style={{ background: "#132638", border: "1px solid #1e3a52" }}>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 14, color: "#e2e8f0", fontWeight: 600, marginBottom: 4 }}>CER Prompt</p>
+        <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 14, color: "#cbd5e1", lineHeight: 1.6, marginBottom: 12 }}>
           &ldquo;Predict what happens if you remove the worms from the bottle ecosystem. Use one cycle to explain your reasoning.&rdquo;
         </p>
         <textarea
@@ -875,28 +1166,11 @@ function ReflectScene({ predictions, submitted, feedback, onSubmit }: ReflectSce
           rows={5}
           placeholder="Write your Claim, Evidence, and Reasoning here…&#10;&#10;Claim: If the worms are removed...&#10;Evidence: From the nitrogen cycle, I observed that...&#10;Reasoning: This matters because..."
           className="w-full resize-none rounded-xl p-3 text-sm outline-none"
-          style={{
-            background: "#0d1e2c",
-            border: "1px solid #1e3a52",
-            color: "#e2e8f0",
-            fontFamily: "Outfit, sans-serif",
-            opacity: submitted ? 0.6 : 1,
-          }}
+          style={{ background: "#0d1e2c", border: "1px solid #1e3a52", color: "#e2e8f0", fontFamily: "Outfit,sans-serif", opacity: submitted ? 0.6 : 1 }}
         />
         {feedback && (
-          <div
-            className="mt-3 rounded-xl p-3"
-            style={{
-              background: "#00d4aa11",
-              border: "1px solid #00d4aa44",
-              fontFamily: "Outfit, sans-serif",
-              fontSize: 13,
-              color: "#94a3b8",
-              lineHeight: 1.5,
-            }}
-          >
-            <span style={{ color: "#00d4aa", fontWeight: 600 }}>Feedback: </span>
-            {feedback}
+          <div className="mt-3 rounded-xl p-3" style={{ background: "#00d4aa11", border: "1px solid #00d4aa44", fontFamily: "Outfit,sans-serif", fontSize: 13, color: "#94a3b8", lineHeight: 1.5 }}>
+            <span style={{ color: "#00d4aa", fontWeight: 600 }}>Feedback: </span>{feedback}
           </div>
         )}
         {!submitted && (
@@ -906,7 +1180,7 @@ function ReflectScene({ predictions, submitted, feedback, onSubmit }: ReflectSce
             onClick={handleSubmit}
             disabled={!text.trim() || loading}
             className="mt-3 rounded-full px-5 py-2 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-40"
-            style={{ background: "#00d4aa", color: "#0d1e2c", fontFamily: "Outfit, sans-serif" }}
+            style={{ background: "#00d4aa", color: "#0d1e2c", fontFamily: "Outfit,sans-serif" }}
           >
             {loading ? "Scoring…" : "Submit CER →"}
           </button>
@@ -920,6 +1194,13 @@ function ReflectScene({ predictions, submitted, feedback, onSubmit }: ReflectSce
 
 export default function BottleEcosystemCyclesPage() {
   const [labState, setLabState] = useState<BottleLabState>({
+    assemblyState: {
+      bottle1Cut: false,
+      bottle2Cut: false,
+      topFlipped: false,
+      assembled: false,
+      stringThreaded: false,
+    },
     organisms: ALL_ORGANISMS,
     placedOrganisms: [],
     completedScenes: [],
@@ -931,21 +1212,44 @@ export default function BottleEcosystemCyclesPage() {
   const [animating, setAnimating] = useState(false);
   const [reflectionSubmitted, setReflectionSubmitted] = useState(false);
   const [reflectionFeedback, setReflectionFeedback] = useState<string | null>(null);
+  // Shake feedback for wrong-zone placement
+  const [shakeOrganismId, setShakeOrganismId] = useState<string | null>(null);
+  const shakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const allPlaced = labState.placedOrganisms.length === ALL_ORGANISMS.length;
   const currentSceneMeta = SCENE_META[labState.currentScene];
+  const allOrganismsPlaced = labState.placedOrganisms.length === ALL_ORGANISMS.length;
+  const assemblyComplete = labState.assemblyState.stringThreaded;
 
-  // ── Helpers ──
-  function toggleOrganism(id: string) {
-    setLabState((prev) => {
-      const already = prev.placedOrganisms.includes(id);
-      return {
-        ...prev,
-        placedOrganisms: already
-          ? prev.placedOrganisms.filter((o) => o !== id)
-          : [...prev.placedOrganisms, id],
-      };
-    });
+  // ── Assembly change ──
+  function handleAssemblyChange(next: AssemblyState) {
+    setLabState((prev) => ({ ...prev, assemblyState: next }));
+  }
+
+  // ── Place organism into a zone (with wrong-zone shake) ──
+  function handlePlaceOrganism(id: string, zone: "terrestrial" | "aquatic") {
+    const org = ALL_ORGANISMS.find((o) => o.id === id);
+    if (!org) return;
+    if (org.zone !== zone) {
+      // Wrong zone: shake + reject
+      if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current);
+      setShakeOrganismId(id);
+      shakeTimerRef.current = setTimeout(() => setShakeOrganismId(null), 500);
+      return;
+    }
+    setLabState((prev) => ({
+      ...prev,
+      placedOrganisms: prev.placedOrganisms.includes(id)
+        ? prev.placedOrganisms
+        : [...prev.placedOrganisms, id],
+    }));
+  }
+
+  // ── Remove organism back to tray ──
+  function handleRemoveOrganism(id: string) {
+    setLabState((prev) => ({
+      ...prev,
+      placedOrganisms: prev.placedOrganisms.filter((o) => o !== id),
+    }));
   }
 
   function getPrediction(sceneId: string) {
@@ -964,10 +1268,10 @@ export default function BottleEcosystemCyclesPage() {
   }
 
   function goToScene(index: number) {
-    // Can only navigate to completed or current scenes, or setup
+    const sceneId = SCENE_META[index]?.id ?? "";
     const canNavigate =
       index === 0 ||
-      labState.completedScenes.includes(SCENE_META[index]?.id ?? "") ||
+      labState.completedScenes.includes(sceneId) ||
       index === labState.currentScene ||
       (index === labState.currentScene + 1 && labState.completedScenes.includes(SCENE_META[labState.currentScene]?.id ?? ""));
     if (!canNavigate) return;
@@ -1006,31 +1310,20 @@ export default function BottleEcosystemCyclesPage() {
       });
       const data = await res.json();
       const score: number = typeof data.score === "number" ? data.score : 0;
-      const max: number = typeof data.maxScore === "number" ? data.maxScore : 3;
-      if (score >= max * 0.66) {
-        setReflectionFeedback(
-          "Excellent CER! You identified that removing the worms would disrupt the nitrogen cycle, preventing decomposition of dead matter and starving plant roots of nitrogen compounds.",
-        );
+      const max: number = typeof data.maxScore === "number" ? data.maxScore : DEFAULT_CER_MAX_SCORE;
+      if (score >= max * CER_PROFICIENCY_THRESHOLD) {
+        setReflectionFeedback("Excellent CER! You identified that removing the worms would disrupt the nitrogen cycle, preventing decomposition of dead matter and starving plant roots of nitrogen compounds.");
       } else {
-        setReflectionFeedback(
-          "Good start! Make sure your response includes: a Claim (what happens without worms), Evidence (from a specific cycle you observed), and Reasoning (why that cycle breakdown matters for the whole ecosystem).",
-        );
+        setReflectionFeedback("Good start! Make sure your response includes: a Claim (what happens without worms), Evidence (from a specific cycle you observed), and Reasoning (why that cycle breakdown matters for the whole ecosystem).");
       }
-      setLabState((prev) => ({
-        ...prev,
-        cycleScore: { ...prev.cycleScore, reflect: score },
-      }));
+      setLabState((prev) => ({ ...prev, cycleScore: { ...prev.cycleScore, reflect: score } }));
     } catch {
-      setReflectionFeedback(
-        "Unable to score right now. Key idea: removing worms disrupts the nitrogen cycle — dead matter piles up, nitrogen compounds decrease, and plants lose their key nutrient source.",
-      );
+      setReflectionFeedback("Unable to score right now. Key idea: removing worms disrupts the nitrogen cycle — dead matter piles up, nitrogen compounds decrease, and plants lose their key nutrient source.");
     }
     setReflectionSubmitted(true);
     setLabState((prev) => ({
       ...prev,
-      completedScenes: prev.completedScenes.includes("reflect")
-        ? prev.completedScenes
-        : [...prev.completedScenes, "reflect"],
+      completedScenes: prev.completedScenes.includes("reflect") ? prev.completedScenes : [...prev.completedScenes, "reflect"],
     }));
   }
 
@@ -1038,68 +1331,46 @@ export default function BottleEcosystemCyclesPage() {
   const activeOrganismIds: string[] = (() => {
     if (!animating) return [];
     switch (currentSceneMeta.cycleType) {
-      case "water":
-        return ["fish", "plant"];
-      case "carbon":
-        return ["fish", "cricket", "plant"];
-      case "nitrogen":
-        return ["worm", "plant"];
-      default:
-        return [];
+      case "water": return ["fish", "plant"];
+      case "carbon": return ["fish", "cricket", "plant"];
+      case "nitrogen": return ["worm", "plant"];
+      default: return [];
     }
   })();
 
+  // ── Left panel content (bottle vis changes per scene) ──
+  const showAssemblyVis = labState.currentScene === 0;
+
   return (
-    <main
-      className="ia-vh-page flex h-dvh flex-col overflow-hidden"
-      style={{ background: "#0d1e2c", color: "#e2e8f0" }}
-    >
+    <main className="ia-vh-page flex h-dvh flex-col overflow-hidden" style={{ background: "#0d1e2c", color: "#e2e8f0" }}>
       <PageBanner
         title="Bottle Ecosystem Cycles Lab"
-        subtitle="Explore water, carbon & nitrogen cycles in a sealed bottle ecosystem — TEKS B.12A & B.12B"
+        subtitle="Build, populate & explore water, carbon & nitrogen cycles — TEKS B.12A & B.12B"
       >
         <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/student/learn/unit-7"
-            aria-label="Back to Unit 7"
+          <Link href="/student/learn/unit-7" aria-label="Back to Unit 7"
             className="rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-80"
-            style={{ background: "rgba(255,255,255,0.15)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.15)" }}>
             ← Unit 7
           </Link>
-          <Link
-            href="/student/dashboard"
-            aria-label="Go to dashboard"
+          <Link href="/student/dashboard" aria-label="Go to dashboard"
             className="rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-80"
-            style={{ background: "rgba(255,255,255,0.15)" }}
-          >
+            style={{ background: "rgba(255,255,255,0.15)" }}>
             Dashboard
           </Link>
         </div>
       </PageBanner>
 
       <PageContent className="flex-1 overflow-hidden">
-        <div
-          className="mx-auto flex h-full w-full max-w-6xl gap-0 overflow-hidden"
-          style={{ fontFamily: "Outfit, sans-serif" }}
-        >
+        <div className="mx-auto flex h-full w-full max-w-6xl gap-0 overflow-hidden" style={{ fontFamily: "Outfit,sans-serif" }}>
+
           {/* ── Left Sidebar: Scene Progress ── */}
           <aside
             className="hidden w-56 shrink-0 flex-col gap-2 overflow-y-auto p-4 md:flex"
             style={{ borderRight: "1px solid #1e3a52" }}
             aria-label="Scene progress navigation"
           >
-            <p
-              style={{
-                fontFamily: "Outfit, sans-serif",
-                fontSize: 11,
-                color: "#64748b",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                marginBottom: 4,
-              }}
-            >
+            <p style={{ fontFamily: "Outfit,sans-serif", fontSize: 11, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
               Progress
             </p>
             {SCENE_META.map((scene, index) => {
@@ -1109,7 +1380,8 @@ export default function BottleEcosystemCyclesPage() {
                 index > 0 &&
                 !isCompleted &&
                 !isCurrent &&
-                !(index === 1 && allPlaced);
+                !(index === 1 && assemblyComplete) &&
+                !(index === labState.currentScene + 1 && labState.completedScenes.includes(SCENE_META[labState.currentScene]?.id ?? ""));
 
               return (
                 <button
@@ -1129,25 +1401,11 @@ export default function BottleEcosystemCyclesPage() {
                 >
                   <span style={{ fontSize: 18 }}>{isCompleted ? "✅" : scene.icon}</span>
                   <div>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        fontWeight: isCurrent ? 700 : 500,
-                        color: isCurrent ? "#e2e8f0" : "#94a3b8",
-                        fontFamily: "Outfit, sans-serif",
-                      }}
-                    >
+                    <div style={{ fontSize: 12, fontWeight: isCurrent ? 700 : 500, color: isCurrent ? "#e2e8f0" : "#94a3b8", fontFamily: "Outfit,sans-serif" }}>
                       {scene.label}
                     </div>
                     {scene.cycleType && (
-                      <div
-                        style={{
-                          fontSize: 10,
-                          color: CYCLE_COLORS[scene.cycleType],
-                          fontFamily: "Outfit, sans-serif",
-                          marginTop: 1,
-                        }}
-                      >
+                      <div style={{ fontSize: 10, color: CYCLE_COLORS[scene.cycleType], fontFamily: "Outfit,sans-serif", marginTop: 1 }}>
                         {scene.cycleType} cycle
                       </div>
                     )}
@@ -1156,18 +1414,10 @@ export default function BottleEcosystemCyclesPage() {
               );
             })}
 
-            {/* TEKS badges */}
             <div className="mt-auto pt-4 space-y-1">
               {["B.12A", "B.12B"].map((code) => (
-                <span
-                  key={code}
-                  className="block rounded-full px-3 py-1 text-center text-xs font-semibold"
-                  style={{
-                    background: "#00d4aa22",
-                    color: "#00d4aa",
-                    border: "1px solid #00d4aa44",
-                  }}
-                >
+                <span key={code} className="block rounded-full px-3 py-1 text-center text-xs font-semibold"
+                  style={{ background: "#00d4aa22", color: "#00d4aa", border: "1px solid #00d4aa44" }}>
                   TEKS {code}
                 </span>
               ))}
@@ -1176,38 +1426,41 @@ export default function BottleEcosystemCyclesPage() {
 
           {/* ── Main Content ── */}
           <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
-            {/* Bottle visualization */}
+
+            {/* Left visualization panel */}
             <div
               className="flex shrink-0 items-center justify-center p-6"
               style={{ borderRight: "1px solid #1e3a52", minWidth: 260 }}
-              aria-label="Bottle ecosystem visualization"
+              aria-label="Bottle visualization"
             >
               <div className="flex flex-col items-center gap-4">
-                <BottleSVG
-                  placedOrganisms={labState.placedOrganisms}
-                  activeOrganismIds={activeOrganismIds}
-                  cycleType={currentSceneMeta.cycleType}
-                  animating={animating}
-                />
-                {/* Cycle legend */}
-                {currentSceneMeta.cycleType && (
-                  <div className="flex flex-wrap justify-center gap-3">
-                    {(["water", "carbon", "nitrogen"] as CycleType[]).map((ct) => (
-                      <span
-                        key={ct}
-                        className="rounded-full px-3 py-1 text-xs font-semibold"
-                        style={{
-                          background: `${CYCLE_COLORS[ct]}22`,
-                          color: CYCLE_COLORS[ct],
-                          border: `1px solid ${CYCLE_COLORS[ct]}44`,
-                          opacity: currentSceneMeta.cycleType === ct ? 1 : 0.35,
-                          textTransform: "capitalize",
-                        }}
-                      >
-                        {ct}
-                      </span>
-                    ))}
-                  </div>
+                {showAssemblyVis ? (
+                  <BottleAssemblySVG assembly={labState.assemblyState} />
+                ) : (
+                  <>
+                    <BottleSVG
+                      placedOrganisms={labState.placedOrganisms}
+                      activeOrganismIds={activeOrganismIds}
+                      cycleType={currentSceneMeta.cycleType}
+                      animating={animating}
+                    />
+                    {currentSceneMeta.cycleType && (
+                      <div className="flex flex-wrap justify-center gap-3">
+                        {(["water", "carbon", "nitrogen"] as CycleType[]).map((ct) => (
+                          <span key={ct} className="rounded-full px-3 py-1 text-xs font-semibold"
+                            style={{
+                              background: `${CYCLE_COLORS[ct]}22`,
+                              color: CYCLE_COLORS[ct],
+                              border: `1px solid ${CYCLE_COLORS[ct]}44`,
+                              opacity: currentSceneMeta.cycleType === ct ? 1 : 0.35,
+                              textTransform: "capitalize",
+                            }}>
+                            {ct}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -1220,131 +1473,120 @@ export default function BottleEcosystemCyclesPage() {
                   const isCompleted = labState.completedScenes.includes(scene.id);
                   const isCurrent = labState.currentScene === index;
                   return (
-                    <button
-                      key={scene.id}
-                      type="button"
-                      aria-current={isCurrent ? "step" : undefined}
+                    <button key={scene.id} type="button" aria-current={isCurrent ? "step" : undefined}
                       onClick={() => goToScene(index)}
                       className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold"
                       style={{
                         background: isCurrent ? "#132638" : "transparent",
                         border: `1px solid ${isCurrent ? "#1e3a52" : "transparent"}`,
                         color: isCompleted ? "#00d4aa" : isCurrent ? "#e2e8f0" : "#94a3b8",
-                      }}
-                    >
+                      }}>
                       {isCompleted ? "✅" : scene.icon} {scene.label}
                     </button>
                   );
                 })}
               </div>
 
-              {/* Scene 0: Setup */}
+              {/* Scene 0: Cut & Assemble */}
               {labState.currentScene === 0 && (
                 <>
-                  <SetupScene
-                    placedOrganisms={labState.placedOrganisms}
-                    onPlace={toggleOrganism}
+                  <CutAndAssembleScene
+                    assembly={labState.assemblyState}
+                    onAssemblyChange={handleAssemblyChange}
                   />
-                  {allPlaced && (
+                  {assemblyComplete && (
                     <button
                       type="button"
-                      aria-label="Activate bottle and start the simulation"
+                      aria-label="Proceed to add organisms"
                       onClick={completeCurrentScene}
                       className="mt-4 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-80"
                       style={{ background: "#00d4aa", color: "#0d1e2c" }}
                     >
-                      Activate Bottle → Start Simulation
+                      Next: Add Organisms →
                     </button>
                   )}
                 </>
               )}
 
-              {/* Scene 1: Water Cycle */}
+              {/* Scene 1: Add Organisms */}
               {labState.currentScene === 1 && (
+                <>
+                  <AddOrganismsScene
+                    placedOrganisms={labState.placedOrganisms}
+                    onPlace={handlePlaceOrganism}
+                    onRemove={handleRemoveOrganism}
+                    shakeId={shakeOrganismId}
+                  />
+                  {allOrganismsPlaced && (
+                    <button
+                      type="button"
+                      aria-label="Proceed to Water Cycle"
+                      onClick={completeCurrentScene}
+                      className="mt-4 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-80"
+                      style={{ background: "#00d4aa", color: "#0d1e2c" }}
+                    >
+                      Next: Water Cycle →
+                    </button>
+                  )}
+                </>
+              )}
+
+              {/* Scene 2: Water Cycle */}
+              {labState.currentScene === 2 && (
                 <>
                   <WaterCycleScene
                     prediction={getPrediction("water")}
-                    onPrediction={(answer) =>
-                      addPrediction(
-                        "water",
-                        "Before the animation plays: Where does the water go after it evaporates from the aquatic zone?",
-                        answer,
-                      )
-                    }
+                    onPrediction={(answer) => addPrediction("water", "Before the animation plays: Where does the water go after it evaporates from the aquatic zone?", answer)}
                     animating={animating}
                   />
                   {getPrediction("water") && (
-                    <button
-                      type="button"
-                      aria-label="Continue to Carbon Cycle"
-                      onClick={completeCurrentScene}
+                    <button type="button" aria-label="Continue to Carbon Cycle" onClick={completeCurrentScene}
                       className="mt-4 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-80"
-                      style={{ background: "#60a5fa", color: "#0d1e2c" }}
-                    >
+                      style={{ background: "#60a5fa", color: "#0d1e2c" }}>
                       Next: Carbon Cycle →
                     </button>
                   )}
                 </>
               )}
 
-              {/* Scene 2: Carbon Cycle */}
-              {labState.currentScene === 2 && (
+              {/* Scene 3: Carbon Cycle */}
+              {labState.currentScene === 3 && (
                 <>
                   <CarbonCycleScene
                     prediction={getPrediction("carbon")}
-                    onPrediction={(answer) =>
-                      addPrediction(
-                        "carbon",
-                        "Identify the producer in this carbon cycle before the arrows appear.",
-                        answer,
-                      )
-                    }
+                    onPrediction={(answer) => addPrediction("carbon", "Identify the producer in this carbon cycle before the arrows appear.", answer)}
                     animating={animating}
                   />
                   {getPrediction("carbon") && (
-                    <button
-                      type="button"
-                      aria-label="Continue to Nitrogen Cycle"
-                      onClick={completeCurrentScene}
+                    <button type="button" aria-label="Continue to Nitrogen Cycle" onClick={completeCurrentScene}
                       className="mt-4 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-80"
-                      style={{ background: "#22c55e", color: "#0d1e2c" }}
-                    >
+                      style={{ background: "#22c55e", color: "#0d1e2c" }}>
                       Next: Nitrogen Cycle →
                     </button>
                   )}
                 </>
               )}
 
-              {/* Scene 3: Nitrogen Cycle */}
-              {labState.currentScene === 3 && (
+              {/* Scene 4: Nitrogen Cycle */}
+              {labState.currentScene === 4 && (
                 <>
                   <NitrogenCycleScene
                     prediction={getPrediction("nitrogen")}
-                    onPrediction={(answer) =>
-                      addPrediction(
-                        "nitrogen",
-                        "Rank these nitrogen cycle events from first to last.",
-                        answer,
-                      )
-                    }
+                    onPrediction={(answer) => addPrediction("nitrogen", "Rank these nitrogen cycle events from first to last.", answer)}
                     animating={animating}
                   />
                   {getPrediction("nitrogen") && (
-                    <button
-                      type="button"
-                      aria-label="Continue to Reflect and Connect"
-                      onClick={completeCurrentScene}
+                    <button type="button" aria-label="Continue to Reflect and Connect" onClick={completeCurrentScene}
                       className="mt-4 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-80"
-                      style={{ background: "#f59e0b", color: "#0d1e2c" }}
-                    >
+                      style={{ background: "#f59e0b", color: "#0d1e2c" }}>
                       Next: Reflect &amp; Connect →
                     </button>
                   )}
                 </>
               )}
 
-              {/* Scene 4: Reflect & Connect */}
-              {labState.currentScene === 4 && (
+              {/* Scene 5: Reflect & Connect */}
+              {labState.currentScene === 5 && (
                 <ReflectScene
                   predictions={labState.predictions}
                   submitted={reflectionSubmitted}
