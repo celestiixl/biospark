@@ -124,83 +124,233 @@ interface BottleAssemblySVGProps {
 function BottleAssemblySVG({ assembly }: BottleAssemblySVGProps) {
   const { bottle1Cut, bottle2Cut, assembled, stringThreaded } = assembly;
 
-  // After assembly, show the single assembled bottle
+  // After full assembly, show the assembled bottle with zones
   if (assembled) {
     return (
       <svg viewBox="0 0 200 340" width="200" height="340" aria-label="Assembled bottle ecosystem">
-        {/* Cap + string */}
         <rect x="70" y="10" width="60" height="14" rx="5" fill="#1e3a52" stroke="#2a4a62" strokeWidth="1" />
         {stringThreaded && (
           <line x1="100" y1="10" x2="100" y2="0" stroke="#d4a574" strokeWidth="2" strokeDasharray="3,2" />
         )}
-        {/* Bottle body */}
         <rect x="25" y="20" width="150" height="310" rx="28" fill="#0d2a3e" stroke="#00d4aa" strokeWidth="1.5" />
-        {/* Seam line where bottles joined */}
         <line x1="25" y1="155" x2="175" y2="155" stroke="#00d4aa88" strokeWidth="1" strokeDasharray="4,3" />
-        {/* Water/aquatic zone */}
         <rect x="26" y="195" width="148" height="134" rx="0" fill="#0a2540" />
         <rect x="26" y="193" width="148" height="5" rx="0" fill="#1e4a7a" opacity="0.8" />
-        {/* Soil zone */}
         <rect x="26" y="270" width="148" height="59" rx="0" fill="#2d1a0a" />
         <rect x="26" y="268" width="148" height="5" fill="#4a2e12" />
-        {/* Zone labels */}
         <text x="100" y="45" textAnchor="middle" fontSize="8" fill="#94a3b8" fontFamily="Outfit,sans-serif">AIR</text>
         <text x="100" y="218" textAnchor="middle" fontSize="8" fill="#60a5fa" fontFamily="Outfit,sans-serif">AQUATIC</text>
         <text x="100" y="300" textAnchor="middle" fontSize="8" fill="#a16207" fontFamily="Outfit,sans-serif">SOIL</text>
-        {/* Joined label */}
         <rect x="55" y="148" width="90" height="13" rx="6" fill="#00d4aa22" />
         <text x="100" y="158" textAnchor="middle" fontSize="7" fill="#00d4aa" fontFamily="Outfit,sans-serif" fontWeight="bold">JOINED ✓</text>
-        {/* Glow */}
         <rect x="25" y="20" width="150" height="310" rx="28" fill="none" stroke="#00d4aa" strokeWidth="0.5" opacity="0.4" />
       </svg>
     );
   }
 
-  return (
-    <svg viewBox="0 0 260 340" width="260" height="340" aria-label="Two bottles for assembly">
-      {/* Bottle 1 */}
-      <g>
-        <text x="55" y="15" textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="Outfit,sans-serif">Bottle 1</text>
-        {/* Cap */}
-        <rect x="25" y="20" width="60" height="12" rx="5" fill="#1e3a52" />
-        {/* Top section */}
-        <rect x="20" y="30" width="70" height={bottle1Cut ? 80 : 170} rx="12" fill="#0d2a3e" stroke={bottle1Cut ? "#ef4444" : "#1e3a52"} strokeWidth="1.5" />
-        {/* Cut line on bottle 1 */}
-        {!bottle1Cut ? (
-          <g>
-            <line x1="20" y1="112" x2="90" y2="112" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,3" />
-            <text x="55" y="108" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="Outfit,sans-serif">✂ cut here</text>
-          </g>
-        ) : (
-          <g>
-            {/* Bottom section – visually separated */}
-            <rect x="20" y="118" width="70" height="82" rx="12" fill="#0d2a3e" stroke="#ef4444" strokeWidth="1.5" opacity="0.7" />
-            <line x1="18" y1="113" x2="92" y2="113" stroke="#ef4444" strokeWidth="2" />
-            <text x="55" y="128" textAnchor="middle" fontSize="7" fill="#ef4444" fontFamily="Outfit,sans-serif">CUT ✓</text>
-          </g>
-        )}
-      </g>
+  // ── Pre-assembly: three-column instructional diagram ────────────────────
+  // viewBox: 0 0 280 420
+  // Col 1 (center x=45):  full Bottle 1, cut line at 35% of body
+  // Col 2 (center x=137): full Bottle 2, cut line at 60% of body
+  // Col 3 (center x=231): assembly result — inverted top piece, arrow, bottom piece, arrow, label
 
-      {/* Bottle 2 */}
-      <g transform="translate(150,0)">
-        <text x="55" y="15" textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="Outfit,sans-serif">Bottle 2</text>
-        {/* Cap */}
-        <rect x="25" y="20" width="60" height="12" rx="5" fill="#1e3a52" />
-        {/* Body */}
-        <rect x="20" y="30" width="70" height={bottle2Cut ? 80 : 170} rx="12" fill="#0d2a3e" stroke={bottle2Cut ? "#ef4444" : "#1e3a52"} strokeWidth="1.5" />
-        {!bottle2Cut ? (
-          <g>
-            <line x1="20" y1="112" x2="90" y2="112" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="4,3" />
-            <text x="55" y="108" textAnchor="middle" fontSize="7" fill="#f59e0b" fontFamily="Outfit,sans-serif">✂ cut here</text>
-          </g>
-        ) : (
-          <g>
-            <rect x="20" y="118" width="70" height="82" rx="12" fill="#0d2a3e" stroke="#ef4444" strokeWidth="1.5" opacity="0.7" />
-            <line x1="18" y1="113" x2="92" y2="113" stroke="#ef4444" strokeWidth="2" />
-            <text x="55" y="128" textAnchor="middle" fontSize="7" fill="#ef4444" fontFamily="Outfit,sans-serif">CUT ✓</text>
-          </g>
-        )}
-      </g>
+  // Style constants (per spec)
+  const STR = "#64748b";  // bottle outline stroke
+  const CUT = "#e53e3e";  // cut line / arrow colour
+  const LBL = "#94a3b8";  // bottle label colour
+
+  // Bottle shape constants (shared by both full bottles)
+  const bty   = 20;   // y where bottle cap starts
+  const cpW   = 10;   // cap half-width   → 20 px total
+  const nkW   = 13;   // neck half-width  → 26 px total
+  const bW    = 35;   // body half-width  → 70 px total
+  const capH  = 8;
+  const neckH = 16;
+  const shH   = 14;   // shoulder taper height
+  const bodyH = 210;
+  const baseH = 12;
+
+  // Absolute y positions (same for both full bottles)
+  const neckY = bty + capH;         // 28
+  const shY   = neckY + neckH;      // 44
+  const bodyY = shY + shH;          // 58
+  const baseY = bodyY + bodyH;      // 268
+  const btmY  = baseY + baseH;      // 280  (lowest point of bottle)
+
+  // Cut-line absolute y positions
+  const cut1Y = bodyY + Math.round(bodyH * 0.35);  // 132
+  const cut2Y = bodyY + Math.round(bodyH * 0.60);  // 184
+
+  // Column centre x values
+  const b1cx = 45;
+  const b2cx = 137;
+  const acx  = 231;
+
+  // Full-bottle outline path (cap → neck → shoulder → body → curved base)
+  function bottlePath(cx: number): string {
+    const cL = cx - cpW, cR = cx + cpW;
+    const nL = cx - nkW, nR = cx + nkW;
+    const bL = cx - bW,  bR = cx + bW;
+    return (
+      `M ${cL} ${bty} L ${cR} ${bty}` +
+      ` L ${cR} ${neckY} L ${nR} ${neckY}` +
+      ` L ${nR} ${shY} L ${bR} ${bodyY}` +
+      ` L ${bR} ${baseY}` +
+      ` Q ${cx} ${btmY} ${bL} ${baseY}` +
+      ` L ${bL} ${bodyY} L ${nL} ${shY}` +
+      ` L ${nL} ${neckY} L ${cL} ${neckY}` +
+      ` Z`
+    );
+  }
+
+  // Assembly column geometry
+  const topPieceH = cut1Y - bty;       // 112: height of inverted top piece
+  const invBodyH  = cut1Y - bodyY;     // 74:  body portion of top piece
+  const botBodyH  = baseY - cut2Y;     // 84:  body portion of bottom piece
+
+  const tp_y    = bty;                     // 20: inverted top piece starts here
+  const arr1_cy = tp_y + topPieceH + 9;   // 141: centre y of downward arrow 1
+  const bp_y    = arr1_cy + 10;            // 151: bottom piece starts here
+  const botPieceH = btmY - cut2Y;         // 96:  height of bottom piece
+  const arr2_cy = bp_y + botPieceH + 9;   // 256: centre y of downward arrow 2
+  const res_y   = arr2_cy + 14;           // 270: result label y
+
+  // Inverted top piece: cut edge at TOP (open, wide), cap at BOTTOM (closed, narrow)
+  function topPiecePath(): string {
+    const bL = acx - bW,  bR = acx + bW;
+    const nL = acx - nkW, nR = acx + nkW;
+    const cL = acx - cpW, cR = acx + cpW;
+    const shEnd   = tp_y + invBodyH;         // 94:  body/shoulder junction
+    const nkEnd   = shEnd  + shH;            // 108: shoulder/neck junction
+    const cpStart = nkEnd  + neckH;          // 124: neck/cap junction
+    const cpEnd   = tp_y   + topPieceH;      // 132: cap closed bottom
+    return (
+      `M ${bL} ${tp_y} L ${bR} ${tp_y}` +    // cut edge (open, top)
+      ` L ${bR} ${shEnd}` +                    // right body side
+      ` L ${nR} ${nkEnd}` +                    // right shoulder taper
+      ` L ${nR} ${cpStart}` +                  // right neck
+      ` L ${cR} ${cpStart} L ${cR} ${cpEnd}` + // step to cap, right cap side
+      ` L ${cL} ${cpEnd} L ${cL} ${cpStart}` + // cap closed end, left cap side
+      ` L ${nL} ${cpStart}` +                  // step to neck width
+      ` L ${nL} ${nkEnd}` +                    // left neck
+      ` L ${bL} ${shEnd}` +                    // left shoulder taper
+      ` Z`
+    );
+  }
+
+  // Bottom piece: cut edge at TOP (open, wide), curved base at BOTTOM
+  function bottomPiecePath(): string {
+    const bL = acx - bW, bR = acx + bW;
+    const bodyEnd = bp_y + botBodyH;    // 235: body ends
+    const baseEnd = bodyEnd + baseH;    // 247: base lowest point
+    return (
+      `M ${bL} ${bp_y} L ${bR} ${bp_y}` +     // cut edge (open, top)
+      ` L ${bR} ${bodyEnd}` +                    // right body side
+      ` Q ${acx} ${baseEnd} ${bL} ${bodyEnd}` + // base curve
+      ` Z`
+    );
+  }
+
+  return (
+    <svg
+      viewBox="0 0 280 290"
+      width="280"
+      height="290"
+      aria-label="Three-column bottle assembly diagram"
+    >
+      {/* ── COLUMN 1: Bottle 1 ──────────────────────────────────────────── */}
+      <text x={b1cx} y="12" textAnchor="middle" fontSize="11" fill={LBL} fontFamily="Outfit,sans-serif">
+        Bottle 1
+      </text>
+      <path
+        d={bottlePath(b1cx)}
+        fill="none"
+        stroke={bottle1Cut ? CUT : STR}
+        strokeWidth="1.8"
+      />
+      {/* Cut line */}
+      <line
+        x1={b1cx - bW} y1={cut1Y} x2={b1cx + bW} y2={cut1Y}
+        stroke={CUT}
+        strokeWidth={bottle1Cut ? "2.5" : "1.5"}
+        strokeDasharray={bottle1Cut ? undefined : "5,3"}
+      />
+      <text
+        x={b1cx} y={cut1Y - 4}
+        textAnchor="middle" fontSize="8" fill={CUT} fontFamily="Outfit,sans-serif"
+        fontWeight={bottle1Cut ? "700" : "400"}
+      >
+        {bottle1Cut ? "✓ cut" : "cut here"}
+      </text>
+
+      {/* ── COLUMN 2: Bottle 2 ──────────────────────────────────────────── */}
+      <text x={b2cx} y="12" textAnchor="middle" fontSize="11" fill={LBL} fontFamily="Outfit,sans-serif">
+        Bottle 2
+      </text>
+      <path
+        d={bottlePath(b2cx)}
+        fill="none"
+        stroke={bottle2Cut ? CUT : STR}
+        strokeWidth="1.8"
+      />
+      {/* Cut line */}
+      <line
+        x1={b2cx - bW} y1={cut2Y} x2={b2cx + bW} y2={cut2Y}
+        stroke={CUT}
+        strokeWidth={bottle2Cut ? "2.5" : "1.5"}
+        strokeDasharray={bottle2Cut ? undefined : "5,3"}
+      />
+      <text
+        x={b2cx} y={cut2Y - 4}
+        textAnchor="middle" fontSize="8" fill={CUT} fontFamily="Outfit,sans-serif"
+        fontWeight={bottle2Cut ? "700" : "400"}
+      >
+        {bottle2Cut ? "✓ cut" : "cut here"}
+      </text>
+
+      {/* ── COLUMN 3: Assembly result ────────────────────────────────────── */}
+      <text x={acx} y="12" textAnchor="middle" fontSize="11" fill={LBL} fontFamily="Outfit,sans-serif">
+        Assembly
+      </text>
+
+      {/* TOP PIECE: inverted (cap pointing DOWN, cut edge at top) */}
+      <path d={topPiecePath()} fill="none" stroke={STR} strokeWidth="1.8" />
+      {/* Dashed border on the open cut edge at top */}
+      <line
+        x1={acx - bW} y1={tp_y} x2={acx + bW} y2={tp_y}
+        stroke={CUT} strokeWidth="1.5" strokeDasharray="5,3"
+      />
+      {/* Label: cap ↓ */}
+      <text x={acx} y={tp_y + topPieceH + 4} textAnchor="middle" fontSize="7" fill={LBL} fontFamily="Outfit,sans-serif">
+        cap ↓
+      </text>
+
+      {/* Red downward arrow 1 */}
+      <polygon
+        points={`${acx - 7},${arr1_cy - 6} ${acx + 7},${arr1_cy - 6} ${acx},${arr1_cy + 6}`}
+        fill={CUT}
+        aria-hidden="true"
+      />
+
+      {/* BOTTOM PIECE: right-side up (cut edge at top, base at bottom) */}
+      <path d={bottomPiecePath()} fill="none" stroke={STR} strokeWidth="1.8" />
+      {/* Dashed border on the open cut edge at top */}
+      <line
+        x1={acx - bW} y1={bp_y} x2={acx + bW} y2={bp_y}
+        stroke={CUT} strokeWidth="1.5" strokeDasharray="5,3"
+      />
+
+      {/* Red downward arrow 2 */}
+      <polygon
+        points={`${acx - 7},${arr2_cy - 6} ${acx + 7},${arr2_cy - 6} ${acx},${arr2_cy + 6}`}
+        fill={CUT}
+        aria-hidden="true"
+      />
+
+      {/* Result label */}
+      <text x={acx} y={res_y} textAnchor="middle" fontSize="9" fill={LBL} fontFamily="Outfit,sans-serif">
+        nested & assembled
+      </text>
     </svg>
   );
 }
