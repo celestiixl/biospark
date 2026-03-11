@@ -124,26 +124,75 @@ interface BottleAssemblySVGProps {
 function BottleAssemblySVG({ assembly }: BottleAssemblySVGProps) {
   const { bottle1Cut, bottle2Cut, assembled, stringThreaded } = assembly;
 
-  // After full assembly, show the assembled bottle with zones
+  // After full assembly, show the 3-piece hourglass assembled bottle
   if (assembled) {
+    // Geometry: Piece 1 = inverted top (cap DOWN), Piece 2 = cap waist, Piece 3 = water bottom
+    // cx=100, body half-width=39 (78px), neck half-width=9, cap half-width=7
+    // Piece 1: y=10 (open cut edge, dashed) → y=126 (bottom of inverted cap)
+    // Piece 2: y=126 → y=140 (cap connector)
+    // Piece 3: y=140 (open cut edge, dashed) → y=316 (base)
+    const p1Path =
+      "M 61 10 L 61 78 L 91 100 L 91 116 L 93 116 L 93 126 L 107 126 " +
+      "L 107 116 L 109 116 L 109 100 L 139 78 L 139 10";
+    const p3Path =
+      "M 61 140 L 61 300 Q 100 316 139 300 L 139 140";
     return (
       <svg viewBox="0 0 200 340" width="200" height="340" aria-label="Assembled bottle ecosystem">
-        <rect x="70" y="10" width="60" height="14" rx="5" fill="#1e3a52" stroke="#2a4a62" strokeWidth="1" />
+        <defs>
+          <clipPath id="asse-p1-clip">
+            <path d={`${p1Path} Z`} />
+          </clipPath>
+          <clipPath id="asse-p3-clip">
+            <path d={`${p3Path} Z`} />
+          </clipPath>
+        </defs>
+
+        {/* ── Piece 1 interior: plant / soil zone ── */}
+        {/* Plant air zone (top ~82px of piece 1, spec ~95px) */}
+        <rect x="61" y="10" width="78" height="82" fill="#f0fdf4" clipPath="url(#asse-p1-clip)" />
+        {/* Soil zone (bottom of piece 1, rests on inverted shoulder/neck) */}
+        <rect x="61" y="92" width="78" height="38" fill="#b5651d" clipPath="url(#asse-p1-clip)" />
+        {/* Soil surface dome */}
+        <path d="M 62 92 Q 100 78 138 92" fill="none" stroke="#7c2d12" strokeWidth="1.5" clipPath="url(#asse-p1-clip)" />
+
+        {/* ── Piece 3 interior: air gap + water zone ── */}
+        {/* Air gap (top 12px of piece 3) */}
+        <rect x="61" y="140" width="78" height="12" fill="#f0f9ff" clipPath="url(#asse-p3-clip)" />
+        {/* Water zone */}
+        <rect x="61" y="152" width="78" height="136" fill="#add8e6" clipPath="url(#asse-p3-clip)" />
+        {/* Gravel ellipses at base */}
+        <ellipse cx="82"  cy="293" rx="11" ry="5" fill="#94a3b8" opacity="0.6" clipPath="url(#asse-p3-clip)" />
+        <ellipse cx="100" cy="291" rx="13" ry="5" fill="#94a3b8" opacity="0.6" clipPath="url(#asse-p3-clip)" />
+        <ellipse cx="118" cy="294" rx="10" ry="5" fill="#94a3b8" opacity="0.6" clipPath="url(#asse-p3-clip)" />
+        <ellipse cx="90"  cy="299" rx="9"  ry="4" fill="#94a3b8" opacity="0.6" clipPath="url(#asse-p3-clip)" />
+        <ellipse cx="111" cy="298" rx="8"  ry="4" fill="#94a3b8" opacity="0.6" clipPath="url(#asse-p3-clip)" />
+
+        {/* Cotton string from inverted cap down through water to gravel */}
         {stringThreaded && (
-          <line x1="100" y1="10" x2="100" y2="0" stroke="#d4a574" strokeWidth="2" strokeDasharray="3,2" />
+          <line x1="100" y1="126" x2="100" y2="296" stroke="#e8c84a" strokeWidth="2" strokeDasharray="4,3" />
         )}
-        <rect x="25" y="20" width="150" height="310" rx="28" fill="#0d2a3e" stroke="#00d4aa" strokeWidth="1.5" />
-        <line x1="25" y1="155" x2="175" y2="155" stroke="#00d4aa88" strokeWidth="1" strokeDasharray="4,3" />
-        <rect x="26" y="195" width="148" height="134" rx="0" fill="#0a2540" />
-        <rect x="26" y="193" width="148" height="5" rx="0" fill="#1e4a7a" opacity="0.8" />
-        <rect x="26" y="270" width="148" height="59" rx="0" fill="#2d1a0a" />
-        <rect x="26" y="268" width="148" height="5" fill="#4a2e12" />
-        <text x="100" y="45" textAnchor="middle" fontSize="8" fill="#94a3b8" fontFamily="Outfit,sans-serif">AIR</text>
-        <text x="100" y="218" textAnchor="middle" fontSize="8" fill="#60a5fa" fontFamily="Outfit,sans-serif">AQUATIC</text>
-        <text x="100" y="300" textAnchor="middle" fontSize="8" fill="#a16207" fontFamily="Outfit,sans-serif">SOIL</text>
-        <rect x="55" y="148" width="90" height="13" rx="6" fill="#00d4aa22" />
-        <text x="100" y="158" textAnchor="middle" fontSize="7" fill="#00d4aa" fontFamily="Outfit,sans-serif" fontWeight="bold">JOINED ✓</text>
-        <rect x="25" y="20" width="150" height="310" rx="28" fill="none" stroke="#00d4aa" strokeWidth="0.5" opacity="0.4" />
+
+        {/* ── Piece 1 outline: inverted top, cap pointing DOWN ── */}
+        <path d={p1Path} fill="none" stroke="#64748b" strokeWidth="1.8" />
+        {/* Dashed open cut edge at top of piece 1 */}
+        <line x1="61" y1="10" x2="139" y2="10" stroke="#e53e3e" strokeWidth="1.5" strokeDasharray="5,3" />
+
+        {/* ── Piece 2: cap/neck connector (pinched waist) ── */}
+        <rect x="93" y="126" width="14" height="14" fill="#e5e7eb" stroke="#64748b" strokeWidth="1.5" />
+
+        {/* ── Piece 3 outline: water zone, open top, curved base ── */}
+        <path d={p3Path} fill="none" stroke="#64748b" strokeWidth="1.8" />
+        {/* Dashed open cut edge at top of piece 3 */}
+        <line x1="61" y1="140" x2="139" y2="140" stroke="#e53e3e" strokeWidth="1.5" strokeDasharray="5,3" />
+
+        {/* ── Zone labels ── */}
+        <text x="100" y="60" textAnchor="middle" fontSize="8" fill="#4ade80" fontFamily="Outfit,sans-serif">PLANTS</text>
+        <text x="100" y="112" textAnchor="middle" fontSize="8" fill="#a16207" fontFamily="Outfit,sans-serif">SOIL</text>
+        <text x="100" y="195" textAnchor="middle" fontSize="8" fill="#1e40af" fontFamily="Outfit,sans-serif">AQUATIC</text>
+
+        {/* JOINED label just inside piece 3 */}
+        <rect x="70" y="158" width="60" height="13" rx="6" fill="#00d4aa22" />
+        <text x="100" y="168" textAnchor="middle" fontSize="7" fill="#00d4aa" fontFamily="Outfit,sans-serif" fontWeight="bold">JOINED ✓</text>
       </svg>
     );
   }
@@ -685,17 +734,49 @@ function BottleSVG({ placedOrganisms, activeOrganismIds, cycleType, animating }:
   const aquatic = placed.filter((o) => o.zone === "aquatic");
   const terrestrial = placed.filter((o) => o.zone === "terrestrial");
 
+  // Bottle geometry: 3-piece hourglass
+  // cx=110, body half-width=75 (150px), neck hw=14, cap hw=10
+  // Piece 1 (inverted top, plant zone): y=10→240 (cap DOWN)
+  // Piece 2 (cap waist connector): y=240→252
+  // Piece 3 (water zone): y=252→372
+  // Terrestrial organisms (cy=175) land in straight body of Piece 1 ✓
+  // Aquatic organisms (cy=265) land just inside water zone of Piece 3 ✓
+  const btlP1 =
+    "M 35 10 L 35 180 L 96 207 L 96 227 L 100 227 L 100 240 " +
+    "L 120 240 L 120 227 L 124 227 L 124 207 L 185 180 L 185 10";
+  const btlP3 = "M 35 252 L 35 355 Q 110 372 185 355 L 185 252";
+
   return (
     <svg viewBox="0 0 220 380" width="220" height="380" aria-label="Bottle ecosystem diagram"
       style={{ filter: "drop-shadow(0 0 24px #00d4aa33)" }}>
-      <rect x="30" y="20" width="160" height="340" rx="30" ry="30" fill="#0d2a3e" stroke="#1e3a52" strokeWidth="2" />
-      <rect x="31" y="220" width="158" height="139" rx="0" fill="#0a2540" />
-      <rect x="31" y="218" width="158" height="6" rx="2" fill="#1e4a7a" opacity="0.7" />
-      <rect x="31" y="300" width="158" height="59" rx="0" fill="#2d1a0a" />
-      <rect x="31" y="298" width="158" height="5" rx="0" fill="#4a2e12" />
-      <text x="110" y="50" textAnchor="middle" fontSize="9" fill="#94a3b8" fontFamily="Outfit,sans-serif">AIR</text>
-      <text x="110" y="245" textAnchor="middle" fontSize="9" fill="#60a5fa" fontFamily="Outfit,sans-serif">AQUATIC</text>
-      <text x="110" y="325" textAnchor="middle" fontSize="9" fill="#a16207" fontFamily="Outfit,sans-serif">SOIL</text>
+      <defs>
+        <clipPath id="btl-p1-clip">
+          <path d={`${btlP1} Z`} />
+        </clipPath>
+        <clipPath id="btl-p3-clip">
+          <path d={`${btlP3} Z`} />
+        </clipPath>
+      </defs>
+
+      {/* ── Piece 1 interior: plant air + soil ── */}
+      <rect x="35" y="10" width="150" height="135" fill="#f0fdf4" clipPath="url(#btl-p1-clip)" />
+      <rect x="35" y="145" width="150" height="100" fill="#b5651d" clipPath="url(#btl-p1-clip)" />
+      {/* Soil surface dome */}
+      <path d="M 36 145 Q 110 127 184 145" fill="none" stroke="#7c2d12" strokeWidth="1.5" clipPath="url(#btl-p1-clip)" />
+
+      {/* ── Piece 3 interior: air gap + water + gravel ── */}
+      <rect x="35" y="252" width="150" height="12" fill="#f0f9ff" clipPath="url(#btl-p3-clip)" />
+      <rect x="35" y="264" width="150" height="80" fill="#add8e6" clipPath="url(#btl-p3-clip)" />
+      <ellipse cx="82"  cy="350" rx="14" ry="6" fill="#94a3b8" opacity="0.6" clipPath="url(#btl-p3-clip)" />
+      <ellipse cx="104" cy="348" rx="16" ry="6" fill="#94a3b8" opacity="0.6" clipPath="url(#btl-p3-clip)" />
+      <ellipse cx="128" cy="351" rx="13" ry="6" fill="#94a3b8" opacity="0.6" clipPath="url(#btl-p3-clip)" />
+      <ellipse cx="94"  cy="357" rx="11" ry="5" fill="#94a3b8" opacity="0.6" clipPath="url(#btl-p3-clip)" />
+      <ellipse cx="118" cy="356" rx="12" ry="5" fill="#94a3b8" opacity="0.6" clipPath="url(#btl-p3-clip)" />
+
+      {/* ── Zone labels ── */}
+      <text x="110" y="45"  textAnchor="middle" fontSize="9" fill="#4ade80" fontFamily="Outfit,sans-serif">AIR</text>
+      <text x="110" y="190" textAnchor="middle" fontSize="9" fill="#a16207" fontFamily="Outfit,sans-serif">SOIL</text>
+      <text x="110" y="305" textAnchor="middle" fontSize="9" fill="#60a5fa" fontFamily="Outfit,sans-serif">AQUATIC</text>
 
       {aquatic.map((org, i) => {
         const isActive = activeOrganismIds.includes(org.id);
@@ -724,7 +805,21 @@ function BottleSVG({ placedOrganisms, activeOrganismIds, cycleType, animating }:
         );
       })}
 
-      <rect x="75" y="10" width="70" height="15" rx="6" fill="#1e3a52" stroke="#2a4a62" strokeWidth="1" />
+      {/* Cotton string from inverted cap down through water to gravel */}
+      <line x1="110" y1="240" x2="110" y2="354" stroke="#e8c84a" strokeWidth="2" strokeDasharray="4,3" />
+
+      {/* ── Piece 1 outline: inverted top, cap pointing DOWN ── */}
+      <path d={btlP1} fill="none" stroke="#64748b" strokeWidth="2" />
+      {/* Dashed open cut edge at top of piece 1 */}
+      <line x1="35" y1="10" x2="185" y2="10" stroke="#e53e3e" strokeWidth="1.5" strokeDasharray="5,3" />
+
+      {/* ── Piece 2: cap/neck connector (pinched waist) ── */}
+      <rect x="100" y="240" width="20" height="12" fill="#e5e7eb" stroke="#64748b" strokeWidth="1.5" />
+
+      {/* ── Piece 3 outline: water zone, open top, curved base ── */}
+      <path d={btlP3} fill="none" stroke="#64748b" strokeWidth="2" />
+      {/* Dashed open cut edge at top of piece 3 */}
+      <line x1="35" y1="252" x2="185" y2="252" stroke="#e53e3e" strokeWidth="1.5" strokeDasharray="5,3" />
 
       {/* Water cycle animation */}
       {cycleType === "water" && animating && (
