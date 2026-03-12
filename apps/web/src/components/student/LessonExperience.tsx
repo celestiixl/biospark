@@ -333,6 +333,15 @@ export default function LessonExperience({
               <h1 className="mt-1 text-2xl font-bold text-slate-900">
                 {lesson.title}
               </h1>
+              {(lesson.vocabularyTiers?.contentSpecific?.length ?? 0) > 0 && (
+                <Link
+                  href={`/student/learn/${unit.id}/${lesson.slug}/flashcards`}
+                  className="mt-2 inline-block rounded-[6px] border border-bs-teal px-[14px] py-[6px] font-sans text-[13px] text-bs-teal hover:bg-[rgba(0,212,170,0.08)]"
+                >
+                  📚 Study vocabulary (
+                  {lesson.vocabularyTiers?.contentSpecific?.length ?? 0} terms)
+                </Link>
+              )}
               <div className="mt-2 text-sm text-slate-600">
                 {lesson.type} • {lesson.minutes} min
               </div>
