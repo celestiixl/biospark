@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { WhatsNextRoadmap } from "@/components/roadmap/WhatsNextRoadmap";
 import { PageContent, Card } from "@/components/ui";
 import { useTeacherAuth } from "@/lib/teacherAuth";
 import {
@@ -11,6 +12,21 @@ import {
   rejectImportedPhenomenon,
   submitImportedPhenomenon,
 } from "@/lib/phenomenaImports";
+import {
+  makeRoadmapId,
+  type RoadmapItem,
+  type RoadmapStatus,
+  useRoadmapItems,
+} from "@/lib/roadmap";
+
+const PLANT_SYSTEMS_ANIMATION_TODOS = [
+  "Plant Systems: add left-to-right breeze sway wave across bluebonnet field (2-3 degree stem rock)",
+  "Plant Systems: add 4-6 detailed bees in lazy looping arcs over field (pollination visual)",
+  "Plant Systems: add ultra-subtle cloud drift left-to-right in sky",
+  "Plant Systems: add soft sun pulse heat-radiation effect",
+  "Plant Systems: staggered text reveal on load (heading, italic phrase, then subheading in 0.5s total)",
+  "Plant Systems: add road heat shimmer overlay for highway summer mirage",
+] as const;
 
 export default function PhenomenaUploadGuidePage() {
   const { teacher } = useTeacherAuth();
@@ -21,6 +37,8 @@ export default function PhenomenaUploadGuidePage() {
   const [message, setMessage] = useState<string | null>(null);
   const [prMessage, setPrMessage] = useState<string | null>(null);
   const [isCreatingPr, setIsCreatingPr] = useState(false);
+  const [roadmapInput, setRoadmapInput] = useState("");
+  const { roadmapItems, setRoadmapItems } = useRoadmapItems();
   const [, setRefreshTick] = useState(0);
 
   const imports = loadImportedPhenomena();
@@ -29,6 +47,55 @@ export default function PhenomenaUploadGuidePage() {
 
   function refresh() {
     setRefreshTick((n) => n + 1);
+  }
+
+  function addUpcomingRoadmapItem() {
+    const title = roadmapInput.trim();
+    if (!title) return;
+    const next: RoadmapItem[] = [
+      {
+        id: makeRoadmapId(),
+        title,
+        status: "upcoming",
+        updatedAt: new Date().toISOString(),
+      },
+      ...roadmapItems,
+    ];
+    setRoadmapItems(next);
+    setRoadmapInput("");
+  }
+
+  function addPlantSystemsAnimationTodoPack() {
+    const existingTitles = new Set(roadmapItems.map((item) => item.title));
+    const now = new Date().toISOString();
+    const additions = PLANT_SYSTEMS_ANIMATION_TODOS.filter(
+      (title) => !existingTitles.has(title),
+    ).map((title) => ({
+      id: makeRoadmapId(),
+      title,
+      status: "upcoming" as const,
+      updatedAt: now,
+    }));
+
+    if (additions.length === 0) return;
+    setRoadmapItems([...additions, ...roadmapItems]);
+  }
+
+  function setRoadmapStatus(id: string, status: RoadmapStatus) {
+    const next = roadmapItems.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            status,
+            updatedAt: new Date().toISOString(),
+          }
+        : item,
+    );
+    setRoadmapItems(next);
+  }
+
+  function deleteRoadmapItem(id: string) {
+    setRoadmapItems(roadmapItems.filter((item) => item.id !== id));
   }
 
   function onSubmitHtml() {
@@ -180,6 +247,94 @@ export default function PhenomenaUploadGuidePage() {
               PR route env required: GITHUB_TOKEN (optional overrides:
               GITHUB_REPO_OWNER, GITHUB_REPO_NAME, GITHUB_BASE_BRANCH).
             </p>
+          </Card>
+
+          <Card
+            className="mt-4 rounded-3xl border border-bs-border bg-bs-surface p-5"
+            glow
+          >
+            <div className="text-sm font-semibold text-bs-text">
+              Assessment Roadmap
+            </div>
+            <p className="mt-1 text-xs text-bs-text-sub">
+              This writes into the same roadmap used on /assessment. Add your
+              phenomenon animation TODOs there instead of maintaining a second
+              roadmap.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <input
+                value={roadmapInput}
+                onChange={(e) => setRoadmapInput(e.target.value)}
+                placeholder="Add roadmap item..."
+                className="w-full max-w-xl rounded-xl border border-bs-border bg-bs-raised px-3 py-2 text-xs text-bs-text"
+              />
+              <button
+                type="button"
+                onClick={addUpcomingRoadmapItem}
+                className="rounded-xl border border-bs-teal/55 bg-(--bs-teal-dim) px-4 py-2 text-xs font-semibold text-bs-teal"
+              >
+                Add Upcoming
+              </button>
+              <button
+                type="button"
+                onClick={addPlantSystemsAnimationTodoPack}
+                className="rounded-xl border border-blue-400/55 bg-blue-500/10 px-4 py-2 text-xs font-semibold text-blue-200"
+              >
+                Add Plant Systems Animation TODO
+              </button>
+            </div>
+
+            <div className="mt-4">
+              <WhatsNextRoadmap items={roadmapItems} />
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-bs-border bg-bs-raised p-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
+                Manage roadmap items
+              </div>
+              <div className="mt-2 space-y-2">
+                {roadmapItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-xl border border-bs-border bg-bs-surface px-3 py-2"
+                  >
+                    <div className="text-xs font-semibold text-bs-text">
+                      {item.title}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setRoadmapStatus(item.id, "shipped")}
+                        className="rounded-md border border-emerald-300/40 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-200"
+                      >
+                        Live now
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRoadmapStatus(item.id, "in-progress")}
+                        className="rounded-md border border-teal-300/40 bg-teal-500/10 px-2 py-1 text-[10px] font-semibold text-teal-200"
+                      >
+                        Next sprint
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRoadmapStatus(item.id, "upcoming")}
+                        className="rounded-md border border-amber-300/40 bg-amber-500/10 px-2 py-1 text-[10px] font-semibold text-amber-200"
+                      >
+                        Upcoming
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteRoadmapItem(item.id)}
+                        className="rounded-md border border-rose-400/40 bg-rose-500/10 px-2 py-1 text-[10px] font-semibold text-rose-200"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </Card>
 
           <Card

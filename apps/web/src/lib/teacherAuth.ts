@@ -20,7 +20,7 @@ const DEMO_ACCOUNTS: Record<string, { password: string; teacher: Teacher }> = {
   "teacher@biospark.app": {
     password: "biospark",
     teacher: {
-      name: "Ms. Rivera",
+      name: "Ms Garza",
       email: "teacher@biospark.app",
       school: "Austin High School",
     },
@@ -43,7 +43,11 @@ export const useTeacherAuth = create<TeacherAuthState>()(
       login: (email, password) => {
         const account = DEMO_ACCOUNTS[email.toLowerCase().trim()];
         if (!account || account.password !== password) {
-          return { ok: false, error: "Invalid email or password. Try teacher@biospark.app / biospark" };
+          return {
+            ok: false,
+            error:
+              "Invalid email or password. Try teacher@biospark.app / biospark",
+          };
         }
         set({ teacher: account.teacher });
         return { ok: true };
@@ -51,6 +55,21 @@ export const useTeacherAuth = create<TeacherAuthState>()(
 
       logout: () => set({ teacher: null }),
     }),
-    { name: "ia-teacher-auth" }
-  )
+    {
+      name: "ia-teacher-auth",
+      onRehydrateStorage: () => (state) => {
+        if (!state?.teacher) return;
+        const email = state.teacher.email?.toLowerCase().trim();
+        if (
+          email === "teacher@biospark.app" &&
+          state.teacher.name === "Ms. Rivera"
+        ) {
+          state.teacher = {
+            ...state.teacher,
+            name: "Ms Garza",
+          };
+        }
+      },
+    },
+  ),
 );
