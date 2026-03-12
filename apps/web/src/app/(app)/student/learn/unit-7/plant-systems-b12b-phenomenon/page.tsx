@@ -1,11 +1,13 @@
 import Link from "next/link";
 import StudentFloatingDock from "@/components/student/StudentFloatingDock";
+import { BackLink } from "@/components/nav/BackLink";
 import ThemeToggle from "@/components/ia/ThemeToggle";
 import PlantSystemsB12BPhenomenon from "@/components/student/PlantSystemsB12BPhenomenon";
 
 export default function PlantSystemsB12BPhenomenonPage() {
   return (
     <main className="ia-vh-page relative min-h-dvh px-3 py-3 text-slate-900 sm:px-4 sm:py-4">
+      <BackLink href="/student/learn/unit-7" label="Back to unit" />
       <div className="mx-auto grid w-full max-w-6xl gap-3">
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -25,12 +27,6 @@ export default function PlantSystemsB12BPhenomenonPage() {
               <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
                 TEKS B.12B
               </span>
-              <Link
-                href="/student/learn/unit-7"
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-              >
-                Back to Unit 7
-              </Link>
             </div>
           </div>
         </section>

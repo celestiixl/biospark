@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import StudentFloatingDock from "@/components/student/StudentFloatingDock";
 import ThemeToggle from "@/components/ia/ThemeToggle";
 import { getUnitById } from "@/lib/learningHubContent";
+import { BackLink } from "@/components/nav/BackLink";
 
 export default function Unit3PageStub() {
   const unit = getUnitById("unit-3");
@@ -10,6 +11,7 @@ export default function Unit3PageStub() {
 
   return (
     <main className="ia-vh-page relative min-h-dvh px-3 py-3 text-slate-900 sm:px-4 sm:py-4">
+      <BackLink href="/student/learn" label="Back to hub" />
       <div className="mx-auto grid w-full max-w-5xl gap-3">
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
@@ -24,16 +26,10 @@ export default function Unit3PageStub() {
         </section>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="mb-3">
             <h2 className="text-lg font-semibold text-slate-900">
               Lessons in this Unit
             </h2>
-            <Link
-              href="/student/learn"
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              Back to Hub
-            </Link>
           </div>
 
           <div className="space-y-3">

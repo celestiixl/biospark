@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { buildInterventionQueue } from "@/lib/learningInsights";
 import { loadLearningProgress } from "@/lib/learningProgress";
+import { BackLink } from "@/components/nav/BackLink";
 
 export default function InterventionQueuePage() {
   const progress = useMemo(() => loadLearningProgress(), []);
@@ -11,20 +12,13 @@ export default function InterventionQueuePage() {
 
   return (
     <main className="mx-auto w-full max-w-5xl p-6 text-slate-900">
+      <BackLink href="/student/learn" label="Back to dashboard" />
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold">Intervention Queue</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Priority lessons that need re-teach or targeted support.
-            </p>
-          </div>
-          <Link
-            href="/student/learn"
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Back to Hub
-          </Link>
+        <div>
+          <h1 className="text-2xl font-bold">Intervention Queue</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Priority lessons that need re-teach or targeted support.
+          </p>
         </div>
       </section>
 

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
+import { BackLink } from "@/components/nav/BackLink";
 import { buildTeksHeatmap, getWeakestTeks } from "@/lib/learningInsights";
 import { loadLearningProgress } from "@/lib/learningProgress";
 
@@ -18,20 +18,13 @@ export default function StandardsHeatmapPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl p-6 text-slate-900">
+      <BackLink href="/student/learn" label="Back to dashboard" />
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold">Standards Heatmap</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Track TEKS-level mastery and target weak standards first.
-            </p>
-          </div>
-          <Link
-            href="/student/learn"
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Back to Hub
-          </Link>
+        <div>
+          <h1 className="text-2xl font-bold">Standards Heatmap</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Track TEKS-level mastery and target weak standards first.
+          </p>
         </div>
       </section>
 
