@@ -3,8 +3,8 @@
 import type { LearningLesson } from "@/lib/learningHubContent";
 import { useFlashcards } from "@/hooks/useFlashcards";
 
-// Types imported from the shared flashcard module — not redeclared here.
-import type { Flashcard, FlashcardSession } from "@/types/flashcard"; // eslint-disable-line @typescript-eslint/no-unused-vars
+// Flashcard type imported from the shared module — not redeclared here.
+import type { Flashcard } from "@/types/flashcard";
 
 // ---------------------------------------------------------------------------
 
@@ -284,6 +284,7 @@ export function FlashcardDeck({ lesson }: FlashcardDeckProps) {
 
   const { currentCard, isComplete, flip, markMastered, markNeedsReview, restart, progress, session } =
     useFlashcards(lesson.slug, lesson);
+  const { flipped } = session;
 
   if (terms.length === 0) {
     return <EmptyState />;
@@ -304,12 +305,12 @@ export function FlashcardDeck({ lesson }: FlashcardDeckProps) {
       ) : (
         <>
           {currentCard && (
-            <FlipCard card={currentCard} flipped={session.flipped} onFlip={flip} />
+            <FlipCard card={currentCard} flipped={flipped} onFlip={flip} />
           )}
 
           {/* 3. Action Row */}
           <ActionRow
-            flipped={session.flipped}
+            flipped={flipped}
             onNeedsReview={markNeedsReview}
             onMastered={markMastered}
           />
