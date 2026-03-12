@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { BackLink } from "@/components/nav/BackLink";
 import { buildLearningFunnel, buildStuckPoints } from "@/lib/learningInsights";
 import { loadLearningProgress } from "@/lib/learningProgress";
 import TeacherNotebookPeek from "@/components/teacher/TeacherNotebookPeek";
@@ -32,6 +33,7 @@ export default function TeacherLearningAnalyticsPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl p-6 text-slate-900">
+      <BackLink href="/teacher/dashboard" label="Back to dashboard" />
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -40,20 +42,12 @@ export default function TeacherLearningAnalyticsPage() {
               Completion funnel, check behavior, and stuck-point analysis.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/teacher/learning-analytics/weekly-digest"
-              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/40"
-            >
-              Weekly Digest
-            </Link>
-            <Link
-              href="/teacher/dashboard"
-              className="rounded-xl border border-border bg-surface-1 px-4 py-2 text-sm font-semibold text-text shadow-sm hover:bg-surface-3"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
+          <Link
+            href="/teacher/learning-analytics/weekly-digest"
+            className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/40"
+          >
+            Weekly Digest
+          </Link>
         </div>
       </section>
 

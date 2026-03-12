@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Card, Badge } from "@/components/ui";
+import { BackLink } from "@/components/nav/BackLink";
 import { getMondayOf } from "@/lib/weeklyDigest";
 import type { DigestEntry, WeeklyDigestResult } from "@/lib/weeklyDigest";
 
@@ -155,22 +155,15 @@ export default function WeeklyDigestPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl p-6 text-slate-900 dark:text-slate-100">
+      <BackLink href="/teacher/learning-analytics" label="Back to analytics" />
       {/* Page header */}
       <section className="rounded-3xl border border-border bg-surface-1 p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold">Weekly Teaching Moments</h1>
-            <p className="mt-1 text-sm text-text-muted">
-              The misconceptions most worth addressing this week — top 10, filterable by
-              period and TEKS.
-            </p>
-          </div>
-          <Link
-            href="/teacher/learning-analytics"
-            className="rounded-xl border border-border bg-surface-1 px-4 py-2 text-sm font-semibold text-text shadow-sm hover:bg-surface-3"
-          >
-            ← Analytics
-          </Link>
+        <div>
+          <h1 className="text-2xl font-bold">Weekly Teaching Moments</h1>
+          <p className="mt-1 text-sm text-text-muted">
+            The misconceptions most worth addressing this week — top 10, filterable by
+            period and TEKS.
+          </p>
         </div>
       </section>
 

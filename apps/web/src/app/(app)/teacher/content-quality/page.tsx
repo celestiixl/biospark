@@ -1,23 +1,16 @@
-import Link from "next/link";
 import { LEARNING_UNITS } from "@/lib/learningHubContent";
+import { BackLink } from "@/components/nav/BackLink";
 
 export default function TeacherContentQualityPage() {
   return (
     <main className="mx-auto w-full max-w-6xl p-6 text-slate-900">
+      <BackLink href="/teacher/dashboard" label="Back to dashboard" />
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold">Content Quality Workflow</h1>
-            <p className="mt-1 text-sm text-slate-600">
-              Track versions, approval status, and curriculum change logs.
-            </p>
-          </div>
-          <Link
-            href="/teacher/dashboard"
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Back to Dashboard
-          </Link>
+        <div>
+          <h1 className="text-2xl font-bold">Content Quality Workflow</h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Track versions, approval status, and curriculum change logs.
+          </p>
         </div>
       </section>
 
