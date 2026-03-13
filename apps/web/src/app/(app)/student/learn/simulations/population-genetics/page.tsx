@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
+import { BackLink } from "@/components/nav/BackLink";
 import StudentFloatingDock from "@/components/student/StudentFloatingDock";
 import { PageBanner, PageContent } from "@/components/ui";
 
@@ -433,24 +433,11 @@ export default function PopulationGeneticsSimPage() {
 
   return (
     <main className="ia-vh-page flex min-h-dvh flex-col text-slate-900 dark:text-slate-100">
+      <BackLink href="/student/dashboard" label="Back to dashboard" />
       <PageBanner
         title="Population Genetics Simulator"
         subtitle="Explore allele frequency dynamics: Hardy-Weinberg, genetic drift, natural selection, and bottleneck events."
       >
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/student/learn"
-            className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"
-          >
-            ← BioSpark Quest
-          </Link>
-          <Link
-            href="/student/dashboard"
-            className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"
-          >
-            Dashboard
-          </Link>
-        </div>
       </PageBanner>
 
       <PageContent className="py-6">

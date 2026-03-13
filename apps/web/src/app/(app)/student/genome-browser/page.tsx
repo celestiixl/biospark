@@ -14,6 +14,7 @@ import {
   DEMO_SEQUENCES,
   DEFAULT_SEQUENCE_ID,
 } from "@/data/genomeBrowserData";
+import { BackLink } from "@/components/nav/BackLink";
 
 const BASE_COLOR_LEGEND = [
   { base: "A", color: "bg-green-500",  label: "Adenine" },
@@ -30,17 +31,12 @@ export default function GenomeBrowserPage() {
 
   return (
     <main className="ia-vh-page flex h-dvh flex-col overflow-hidden text-slate-900">
+      <BackLink href="/student/dashboard" label="Back to dashboard" />
       <PageBanner
         title="🧬 Genome Browser"
         subtitle="Navigate DNA sequences and gene annotations interactively • TEKS B.7A, B.7C"
       >
         <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/student/dashboard"
-            className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"
-          >
-            ← Dashboard
-          </Link>
           <Link
             href="/student/learn"
             className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"

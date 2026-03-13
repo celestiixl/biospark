@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Link from "next/link";
+import { BackLink } from "@/components/nav/BackLink";
 import { PageBanner, PageContent } from "@/components/ui";
 import StudentFloatingDock from "@/components/student/StudentFloatingDock";
 
@@ -1550,22 +1550,11 @@ export default function BottleEcosystemCyclesPage() {
 
   return (
     <main className="ia-vh-page flex h-dvh flex-col overflow-hidden" style={{ background: "#0d1e2c", color: "#e2e8f0" }}>
+      <BackLink href="/student/learn/unit-7" label="Back to unit" />
       <PageBanner
         title="Bottle Ecosystem Cycles Lab"
         subtitle="Build, populate & explore water, carbon & nitrogen cycles — TEKS B.12A & B.12B"
       >
-        <div className="flex flex-wrap items-center gap-3">
-          <Link href="/student/learn/unit-7" aria-label="Back to Unit 7"
-            className="rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-80"
-            style={{ background: "rgba(255,255,255,0.15)" }}>
-            ← Unit 7
-          </Link>
-          <Link href="/student/dashboard" aria-label="Go to dashboard"
-            className="rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-80"
-            style={{ background: "rgba(255,255,255,0.15)" }}>
-            Dashboard
-          </Link>
-        </div>
       </PageBanner>
 
       <PageContent className="flex-1 overflow-hidden">

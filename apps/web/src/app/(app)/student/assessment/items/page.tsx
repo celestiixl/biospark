@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { PageContent, Card } from "@/components/ui";
+import { BackLink } from "@/components/nav/BackLink";
 
 export default function InteractiveItemsTestScreen() {
   return (
     <main>
+      <BackLink href="/student/assessment" label="Back to lab" />
       <PageContent className="py-10">
         <div className="flex items-start justify-between gap-6">
           <div>
@@ -17,12 +19,6 @@ export default function InteractiveItemsTestScreen() {
           </div>
 
           <div className="flex gap-2">
-            <Link
-              href="/student/assessment"
-              className="rounded-lg border px-3 py-2 text-sm hover:bg-muted"
-            >
-              Back to Lab
-            </Link>
             <Link
               href="/practice"
               className="rounded-lg border px-3 py-2 text-sm hover:bg-muted"

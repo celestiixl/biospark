@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BackLink } from "@/components/nav/BackLink";
 import { PageContent, PageBanner, Card } from "@/components/ui";
 import {
   defaultAssignmentPublishMeta,
@@ -105,6 +106,7 @@ export default function TeacherAssessmentsPage() {
 
   return (
     <main>
+      <BackLink href="/teacher/dashboard" label="Back to dashboard" />
       <PageBanner
         title="Assessments"
         subtitle="A list of your assignments will appear here."
@@ -257,14 +259,6 @@ export default function TeacherAssessmentsPage() {
           )}
         </Card>
 
-        <div>
-          <Link
-            href="/teacher/dashboard"
-            className="text-sm text-slate-500 underline"
-          >
-            Back to dashboard
-          </Link>
-        </div>
       </PageContent>
     </main>
   );

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { BackLink } from "@/components/nav/BackLink";
 
 export default function PlantSystemsB12BLessonPage() {
   return (
@@ -9,30 +9,19 @@ export default function PlantSystemsB12BLessonPage() {
         flexDirection: "column",
       }}
     >
+      <BackLink href="/student/learn/unit-7" label="Back to unit" />
       <header
         style={{
           height: 64,
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           gap: 12,
           padding: "0 16px",
           borderBottom: "1px solid var(--bs-border)",
           background: "var(--bs-surface)",
         }}
       >
-        <Link
-          href="/student/learn/unit-7"
-          style={{
-            textDecoration: "none",
-            color: "var(--bs-text)",
-            fontSize: 14,
-            fontWeight: 600,
-          }}
-        >
-          {"← Return to Unit 7"}
-        </Link>
-
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span
             style={{

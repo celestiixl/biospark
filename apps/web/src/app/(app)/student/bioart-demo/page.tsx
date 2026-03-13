@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import { BackLink } from "@/components/nav/BackLink";
 import { useState, memo } from "react";
 import {
   BIOART_ICONS,
@@ -215,17 +215,12 @@ export default function BioArtDemoPage() {
 
   return (
     <main className="ia-vh-page flex h-dvh flex-col overflow-hidden text-slate-900">
+      <BackLink href="/student/dashboard" label="Back to dashboard" />
       <PageBanner
         title="BioArt Icon Registry — Demo"
         subtitle={`${BIOART_ICONS.length} biology icons mapped to FBISD TEKS • Public domain from NIH BioArt (bioart.niaid.nih.gov)`}
       >
         <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/student/dashboard"
-            className="rounded-2xl bg-white/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-white/25"
-          >
-            ← Dashboard
-          </Link>
           <a
             href="https://bioart.niaid.nih.gov/discover?sort=date_desc&page=2"
             target="_blank"
