@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "teks:align": "node scripts/align-teks.mjs"
   },
   "dependencies": {
@@ -37,6 +40,7 @@
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
+    "@vitest/coverage-v8": "^4.1.2",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -55,6 +59,8 @@
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.2",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"
   },
@@ -69,6 +75,9 @@
     "postcss": "^8.5.6",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.2",
+    "@vitest/coverage-v8": "^4.1.2",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
