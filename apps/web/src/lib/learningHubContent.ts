@@ -1665,6 +1665,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
     contentVersion: "1.0.0",
     approvalStatus: "approved",
     changeLog: [{ date: "2026-03-27", note: "Initial Unit 7 release" }],
+    linkedAssignmentId: "asgn-u7-core",
     lessons: [
       // ── Lesson 1: Vascular Transport ────────────────────────────────────────
       {
