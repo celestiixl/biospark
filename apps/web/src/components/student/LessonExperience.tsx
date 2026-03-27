@@ -35,7 +35,8 @@ function getSectionKey(section: LessonSection, index: number): string {
     return `misconception-${index}-${section.misconception.slice(0, 20)}`;
   if (section.type === "vocabulary-spotlight") return `vocab-spotlight-${index}`;
   if (section.type === "activity") return `activity-${index}-${section.heading}`;
-  if ("heading" in section && section.heading) return section.heading;
+  if ("heading" in section && section.heading)
+    return `${section.heading}-${index}`;
   return `section-${index}`;
 }
 
