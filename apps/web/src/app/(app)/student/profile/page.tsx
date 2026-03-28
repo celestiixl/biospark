@@ -135,7 +135,7 @@ export default function StudentProfilePage() {
                     type="button"
                     onClick={handleSetNameOnce}
                     disabled={profile.nameLocked || isSavingName}
-                    className="rounded-lg bg-bs-bg px-3 py-2 text-sm font-semibold text-white hover:bg-bs-bg disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg bg-bs-bg px-3 py-2 text-sm font-semibold text-white hover:bg-[var(--bs-raised)] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isSavingName ? "Checking..." : "Set name permanently"}
                   </button>

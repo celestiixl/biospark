@@ -851,7 +851,7 @@ export default function LessonExperience({
               type="button"
               onClick={handleSubmitCheck}
               aria-label="Submit quick check"
-              className="rounded-xl bg-bs-bg px-4 py-2 text-sm font-semibold text-white hover:bg-bs-bg"
+              className="rounded-xl bg-bs-bg px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--bs-raised)]"
             >
               Submit Check
             </button>
@@ -931,7 +931,7 @@ export default function LessonExperience({
               {nextLesson ? (
                 <Link
                   href={`/student/learn/${unit.id}/${nextLesson.slug}`}
-                  className="rounded-xl bg-bs-bg px-3 py-2 text-xs font-semibold text-white hover:bg-bs-bg"
+                  className="rounded-xl bg-bs-bg px-3 py-2 text-xs font-semibold text-white hover:bg-[var(--bs-raised)]"
                 >
                   Next →
                 </Link>

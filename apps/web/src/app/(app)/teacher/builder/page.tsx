@@ -376,7 +376,7 @@ export default function TeacherBuilderPage() {
                   subtitle="Student-facing directions. Keep it short and visual when possible."
                 />
                 <textarea
-                  className="mt-2 w-full border border-[var(--bs-border)] p-3 text-sm text-bs-text focus:border-[var(--bs-border)] focus:outline-none ia-card-soft "
+                  className="mt-2 w-full border border-[var(--bs-border)] p-3 text-sm text-bs-text focus:border-bs-teal focus:outline-none ia-card-soft "
                   rows={4}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
