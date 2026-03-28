@@ -56,7 +56,7 @@ function SketchCanvas({ initialDataUrl, onChange }: SketchCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
-  const [color, setColor] = useState(SKETCH_COLORS[0]);
+  const [color, setColor] = useState<(typeof SKETCH_COLORS)[number]>(SKETCH_COLORS[0]);
   const [strokeWidth, setStrokeWidth] = useState<number>(STROKE_WIDTHS[1]);
   const [tool, setTool] = useState<"pen" | "eraser">("pen");
   const [confirmClear, setConfirmClear] = useState(false);
