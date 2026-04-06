@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { type DonutSegment } from "@/components/student/MasteryDonut";
+import MasteryRadial, { type RadialSegment } from "@/components/student/MasteryRadial";
 import { loadLearningProgress, getMostRecentLessonId } from "@/lib/learningProgress";
 import { getXP, getStreak } from "@/lib/xp";
 import { LEARNING_UNITS, type LearningLesson, type LearningUnit } from "@/lib/learningHubContent";
@@ -163,6 +164,20 @@ function buildSegments(masteryMap: Record<string, number>): DonutSegment[] {
   }));
 }
 
+// Builds RadialSegment[] from a flat mastery map { "B.5A": 0.82, ... }
+// Values in masteryMap are 0–1 scale; RadialSegment.value is 0–100.
+function buildRadialSegments(masteryMap: Record<string, number>): RadialSegment[] {
+  return DEFAULT_SEGMENTS.map((seg) => {
+    const raw = masteryMap[seg.key] ?? seg.value;
+    return {
+      key: seg.key,
+      label: seg.label,
+      value: Math.round((raw <= 1 ? raw * 100 : raw)),
+      group: seg.group ?? seg.key.replace(/[A-Z]$/, ""),
+    };
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
@@ -184,6 +199,9 @@ export default function DashboardClient(props: DashboardClientProps) {
   });
 
   const [masterySegments, setMasterySegments] = useState<DonutSegment[]>(DEFAULT_SEGMENTS);
+  const [radialSegments, setRadialSegments] = useState<RadialSegment[]>(() =>
+    buildRadialSegments({})
+  );
   const [isLoadingMastery, setIsLoadingMastery] = useState(false);
   const [masteryError, setMasteryError] = useState(false);
 
@@ -245,6 +263,7 @@ export default function DashboardClient(props: DashboardClientProps) {
       .then((r) => r.json())
       .then((masteryMap: Record<string, number>) => {
         setMasterySegments(buildSegments(masteryMap));
+        setRadialSegments(buildRadialSegments(masteryMap));
       })
       .catch(() => {
         setMasteryError(true);
@@ -592,50 +611,13 @@ export default function DashboardClient(props: DashboardClientProps) {
             {/* Mastery ring */}
             <div style={{ background: C.surface, borderRadius: 16, border: "1px solid rgba(0,0,0,0.06)", padding: 20 }}>
               <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.muted, marginBottom: 14 }}>Overall mastery</p>
-              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-                {isLoadingMastery ? (
-                  <div style={{ width: 120, height: 120, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <div style={{ width: 32, height: 32, borderRadius: "50%", border: `4px solid ${C.teal}`, borderTopColor: "transparent" }} />
-                  </div>
-                ) : (
-                  <svg width="120" height="120" viewBox="0 0 140 140" style={{ flexShrink: 0 }} aria-label={`${ringOverallPct}% overall mastery`}>
-                    <circle cx="70" cy="70" r={RING_R} fill="none" stroke="#e2e8f0" strokeWidth={RING_SW} />
-                    {ringMastered > 0 && (
-                      <circle cx="70" cy="70" r={RING_R} fill="none" stroke={C.teal} strokeWidth={RING_SW}
-                        strokeDasharray={`${solidMastered} ${RING_CIRC}`} strokeDashoffset={0}
-                        transform="rotate(-90 70 70)" strokeLinecap="round" />
-                    )}
-                    {ringLearned > 0 && (
-                      <circle cx="70" cy="70" r={RING_R} fill="none" stroke="#7de3cb" strokeWidth={RING_SW}
-                        strokeDasharray={`${solidLearned} ${RING_CIRC}`} strokeDashoffset={arcMastered}
-                        transform="rotate(-90 70 70)" strokeLinecap="round" />
-                    )}
-                    {ringAttempted > 0 && (
-                      <circle cx="70" cy="70" r={RING_R} fill="none" stroke="#ffa694" strokeWidth={RING_SW}
-                        strokeDasharray={`${solidAttempted} ${RING_CIRC}`} strokeDashoffset={arcMastered + arcLearned}
-                        transform="rotate(-90 70 70)" strokeLinecap="round" />
-                    )}
-                    <text x="70" y="66" textAnchor="middle" fontSize="26" fontWeight="800" fill={C.ink}
-                      fontFamily="var(--font-fraunces),serif" fontStyle="italic">{ringOverallPct}%</text>
-                    <text x="70" y="83" textAnchor="middle" fontSize="11" fill={C.muted}
-                      fontFamily="var(--font-dm-sans),sans-serif">overall</text>
-                  </svg>
-                )}
-                <ul style={{ display: "flex", flexDirection: "column", gap: 10, listStyle: "none", margin: 0, padding: 0 }}>
-                  <li style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                    <span style={{ width: 10, height: 10, flexShrink: 0, borderRadius: "50%", background: C.teal, display: "inline-block" }} aria-hidden="true" />
-                    <span style={{ color: C.ink }}>Mastered: <strong>{ringMastered}</strong></span>
-                  </li>
-                  <li style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                    <span style={{ width: 10, height: 10, flexShrink: 0, borderRadius: "50%", background: "#7de3cb", display: "inline-block" }} aria-hidden="true" />
-                    <span style={{ color: C.ink }}>Learned: <strong>{ringLearned}</strong></span>
-                  </li>
-                  <li style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                    <span style={{ width: 10, height: 10, flexShrink: 0, borderRadius: "50%", background: "#ffa694", display: "inline-block" }} aria-hidden="true" />
-                    <span style={{ color: C.ink }}>Attempted: <strong>{ringAttempted}</strong></span>
-                  </li>
-                </ul>
-              </div>
+              {isLoadingMastery ? (
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 200 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", border: `4px solid ${C.teal}`, borderTopColor: "transparent" }} />
+                </div>
+              ) : (
+                <MasteryRadial segments={radialSegments} size={200} />
+              )}
             </div>
 
             {/* TEKS status + this week */}
