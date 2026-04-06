@@ -39,8 +39,8 @@ export function Sidebar({
       {/* Desktop sidebar - visible only at md+ */}
       <Surface className="hidden p-4 md:block">
         <div className="mb-4">
-          <div className="text-sm font-semibold text-bs-text">Navigation</div>
-          <div className="mt-1 text-xs text-bs-text-sub">
+          <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>Navigation</div>
+          <div className="mt-1 text-xs" style={{ color: "#5a7d72" }}>
             Jump between roles and test screens.
           </div>
         </div>
@@ -90,12 +90,12 @@ export function Sidebar({
           ]}
         />
 
-        <div className="mt-5 rounded-2xl border border-[var(--bs-border)] p-4">
-          <div className="text-xs font-semibold text-bs-text-sub">Status</div>
-          <div className="mt-2 text-sm text-bs-text">
+        <div className="mt-5 rounded-2xl border border-[var(--bs-card-border)] p-4" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
+          <div className="text-xs font-semibold" style={{ color: "#5a7d72" }}>Status</div>
+          <div className="mt-2 text-sm" style={{ color: "#0a1a14" }}>
             <span className="font-semibold">Mode:</span> prototype
           </div>
-          <div className="mt-1 text-sm text-bs-text">
+          <div className="mt-1 text-sm" style={{ color: "#0a1a14" }}>
             <span className="font-semibold">Next build:</span> Inline Choice
             first-class
           </div>
