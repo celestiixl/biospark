@@ -46,7 +46,7 @@ export default function MasteryRadial({ segments, size = 240 }: MasteryRadialPro
   const clusters = useMemo(() => {
     const map = new Map<string, RadialSegment[]>();
     for (const seg of segments) {
-      const g = seg.group ?? seg.key.replace(/[A-Z]$/, "");
+    const g = seg.group ?? seg.key.match(/^[A-Z]\.\d+/)?.[0] ?? seg.key;
       if (!map.has(g)) map.set(g, []);
       map.get(g)!.push(seg);
     }

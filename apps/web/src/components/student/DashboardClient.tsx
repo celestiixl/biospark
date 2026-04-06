@@ -173,7 +173,7 @@ function buildRadialSegments(masteryMap: Record<string, number>): RadialSegment[
       key: seg.key,
       label: seg.label,
       value: Math.round((raw <= 1 ? raw * 100 : raw)),
-      group: seg.group ?? seg.key.replace(/[A-Z]$/, ""),
+      group: seg.group ?? seg.key.match(/^[A-Z]\.\d+/)?.[0] ?? seg.key,
     };
   });
 }
