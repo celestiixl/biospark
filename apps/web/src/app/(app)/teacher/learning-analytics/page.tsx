@@ -12,6 +12,19 @@ import { LessonFunnelTab } from "@/components/teacher/LessonFunnelTab";
 import { StuckPointsTab } from "@/components/teacher/StuckPointsTab";
 import { TeksBreakdownTab } from "@/components/teacher/TeksBreakdownTab";
 
+// ── Design tokens (match teacher dashboard v4 light theme) ───────────────────
+const C = {
+  ink:      "#0a1a14",
+  muted:    "#8aada0",
+  surface:  "#ffffff",
+  tealDeep: "#003d2e",
+  tealDark: "#006e55",
+  tealSoft: "#d6f5ed",
+  amberText:"#8a5e00",
+  border:   "rgba(0,0,0,0.07)",
+  pageBg:   "#f0f4f2",
+} as const;
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type TabId = "funnel" | "stuck" | "teks";
@@ -31,11 +44,10 @@ const PERIOD_OPTIONS = [
   { value: "period-5", label: "Period 5" },
 ];
 
-// ── Shared select styling ────────────────────────────────────────────────────
-
+// ── Shared select styling (light) ────────────────────────────────────────────
 const selectClass =
-  "rounded-bs border border-[#1e3f5a] bg-[#132638] px-3 py-1.5 text-sm " +
-  "text-[#e8f4f0] focus:outline-none focus:ring-2 focus:ring-[#00d4aa]/50 " +
+  "rounded-lg border border-[rgba(0,0,0,0.12)] bg-white px-3 py-1.5 text-sm " +
+  "text-[#0a1a14] focus:outline-none focus:ring-2 focus:ring-[#006e55]/40 " +
   "cursor-pointer";
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -102,33 +114,39 @@ export default function TeacherLearningAnalyticsPage() {
   const loading = data === null;
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-4 p-6">
-      {/* ── Back link ──────────────────────────────────────────────────────── */}
-      <BackLink href="/teacher/dashboard" label="Back to dashboard" />
+    <div style={{ minHeight: "100vh", background: C.pageBg, fontFamily: "var(--font-dm-sans), sans-serif" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px 60px" }}>
 
-      {/* ── Page header ────────────────────────────────────────────────────── */}
-      <section className="rounded-2xl border border-[#1e3f5a] bg-[#132638] p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-[#e8f4f0]">
-              Learning Analytics
-            </h1>
-            <p className="mt-1 text-sm text-[#9abcb0]">
-              Lesson funnel, stuck-point analysis, and TEKS mastery breakdown.
-            </p>
-          </div>
-          <Link
-            href="/teacher/learning-analytics/weekly-digest"
-            className="rounded-bs border border-[#f5a623]/40 bg-[#f5a623]/10 px-4 py-2 text-sm font-semibold text-[#f5a623] transition hover:bg-[#f5a623]/20"
-          >
-            Weekly Digest →
-          </Link>
+        {/* ── Back link ──────────────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 16 }}>
+          <BackLink href="/teacher/dashboard" label="Back to dashboard" />
         </div>
 
-        {/* ── Filters row ──────────────────────────────────────────────────── */}
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm text-[#9abcb0]">
-            <span className="font-semibold">Unit</span>
+        {/* ── Page header ────────────────────────────────────────────────────── */}
+        <div style={{ background: C.tealDeep, borderRadius: 16, padding: "28px 30px 24px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -80, right: -60, width: 260, height: 260, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,196,154,0.22) 0%, transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 4 }}>Teacher Tools</p>
+            <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 36, fontWeight: 800, fontStyle: "italic", color: "white", lineHeight: 1.1, marginBottom: 4 }}>
+              Learning Analytics ✦
+            </h1>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", marginBottom: 20 }}>
+              Lesson funnel, stuck-point analysis, and TEKS mastery breakdown.
+            </p>
+            <Link
+              href="/teacher/learning-analytics/weekly-digest"
+              style={{ background: "rgba(245,168,0,0.18)", border: "1px solid rgba(245,168,0,0.35)", borderRadius: 10, padding: "7px 16px", fontSize: 13, fontWeight: 600, color: "#f5d060", textDecoration: "none", display: "inline-block" }}
+            >
+              Weekly Digest →
+            </Link>
+          </div>
+        </div>
+
+        {/* ── Filters row ──────────────────────────────────────────────────────── */}
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: "16px 20px", marginBottom: 16, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: C.muted, margin: 0 }}>Filters</p>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.ink }}>
+            <span style={{ fontWeight: 600 }}>Unit</span>
             <select
               aria-label="Filter by unit"
               value={unit}
@@ -143,9 +161,8 @@ export default function TeacherLearningAnalyticsPage() {
               ))}
             </select>
           </label>
-
-          <label className="flex items-center gap-2 text-sm text-[#9abcb0]">
-            <span className="font-semibold">Period</span>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.ink }}>
+            <span style={{ fontWeight: 600 }}>Period</span>
             <select
               aria-label="Filter by period"
               value={period}
@@ -160,69 +177,73 @@ export default function TeacherLearningAnalyticsPage() {
             </select>
           </label>
         </div>
-      </section>
 
-      {/* ── Metric cards ───────────────────────────────────────────────────── */}
-      <section
-        className="grid gap-3 sm:grid-cols-2 md:grid-cols-4"
-        aria-label="Summary metrics"
-      >
-        <StatCard
-          label="Avg Mastery"
-          value={loading ? "—" : `${data.avgMastery}%`}
-        />
-        <StatCard
-          label="Lessons on Track"
-          value={
-            loading
-              ? "—"
-              : `${data.lessonsComplete} / ${data.lessons.length}`
-          }
-        />
-        <StatCard
-          label="Tier 2 Students"
-          value={loading ? "—" : data.tier2Count}
-        />
-        <StatCard
-          label="Tier 3 Students"
-          value={loading ? "—" : data.tier3Count}
-        />
-      </section>
+        {/* ── Metric cards ───────────────────────────────────────────────────── */}
+        <section
+          className="grid gap-3 sm:grid-cols-2 md:grid-cols-4"
+          aria-label="Summary metrics"
+          style={{ marginBottom: 16 }}
+        >
+          <StatCard
+            label="Avg Mastery"
+            value={loading ? "—" : `${data.avgMastery}%`}
+          />
+          <StatCard
+            label="Lessons on Track"
+            value={
+              loading
+                ? "—"
+                : `${data.lessonsComplete} / ${data.lessons.length}`
+            }
+          />
+          <StatCard
+            label="Tier 2 Students"
+            value={loading ? "—" : data.tier2Count}
+          />
+          <StatCard
+            label="Tier 3 Students"
+            value={loading ? "—" : data.tier3Count}
+          />
+        </section>
 
-      {/* ── Tab bar ────────────────────────────────────────────────────────── */}
-      <TabGroup<TabId>
-        value={tab}
-        onValueChange={setTab}
-        items={TABS}
-        className="md:grid-cols-3"
-      />
+        {/* ── Tab bar ────────────────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 12 }}>
+          <TabGroup<TabId>
+            value={tab}
+            onValueChange={setTab}
+            items={TABS}
+            className="md:grid-cols-3"
+          />
+        </div>
 
-      {/* ── Tab content panel ──────────────────────────────────────────────── */}
-      <section
-        className="rounded-2xl border border-[#1e3f5a] bg-[#132638] p-5"
-        aria-busy={loading}
-        aria-live="polite"
-      >
-        {tab === "funnel" && (
-          <LessonFunnelTab
-            lessons={data?.lessons ?? []}
-            loading={loading}
-          />
-        )}
-        {tab === "stuck" && (
-          <StuckPointsTab
-            students={data?.students ?? []}
-            loading={loading}
-          />
-        )}
-        {tab === "teks" && (
-          <TeksBreakdownTab
-            teksMap={data?.teksMap ?? []}
-            loading={loading}
-          />
-        )}
-      </section>
-    </main>
+        {/* ── Tab content panel ──────────────────────────────────────────────── */}
+        <div
+          style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}
+          aria-busy={loading}
+          aria-live="polite"
+        >
+          {tab === "funnel" && (
+            <LessonFunnelTab
+              lessons={data?.lessons ?? []}
+              loading={loading}
+            />
+          )}
+          {tab === "stuck" && (
+            <StuckPointsTab
+              students={data?.students ?? []}
+              loading={loading}
+            />
+          )}
+          {tab === "teks" && (
+            <TeksBreakdownTab
+              teksMap={data?.teksMap ?? []}
+              loading={loading}
+            />
+          )}
+        </div>
+
+      </div>
+    </div>
   );
 }
 
