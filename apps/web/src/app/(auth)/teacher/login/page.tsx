@@ -36,19 +36,19 @@ export default function TeacherLoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-bs-page">
+    <div className="flex min-h-dvh flex-col" style={{ background: "#f0f4f2" }}>
       {/* Standard white BioSpark header */}
-      <div className="border-b border-[rgba(0,0,0,0.06)] bg-white">
+      <div className="border-b border-[rgba(0,0,0,0.06)]" style={{ background: "white", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
         <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-bs-teal-dark text-sm font-bold text-white">
+            <div className="grid h-8 w-8 place-items-center rounded-xl text-sm font-bold" style={{ background: "#006e55", color: "white" }}>
               ⚡
             </div>
             <div>
-              <div className="text-sm font-semibold text-bs-ink">
+              <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
                 Bio<span className="text-bs-teal">Spark</span>
               </div>
-              <div className="text-xs text-bs-text-sub">
+              <div className="text-xs" style={{ color: "#5a7d72" }}>
                 STAAR Biology • Practice &amp; Mastery
               </div>
             </div>
@@ -62,17 +62,18 @@ export default function TeacherLoginPage() {
           <div className="mb-8 text-center">
             <BlurText
               text="Teacher Sign In"
-              className="text-3xl font-semibold tracking-tight text-bs-ink"
+              className="text-3xl font-semibold tracking-tight" style={{ color: "#0a1a14" }}
               delay={80}
               animateBy="words"
             />
-            <p className="mt-2 text-bs-text-sub">
+            <p className="mt-2" style={{ color: "#5a7d72" }}>
               Access your dashboard, item bank, and AI grading tools.
             </p>
           </div>
 
+          <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 16, overflow: "hidden" }}>
           <SpotlightCard
-            className="rounded-3xl border border-[rgba(0,0,0,0.06)] bg-white p-8 shadow-sm"
+            className="rounded-2xl p-8 shadow-sm"
             spotlightColor="rgba(0,196,154,0.10)"
           >
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -126,11 +127,11 @@ export default function TeacherLoginPage() {
                 fullWidth
                 sx={{
                   borderRadius: "14px",
-                  background: "var(--bs-teal-dark)",
+                  background: "#006e55",
                   fontWeight: 700,
                   mt: 1,
                   "&:hover": {
-                    background: "var(--bs-teal-deep)",
+                    background: "#003d2e",
                   },
                 }}
               >
@@ -139,24 +140,25 @@ export default function TeacherLoginPage() {
             </form>
 
             {/* Demo credentials hint */}
-            <div className="mt-6 rounded-2xl border border-[rgba(0,0,0,0.06)] bg-bs-teal-soft/40 p-4 text-sm">
-              <div className="font-semibold text-bs-teal-dark">
+            <div className="mt-6 rounded-2xl p-4 text-sm" style={{ background: "#e6faf5", border: "1px solid rgba(0,196,154,0.2)", borderRadius: 12 }}>
+              <div className="font-semibold" style={{ color: "#006e55" }}>
                 Demo credentials
               </div>
-              <div className="mt-1 text-bs-ink/80">
+              <div className="mt-1" style={{ color: "rgba(10,26,20,0.8)" }}>
                 <span className="font-medium">Email:</span> teacher@biospark.app
               </div>
-              <div className="text-bs-ink/80">
+              <div style={{ color: "rgba(10,26,20,0.8)" }}>
                 <span className="font-medium">Password:</span> biospark
               </div>
             </div>
           </SpotlightCard>
+          </div>
 
-          <p className="mt-6 text-center text-sm text-bs-text-sub">
+          <p className="mt-6 text-center text-sm" style={{ color: "#5a7d72" }}>
             Student?{" "}
             <Link
               href="/auth/student/login"
-              className="font-semibold text-bs-teal-dark hover:underline"
+              className="font-semibold hover:underline" style={{ color: "#006e55" }}
             >
               Log in here
             </Link>

@@ -385,15 +385,15 @@ export default function LessonExperience({
   const phenomenon = getPhenomenonForLesson(lesson.id);
 
   return (
-    <main className="ia-vh-page relative min-h-dvh bg-bs-page px-4 py-3 text-bs-ink md:px-9 md:py-4">
+    <main className="ia-vh-page relative min-h-dvh px-4 py-3 md:px-9 md:py-4" style={{ background: "#f0f4f2", color: "#0a1a14" }}>
       <div className="mx-auto grid w-full max-w-4xl gap-3">
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] bg-bs-surface p-5 shadow-sm">
+        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
                 Grading Period {unit.gradingPeriod} • Unit {unit.unitNumber}
               </div>
-              <h1 className="mt-1 text-2xl font-bold text-bs-ink">
+              <h1 className="mt-1 text-2xl font-bold" style={{ color: "#0a1a14" }}>
                 {lesson.title}
               </h1>
               {(lesson.vocabularyTiers?.contentSpecific?.length ?? 0) > 0 && (
@@ -420,19 +420,19 @@ export default function LessonExperience({
                     ? "Read this lesson aloud"
                     : "Enable Read aloud in Supports to use this"
                 }
-                className={[
-                  "rounded-xl border border-[rgba(0,0,0,0.08)] bg-bs-surface px-3 py-2 text-xs font-semibold",
+                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold"
+                style={
                   acc.tts
-                    ? "text-bs-text-sub hover:bg-[rgba(0,0,0,0.04)]"
-                    : "cursor-not-allowed text-bs-ink/40",
-                ].join(" ")}
+                    ? { background: "white", color: "#0a1a14" }
+                    : { background: "white", color: "rgba(10,26,20,0.4)", cursor: "not-allowed" }
+                }
               >
                 Read Aloud
               </button>
               <button
                 type="button"
                 onClick={() => setDyslexiaMode((value) => !value)}
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-bs-surface px-3 py-2 text-xs font-semibold text-bs-text-sub hover:bg-[rgba(0,0,0,0.04)]"
+                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
               >
                 {dyslexiaMode ? "Standard Font" : "Dyslexia Friendly"}
               </button>
@@ -441,7 +441,7 @@ export default function LessonExperience({
                 onClick={() =>
                   setLanguage((prev) => (prev === "en" ? "es" : "en"))
                 }
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-bs-surface px-3 py-2 text-xs font-semibold text-bs-text-sub hover:bg-[rgba(0,0,0,0.04)]"
+                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
               >
                 {language === "en" ? "ES Support" : "EN Support"}
               </button>
@@ -458,8 +458,7 @@ export default function LessonExperience({
             </div>
             <div className="h-2 rounded-full bg-[rgba(0,0,0,0.08)]">
               <div
-                className="h-2 rounded-full bg-blue-600 transition-all"
-                style={{ width: `${readingProgress}%` }}
+                style={{ height: "100%", background: "#006e55", borderRadius: 3, width: `${readingProgress}%`, transition: "width 0.3s" }}
               />
             </div>
           </div>
@@ -468,7 +467,7 @@ export default function LessonExperience({
             {lesson.keyTerms.map((term) => (
               <span
                 key={term}
-                className="rounded-full border border-[rgba(0,0,0,0.08)] bg-[rgba(0,0,0,0.06)] px-3 py-1 text-xs font-semibold text-bs-ink"
+                className="rounded-full border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
               >
                 {term}
               </span>
@@ -489,7 +488,7 @@ export default function LessonExperience({
                     {lesson.vocabularyTiers.everyday.map((word) => (
                       <span
                         key={`v-e-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] bg-[rgba(0,0,0,0.06)] px-2 py-0.5 text-[11px] font-semibold text-bs-ink"
+                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
                       >
                         {word}
                       </span>
@@ -505,7 +504,7 @@ export default function LessonExperience({
                     {lesson.vocabularyTiers.academic.map((word) => (
                       <span
                         key={`v-a-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] bg-[rgba(0,0,0,0.06)] px-2 py-0.5 text-[11px] font-semibold text-bs-ink"
+                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
                       >
                         {word}
                       </span>
@@ -521,7 +520,7 @@ export default function LessonExperience({
                     {lesson.vocabularyTiers.contentSpecific.map((word) => (
                       <span
                         key={`v-c-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] bg-[rgba(0,0,0,0.06)] px-2 py-0.5 text-[11px] font-semibold text-bs-ink"
+                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
                       >
                         {word}
                       </span>
@@ -535,7 +534,7 @@ export default function LessonExperience({
 
         {phenomenon ? <PhenomenonBanner phenomenon={phenomenon} /> : null}
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] bg-bs-surface p-5 shadow-sm">
+        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
           <div className="space-y-5">
             {lesson.sections.map((section, idx) => {
               const sectionKey = getSectionKey(section, idx);
@@ -551,7 +550,7 @@ export default function LessonExperience({
                   {(!section.type || section.type === "explanation") && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="text-lg font-semibold text-bs-ink">
+                        <h2 className="text-lg font-semibold" style={{ color: "#0a1a14" }}>
                           {(section as ExplanationSection).heading}
                         </h2>
                         <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
@@ -803,8 +802,8 @@ export default function LessonExperience({
         {/* Lab Notebook — between lesson content and quick-checks */}
         <LessonNotebook lessonSlug={lesson.slug} studentId={student?.id ?? "anonymous"} />
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] bg-bs-surface p-5 shadow-sm">
-          <div className="text-sm font-semibold text-bs-ink">
+        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
+          <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
             Quick Check
           </div>
           <p className="mt-1 text-xs text-bs-text-sub">
@@ -817,14 +816,14 @@ export default function LessonExperience({
                 className="rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-4"
               >
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-[rgba(0,0,0,0.08)] bg-bs-surface px-2.5 py-1 text-[11px] font-semibold text-bs-text-sub">
+                  <span className="rounded-full border border-[rgba(0,0,0,0.08)] px-2.5 py-1 text-[11px] font-semibold" style={{ background: "white", color: "#5a7d72" }}>
                     TEKS {question.teks}
                   </span>
                   <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-900">
                     {question.learningLevel}
                   </span>
                 </div>
-                <div className="text-sm font-semibold text-bs-ink">
+                <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
                   {index + 1}. {question.question}
                 </div>
                 <div className="mt-2 space-y-2">
@@ -875,7 +874,7 @@ export default function LessonExperience({
               type="button"
               onClick={handleSubmitCheck}
               aria-label="Submit quick check"
-              className="rounded-xl bg-bs-teal-dark px-4 py-2 text-sm font-semibold text-white hover:bg-bs-teal-deep"
+              className="rounded-xl px-4 py-2 text-sm font-semibold" style={{ background: "#006e55", color: "white" }}
             >
               Submit Check
             </button>
@@ -883,7 +882,7 @@ export default function LessonExperience({
               type="button"
               onClick={markComplete}
               aria-label="Mark lesson complete"
-              className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-bs-surface px-4 py-2 text-sm font-semibold text-bs-ink hover:bg-[rgba(0,0,0,0.04)]"
+              className="rounded-xl border border-[rgba(0,0,0,0.08)] px-4 py-2 text-sm font-semibold" style={{ background: "white", color: "#0a1a14" }}
             >
               Mark Lesson Complete
             </button>
@@ -926,18 +925,18 @@ export default function LessonExperience({
           ) : null}
         </section>
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] bg-bs-surface p-4 shadow-sm">
+        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-4 shadow-sm" style={{ background: "white" }}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-2">
               <Link
                 href="/student/learn"
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-bs-surface px-3 py-2 text-xs font-semibold text-bs-text-sub hover:bg-[rgba(0,0,0,0.04)]"
+                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
               >
                 Hub
               </Link>
               <Link
                 href={`/student/learn/${unit.id}`}
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-bs-surface px-3 py-2 text-xs font-semibold text-bs-text-sub hover:bg-[rgba(0,0,0,0.04)]"
+                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
               >
                 Unit
               </Link>
@@ -947,7 +946,7 @@ export default function LessonExperience({
               {previousLesson ? (
                 <Link
                   href={`/student/learn/${unit.id}/${previousLesson.slug}`}
-                  className="rounded-xl border border-[rgba(0,0,0,0.08)] bg-bs-surface px-3 py-2 text-xs font-semibold text-bs-text-sub hover:bg-[rgba(0,0,0,0.04)]"
+                  className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
                 >
                   ← Previous
                 </Link>
@@ -955,7 +954,7 @@ export default function LessonExperience({
               {nextLesson ? (
                 <Link
                   href={`/student/learn/${unit.id}/${nextLesson.slug}`}
-                  className="rounded-xl bg-bs-teal-dark px-3 py-2 text-xs font-semibold text-white hover:bg-bs-teal-deep"
+                  className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#006e55", color: "white" }}
                 >
                   Next →
                 </Link>
