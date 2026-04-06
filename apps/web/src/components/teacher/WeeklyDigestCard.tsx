@@ -2,8 +2,22 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, Badge, Button } from "@/components/ui";
 import type { DigestEntry } from "@/lib/weeklyDigest";
+
+// ── Design tokens (inline hex to guarantee rendering in Tailwind v4) ─────────
+const D = {
+  ink:        "#0a1a14",
+  muted:      "#8aada0",
+  surface:    "#ffffff",
+  amberSoft:  "#fff5d6",
+  amberText:  "#8a5e00",
+  amber:      "#f5a800",
+  coral:      "#c02a10",
+  coralSoft:  "rgba(255,79,43,0.08)",
+  purple:     "#4a2fc0",
+  tealDark:   "#006e55",
+  border:     "rgba(0,0,0,0.07)",
+} as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,26 +34,33 @@ function EntryRow({ entry }: { entry: DigestEntry }) {
   const [expanded, setExpanded] = React.useState(false);
 
   return (
-    <div className="rounded-2xl border border-border bg-surface-2 p-4 transition-colors hover:bg-surface-3">
+    <div style={{
+      background: D.surface,
+      border: `1px solid ${D.border}`,
+      borderRadius: 12,
+      padding: 16,
+    }}>
       {/* Header row */}
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-bs-amber dark:bg-amber-900/30 dark:text-amber-300"
+            style={{
+              width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
+              background: D.amberSoft, border: `1px solid rgba(245,168,0,0.25)`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 11, fontWeight: 700, color: D.amberText,
+            }}
             aria-label={`Rank ${entry.rank}`}
           >
             {entry.rank}
           </span>
-          <Badge
-            className="border-transparent bg-teks-rc2 text-white"
-            aria-label={`TEKS ${entry.teks}`}
-          >
+          <span style={{ background: "rgba(0,110,85,0.12)", color: D.tealDark, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20 }} aria-label={`TEKS ${entry.teks}`}>
             {entry.teks}
-          </Badge>
-          <span className="text-xs text-text-muted">{entry.unitTitle}</span>
+          </span>
+          <span style={{ fontSize: 11, color: D.muted }}>{entry.unitTitle}</span>
         </div>
         <span
-          className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-300"
+          style={{ background: "rgba(192,42,16,0.1)", color: D.coral, fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20 }}
           aria-label={`${entry.selectionPct}% of wrong attempts chose this answer`}
         >
           {entry.selectionPct}% chose it
@@ -47,21 +68,21 @@ function EntryRow({ entry }: { entry: DigestEntry }) {
       </div>
 
       {/* Question + wrong answer */}
-      <p className="mt-3 text-sm font-medium text-text">{entry.questionText}</p>
-      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-        <span className="font-semibold">Wrong answer: </span>
+      <p style={{ fontSize: 13, fontWeight: 500, color: D.ink, marginTop: 10, marginBottom: 4 }}>{entry.questionText}</p>
+      <p style={{ fontSize: 13, color: D.coral, marginBottom: 6 }}>
+        <span style={{ fontWeight: 700 }}>Wrong answer: </span>
         {entry.wrongAnswer}
       </p>
 
       {/* Misconception description */}
-      <p className="mt-2 text-sm text-text-muted">
+      <p style={{ fontSize: 12, color: D.muted, marginBottom: 6 }}>
         {entry.misconceptionDescription}
       </p>
 
       {/* Talking point — toggleable */}
       <button
         type="button"
-        className="mt-2 text-xs font-semibold text-brand-purple underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple"
+        style={{ background: "none", border: "none", padding: 0, fontSize: 11, fontWeight: 700, color: D.purple, cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted" }}
         onClick={() => setExpanded((v) => !v)}
         aria-expanded={expanded}
       >
@@ -70,7 +91,7 @@ function EntryRow({ entry }: { entry: DigestEntry }) {
 
       {expanded && (
         <div
-          className="mt-2 rounded-xl border border-[rgba(245,166,35,0.25)] bg-[rgba(245,166,35,0.06)] p-3 text-sm text-bs-amber dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
+          style={{ marginTop: 8, borderRadius: 10, border: "1px solid rgba(245,168,0,0.25)", background: "rgba(245,168,0,0.06)", padding: 12, fontSize: 12, color: D.amberText }}
           role="note"
           aria-label="Suggested talking point"
         >
@@ -131,65 +152,63 @@ export default function WeeklyDigestCard({
     : null;
 
   return (
-    <Card variant="accent" accentColor="orange" className="p-5">
+    <div style={{ background: D.amberSoft, border: "1px solid rgba(245,168,0,0.2)", borderRadius: 16, padding: 20 }}>
       {/* Card header */}
-      <div className="flex flex-wrap items-start justify-between gap-2">
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 16 }}>
         <div>
-          <h2 className="text-lg font-bold text-text">
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: D.amberText, marginBottom: 4 }}>
+            Weekly Digest
+          </p>
+          <h2 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 18, fontWeight: 700, color: D.amberText, margin: "0 0 2px" }}>
             Worth five minutes this week
           </h2>
-          <p className="mt-0.5 text-sm text-text-muted">
+          <p style={{ fontSize: 12, color: D.amberText, opacity: 0.75, margin: 0 }}>
             Top misconceptions to address before next class
           </p>
         </div>
         {weekOf && (
-          <span className="rounded-full border border-border px-2.5 py-1 text-xs text-text-muted">
+          <span style={{ background: "rgba(138,94,0,0.1)", border: "1px solid rgba(138,94,0,0.15)", borderRadius: 20, padding: "4px 12px", fontSize: 11, color: D.amberText }}>
             Week of {weekOf}
           </span>
         )}
       </div>
 
       {/* Body */}
-      <div className="mt-4 flex flex-col gap-3">
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {loading && (
-          <div className="flex items-center gap-2 text-sm text-text-muted">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: D.muted }}>
+            <span style={{ width: 14, height: 14, borderRadius: "50%", border: `2px solid ${D.amber}`, borderTopColor: "transparent", animation: "spin 0.7s linear infinite", display: "inline-block" }} />
             Loading digest…
           </div>
         )}
 
         {!loading && error && (
-          <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300">
+          <div style={{ background: "#fff1f0", borderRadius: 10, padding: 12, fontSize: 13, color: D.coral }}>
             {error}
           </div>
         )}
 
         {!loading && !error && entries.length === 0 && (
-          <div className="text-sm text-text-muted">
-            No wrong-answer data yet this week.
-          </div>
+          <div style={{ fontSize: 13, color: D.muted }}>No wrong-answer data yet this week.</div>
         )}
 
-        {!loading &&
-          !error &&
-          entries.map((entry) => <EntryRow key={entry.questionId} entry={entry} />)}
+        {!loading && !error && entries.map((entry) => <EntryRow key={entry.questionId} entry={entry} />)}
       </div>
 
       {/* Footer */}
       {showFooter && !loading && !error && entries.length > 0 && (
-        <div className="mt-4 flex items-center justify-between">
+        <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {formattedDate && (
-            <span className="text-xs text-text-muted">
-              Last updated {formattedDate}
-            </span>
+            <span style={{ fontSize: 11, color: D.amberText, opacity: 0.7 }}>Last updated {formattedDate}</span>
           )}
-          <Link href="/teacher/learning-analytics/weekly-digest">
-            <Button variant="secondary" size="sm">
-              Full digest →
-            </Button>
+          <Link
+            href="/teacher/learning-analytics/weekly-digest"
+            style={{ background: D.amberText, color: "white", borderRadius: 10, padding: "7px 14px", fontSize: 12, fontWeight: 600, textDecoration: "none" }}
+          >
+            Full digest →
           </Link>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
