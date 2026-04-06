@@ -153,7 +153,7 @@ export default function TeacherLoginPage() {
           <p className="mt-6 text-center text-sm text-bs-text-sub">
             Student?{" "}
             <Link
-              href="/student/login"
+              href="/auth/student/login"
               className="font-semibold text-blue-600 hover:underline"
             >
               Log in here
