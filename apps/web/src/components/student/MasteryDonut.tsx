@@ -110,6 +110,8 @@ const UNIT_BASE_COLORS: Record<string, string> = {
   "B.7":  "#7c5cfc",  // Unit 2 — Nucleic Acids / Gene Expression (purple)
   "B.6":  "#f5a800",  // Unit 3 — Cell Cycle (amber)
   "B.12": "#00c49a",  // Unit 7 — Plants (teal bright)
+  "B.9":  "#06b6d4",  // Unit 5 — Evolution / Patterns (cyan)
+  "B.10": "#2563eb",  // Unit 5 — Evolution / Natural Selection & Mechanisms (blue)
   // ── Add new units below this line ──
 };
 

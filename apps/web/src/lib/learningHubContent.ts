@@ -2374,6 +2374,86 @@ export const LEARNING_UNITS: LearningUnit[] = [
       },
     ],
   },
+
+  // ─── Unit 5: Evolution ─────────────────────────────────────────────────────
+  {
+    id: "unit-5",
+    unitNumber: 5,
+    gradingPeriod: 2,
+    instructionalDays: 15,
+    concepts: 3,
+    title: "Evolution",
+    teks: ["B.9A", "B.9B", "B.10A", "B.10B", "B.10C", "B.10D"],
+    priorityTeks: ["B.10C"],
+    objective:
+      "Analyze and evaluate the evidence for evolutionary change, explain how natural selection and other mechanisms drive changes in populations, and describe how these processes have led to the biological diversity observed today.",
+    vocabulary: [
+      "natural selection",
+      "evolution",
+      "speciation",
+      "reproductive isolation",
+      "genetic drift",
+      "gene flow",
+      "allele frequency",
+      "Hardy-Weinberg equilibrium",
+      "adaptation",
+      "coevolution",
+      "fossil record",
+      "biogeography",
+      "comparative anatomy",
+      "homologous structures",
+      "vestigial structures",
+    ],
+    misconceptions: [
+      "Evolution is directed toward a goal or is progressive",
+      "Individual organisms evolve during their lifetime",
+      "Natural selection acts on individual genes rather than whole organisms in an environment",
+      "Survival of the fittest means the strongest organism survives",
+      "Evolution is just a theory and therefore unproven",
+      "Species cannot change into other species (speciation does not occur)",
+      "Hardy-Weinberg equilibrium is the normal state of populations in nature",
+    ],
+    successCriteria: [
+      "Analyze the fossil record and explain how it provides evidence of evolutionary change.",
+      "Evaluate how comparative anatomy, biogeography, and embryology support evolutionary theory.",
+      "Explain how natural selection, gene flow, genetic drift, and mutation produce changes in allele frequency.",
+      "Evaluate the conditions for Hardy-Weinberg equilibrium and explain why they are rarely met.",
+      "Explain how natural selection and genetic drift lead to speciation through reproductive isolation.",
+      "Analyze how mechanisms of evolution including coevolution have led to biological diversity.",
+    ],
+    bigIdeas: [
+      "Multiple lines of evidence — fossil record, comparative anatomy, biogeography, and molecular data — support the theory of evolution.",
+      "Natural selection acts on heritable variation in populations, causing allele frequencies to change over time.",
+      "Reproductive isolation of populations can lead to the formation of new species (speciation).",
+      "Mechanisms of evolution including genetic drift, gene flow, and coevolution have generated the biological diversity of life on Earth.",
+    ],
+    essentialQuestions: [
+      "How do the fossil record and comparative anatomy provide evidence for evolutionary change?",
+      "How does natural selection drive changes in allele frequencies within a population?",
+      "Under what conditions does a population evolve, and what disrupts genetic equilibrium?",
+      "How does reproductive isolation lead to the formation of new species?",
+      "How have evolutionary mechanisms contributed to the diversity of life on Earth?",
+    ],
+    learningProgression: {
+      developing:
+        "Recognizes that species change over time; identifies basic evidence for evolution such as fossils and comparative anatomy.",
+      progressing:
+        "Describes how natural selection acts on variation; explains fossil record and biogeography as evidence; identifies conditions for Hardy-Weinberg equilibrium.",
+      proficient:
+        "Analyzes how natural selection, genetic drift, and gene flow change allele frequencies; explains speciation through reproductive isolation; uses Hardy-Weinberg to evaluate whether a population is evolving.",
+      advanced:
+        "Evaluates evolutionary mechanisms in complex scenarios including coevolution and bottleneck events; connects molecular evidence (DNA sequence similarity) to phylogenetic relationships; applies population genetics to real-world conservation and medicine contexts.",
+    },
+    contentVersion: "1.0.0",
+    approvalStatus: "draft",
+    changeLog: [
+      {
+        date: "2026-04-06",
+        note: "Added Unit 5 Evolution based on FBISD curriculum document.",
+      },
+    ],
+    lessons: [],
+  },
 ];
 
 export function getUnitById(unitId: string): LearningUnit | undefined {
