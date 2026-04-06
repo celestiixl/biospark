@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import ThemeToggle from "@/components/ia/ThemeToggle";
 import { LEARNING_UNITS } from "@/lib/learningHubContent";
 import {
   getMostRecentLessonId,
@@ -364,7 +363,6 @@ export default function StudentLearningHubPage() {
         </div>
       </div>
 
-      <ThemeToggle />
     </main>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ThemeToggle from "@/components/ia/ThemeToggle";
 import { getUnitById } from "@/lib/learningHubContent";
 import { BackLink } from "@/components/nav/BackLink";
 
@@ -182,8 +181,6 @@ export default async function Page({ params }: UnitPageProps) {
           </div>
         </section>
       </div>
-
-      <ThemeToggle />
     </main>
   );
 }
