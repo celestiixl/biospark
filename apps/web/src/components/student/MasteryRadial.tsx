@@ -26,7 +26,7 @@ const CLUSTER_COLORS: Record<string, { fills: string[]; label: string }> = {
   "B.11": { fills: ["#c0341a", "#ff4f2b", "#F0997B", "#F5C4B3", "#ffe8e3"], label: "Energy & Enzymes" },
   "B.7":  { fills: ["#4a2fc0", "#7c5cfc", "#AFA9EC", "#CECBF6", "#eeebff"], label: "Nucleic Acids" },
   "B.6":  { fills: ["#8a5e00", "#f5a800", "#FAC775", "#EF9F27", "#fff5d6"], label: "Cell Cycle" },
-  "B.8":  { fills: ["#2d6080", "#3d8fb5", "#7ab9d6", "#b0d9ee", "#dff0f8"], label: "Genetics" },
+  "B.8":  { fills: ["#27500A","#3B6D11","#639922","#97C459","#C0DD97"], label: "Genetic Diversity" },
   "B.12": { fills: ["#27500A", "#639922", "#97C459", "#C0DD97", "#EAF3DE"], label: "Plants" },
   // Add new units below:
   // "B.X": { fills: ["#darkest","#dark","#mid","#light","#lightest"], label: "Unit Name" },

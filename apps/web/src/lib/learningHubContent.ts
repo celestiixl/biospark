@@ -1613,6 +1613,88 @@ export const LEARNING_UNITS: LearningUnit[] = [
     ],
   },
 
+  // ─── Unit 4: Genetic Diversity ─────────────────────────────────────────────
+  {
+    id: "unit-4",
+    unitNumber: 4,
+    gradingPeriod: 2,
+    instructionalDays: 22,
+    dateRange: "November 18 – January 26",
+    concepts: 2,
+    title: "Genetic Diversity",
+    teks: ["B.8B", "B.7D"],
+    priorityTeks: ["B.8B"],
+    objective:
+      "Predict and analyze the possible outcomes of various genetic combinations using monohybrid and dihybrid crosses, including Mendelian and non-Mendelian inheritance patterns, and explore the significance of molecular technologies including PCR, gel electrophoresis, and genetic engineering.",
+    vocabulary: [
+      "allele",
+      "meiosis",
+      "monohybrid cross",
+      "dihybrid cross",
+      "phenotype",
+      "genotype",
+      "Punnett square",
+      "codominance",
+      "incomplete dominance",
+      "homozygous",
+      "heterozygous",
+      "sex-linked trait",
+      "gamete",
+      "law of segregation",
+      "polymerase chain reaction",
+      "gel electrophoresis",
+      "genetic engineering",
+      "CRISPR",
+    ],
+    misconceptions: [
+      "Dominant alleles are more common than recessive alleles in a population",
+      "A 3:1 ratio is always expected in all monohybrid crosses",
+      "Incomplete dominance and codominance are the same phenomenon",
+      "All traits are inherited through Mendelian patterns",
+      "Punnett squares show actual outcomes, not just probabilities",
+      "PCR can copy entire genomes",
+      "Gel electrophoresis shows the DNA sequence",
+      "Genetic engineering is the same as cloning",
+    ],
+    successCriteria: [
+      "Define and differentiate Mendelian and non-Mendelian inheritance patterns including incomplete dominance, codominance, sex-linked traits, and multiple alleles.",
+      "Predict phenotypic and genotypic outcomes of monohybrid and dihybrid crosses using Punnett squares.",
+      "Explain how inheritance patterns contribute to genetic diversity.",
+      "Explain the principles and applications of PCR, gel electrophoresis, and genetic engineering.",
+      "Interpret data generated from molecular techniques such as gel electrophoresis results.",
+    ],
+    bigIdeas: [
+      "Outcomes of genetic crosses can be predicted using Punnett squares and the Law of Probability.",
+      "Genetic traits are passed from parents to offspring through predictable patterns explained by fundamental genetics principles.",
+      "Molecular technologies like PCR, gel electrophoresis, and genetic engineering are foundational tools in modern biology and biotechnology.",
+    ],
+    essentialQuestions: [
+      "How can the outcomes of genetic crosses be predicted?",
+      "How do Mendel's laws explain the way traits are passed from generation to generation?",
+      "How do molecular technologies like PCR and gel electrophoresis enable scientists to analyze and interpret genetic information?",
+      "What are the potential benefits and risks of genetic engineering?",
+    ],
+    learningProgression: {
+      developing:
+        "Understands basic components of heredity and genetic inheritance (genes, alleles, chromosomes); identifies basic molecular biology techniques such as DNA extraction.",
+      progressing:
+        "Expresses genotypic and phenotypic ratios mathematically; explains autosomes and sex chromosomes; describes restriction enzymes, DNA ligase, plasmids, and vectors.",
+      proficient:
+        "Applies Mendel's laws to predict genetic outcomes for monohybrid and dihybrid crosses; explains non-Mendelian inheritance; describes PCR, gel electrophoresis, and CRISPR applications and discusses ethical implications.",
+      advanced:
+        "Predicts inheritance patterns for multiple alleles (ABO blood groups); explains epistasis and environmental effects on gene expression; uses bioinformatics tools to analyze genomic data.",
+    },
+    contentVersion: "v1.0",
+    approvalStatus: "draft",
+    changeLog: [
+      {
+        date: "2026-04-06",
+        note: "Added Unit 4 Genetic Diversity based on FBISD curriculum document.",
+      },
+    ],
+    lessons: [],
+  },
+
   // ─── Unit 7: Processes in Plants ───────────────────────────────────────────
   {
     id: "unit-7",
