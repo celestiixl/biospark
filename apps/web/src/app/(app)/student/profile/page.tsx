@@ -129,7 +129,7 @@ export default function StudentProfilePage() {
                     }}
                     disabled={profile.nameLocked}
                     placeholder="Enter your display name"
-                    className="w-full max-w-sm rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm text-bs-ink disabled:cursor-not-allowed disabled:bg-bs-raised"
+                    className="w-full max-w-sm rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm text-bs-ink disabled:cursor-not-allowed disabled:bg-[rgba(0,0,0,0.04)]"
                     maxLength={24}
                   />
                   <button
@@ -171,7 +171,7 @@ export default function StudentProfilePage() {
                   <span>XP Progress</span>
                   <span>{xpInLevel}/100</span>
                 </div>
-                <div className="mt-2 h-3 overflow-hidden rounded-full bg-bs-raised">
+                <div className="mt-2 h-3 overflow-hidden rounded-full bg-[rgba(0,0,0,0.08)]">
                   <div className="ia-xp-fill h-full rounded-full bg-linear-to-r from-violet-500 to-emerald-400" style={{ width: `${xpInLevel}%` }} />
                 </div>
                 <div className="mt-2 text-xs text-bs-text-sub">
@@ -230,7 +230,7 @@ export default function StudentProfilePage() {
                       <span>{row.topic}</span>
                       <span>{row.percent}%</span>
                     </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-bs-raised">
+                    <div className="h-2 overflow-hidden rounded-full bg-[rgba(0,0,0,0.08)]">
                       <div className="h-full rounded-full bg-violet-500 transition-all duration-500" style={{ width: `${row.percent}%` }} />
                     </div>
                     <div className="mt-1 text-[11px] text-bs-text-sub">
