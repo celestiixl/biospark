@@ -2,7 +2,7 @@ export type ReportingCategory = "RC1" | "RC2" | "RC3" | "RC4";
 
 export type TeksEntry = {
   id: string; // e.g., "B.5A"
-  unit: 1 | 2 | 3 | 7;
+  unit: 1 | 2 | 3 | 5 | 7;
   strand: string;
   title: string;
   description: string;
@@ -201,5 +201,60 @@ export const TEKS_CATALOG: Record<string, TeksEntry> = {
     description:
       "Explain how the interactions that occur among systems that perform the functions of transport, reproduction, and response in plants are facilitated by their structures.",
     teaPriority: "Priority Content",
+  },
+  // ── Unit 5: Evolution ──────────────────────────────────────────────────────
+  "B.9A": {
+    id: "B.9A",
+    unit: 5,
+    strand: "Patterns of evolution",
+    title: "Fossil record and evolutionary change",
+    description:
+      "Analyze and evaluate the fossil record, including the shapes of organisms, to explain how the fossil record provides evidence of evolutionary change.",
+    teaPriority: "Content",
+  },
+  "B.9B": {
+    id: "B.9B",
+    unit: 5,
+    strand: "Patterns of evolution",
+    title: "Biogeography and comparative anatomy",
+    description:
+      "Analyze and evaluate how comparative anatomy, biogeography, and embryology provide evidence for evolution.",
+    teaPriority: "Content",
+  },
+  "B.10A": {
+    id: "B.10A",
+    unit: 5,
+    strand: "Natural selection",
+    title: "Mechanisms that produce change in allele frequencies",
+    description:
+      "Analyze and evaluate how natural selection produces change in allele frequency, gene flow, genetic drift, and mutation.",
+    teaPriority: "Content",
+  },
+  "B.10B": {
+    id: "B.10B",
+    unit: 5,
+    strand: "Natural selection",
+    title: "Hardy-Weinberg equilibrium",
+    description:
+      "Analyze and evaluate the conditions for Hardy-Weinberg equilibrium within a population and explain why these conditions are rarely met in nature.",
+    teaPriority: "Content",
+  },
+  "B.10C": {
+    id: "B.10C",
+    unit: 5,
+    strand: "Natural selection",
+    title: "Speciation and reproductive isolation",
+    description:
+      "Analyze and evaluate how natural selection and other mechanisms such as genetic drift lead to speciation through reproductive isolation of populations.",
+    teaPriority: "Priority Content",
+  },
+  "B.10D": {
+    id: "B.10D",
+    unit: 5,
+    strand: "Mechanisms of evolution",
+    title: "Coevolution and biological diversity",
+    description:
+      "Analyze and evaluate how the mechanisms of evolution such as natural selection, genetic drift, and coevolution have led to biological diversity.",
+    teaPriority: "Content",
   },
 };

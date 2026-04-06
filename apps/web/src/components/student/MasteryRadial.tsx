@@ -28,6 +28,8 @@ const CLUSTER_COLORS: Record<string, { fills: string[]; label: string }> = {
   "B.6":  { fills: ["#8a5e00", "#f5a800", "#FAC775", "#EF9F27", "#fff5d6"], label: "Cell Cycle" },
   "B.8":  { fills: ["#27500A","#3B6D11","#639922","#97C459","#C0DD97"], label: "Genetic Diversity" },
   "B.12": { fills: ["#27500A", "#639922", "#97C459", "#C0DD97", "#EAF3DE"], label: "Plants" },
+  "B.9":  { fills: ["#0e7490", "#06b6d4", "#22d3ee", "#67e8f9", "#cffafe"], label: "Evolution: Patterns" },
+  "B.10": { fills: ["#1d4ed8", "#2563eb", "#60a5fa", "#93c5fd", "#dbeafe"], label: "Evolution: Natural Selection" },
   // Add new units below:
   // "B.X": { fills: ["#darkest","#dark","#mid","#light","#lightest"], label: "Unit Name" },
 };
