@@ -55,8 +55,7 @@ export default function GenomeBrowserPage() {
       </div>
 
       <div style={{ flex: 1, padding: "0 20px 40px", overflowY: "auto" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ overflowY: "auto", paddingRight: 4, display: "flex", flexDirection: "column", gap: 24 }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24, paddingRight: 4 }}>
 
           {/* ── Sequence selector ──────────────────────────────────────── */}
           {DEMO_SEQUENCES.length > 1 && (
@@ -163,7 +162,6 @@ export default function GenomeBrowserPage() {
             </div>
           </section>
         </div>
-      </div>
       </div>
     </main>
   );

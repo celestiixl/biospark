@@ -756,11 +756,10 @@ export default function PunnettMakerPage() {
                 padding: "12px 20px",
                 fontSize: 14,
                 fontWeight: 500,
-                borderBottom: tab === t ? "2px solid #7c5cfc" : "2px solid transparent",
-                color: tab === t ? "#7c5cfc" : "#8aada0",
                 background: "none",
                 border: "none",
                 borderBottom: tab === t ? "2px solid #7c5cfc" : "2px solid transparent",
+                color: tab === t ? "#7c5cfc" : "#8aada0",
                 cursor: "pointer",
                 transition: "color 0.15s",
               }}
