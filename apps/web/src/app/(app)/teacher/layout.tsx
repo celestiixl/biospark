@@ -4,7 +4,9 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTeacherAuth } from "@/lib/teacherAuth";
 
-const IS_DEV_BYPASS = process.env.NEXT_PUBLIC_DEV_BYPASS === "true";
+const IS_DEV_BYPASS =
+  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_DEV_BYPASS === "true";
 
 /**
  * Guards all /teacher/* routes.

@@ -126,11 +126,11 @@ export default function TeacherLoginPage() {
                 fullWidth
                 sx={{
                   borderRadius: "14px",
-                  background: "#006e55",
+                  background: "var(--bs-teal-dark)",
                   fontWeight: 700,
                   mt: 1,
                   "&:hover": {
-                    background: "#003d2e",
+                    background: "var(--bs-teal-deep)",
                   },
                 }}
               >
