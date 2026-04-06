@@ -33,9 +33,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(student);
   } catch (error) {
-    console.error("Student login error:", error);
+    console.error("[student/login] error:", error);
     return NextResponse.json(
-      { error: String(error) },
+      { error: "Unable to sign in. Please try again." },
       { status: 500 },
     );
   }
