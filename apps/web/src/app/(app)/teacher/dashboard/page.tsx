@@ -31,7 +31,7 @@ const C = {
 } as const;
 
 // ── Reusable inline card style factory ───────────────────────────────────────
-function card(bg: string, borderColor = C.border): React.CSSProperties {
+function card(bg: string, borderColor: string = C.border): React.CSSProperties {
   return {
     background: bg,
     border: `1px solid ${borderColor}`,
