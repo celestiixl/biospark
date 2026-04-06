@@ -6,6 +6,7 @@ export async function GET() {
     await runMigrations()
     return NextResponse.json({ ok: true, message: "Tables ready" })
   } catch (error) {
-    return NextResponse.json({ ok: false, error: String(error) }, { status: 500 })
+    console.error("[db-setup] error:", error);
+    return NextResponse.json({ ok: false, error: "Database setup failed. Check server logs." }, { status: 500 })
   }
 }
