@@ -452,6 +452,8 @@ interface Lesson {
 | B.11A | Explain matter conservation in photosynthesis/respiration                                                   | **Priority Content** |
 | B.11B | Investigate/explain enzyme roles                                                                            | **Priority Content** |
 | B.12B | Explain interactions among plant transport, reproduction, and response systems as facilitated by structures | **Priority Content** |
+| B.8B  | Genetic inheritance — predict outcomes of monohybrid/dihybrid crosses including non-Mendelian traits        | **Priority Content** |
+| B.7D  | Molecular technologies — discuss PCR, gel electrophoresis, genetic engineering; applications focus          | Content              |
 
 ---
 
@@ -605,22 +607,167 @@ interface Lesson {
 
 ---
 
-## 10. Upcoming Units (stubs - curriculum docs not yet uploaded)
+## 10. Unit 4 – Genetic Diversity
+
+**Timeframe:** GP2 November 18 – December 19 (19 total school days) + GP3 January 8 – January 26 (12 total school days)
+**Instructional & Re-engagement Days:** 11 days per grading period
+**TEKS (Content):** B.8B (priority), B.7D
+**SEPs:** B.1A, B.1B, B.1C, B.1D, B.1F, B.1G, B.2A, B.3B, B.3C, B.4B, B.4C
+**ELPS:** 2H, 3J
+**RTCs:** Patterns
+
+---
+
+### Concept 1: Inherited Traits (11 days)
+
+**Concept Sequence:**
+1. Heredity and basic genetic concepts
+2. Mendelian inheritance
+3. Non-Mendelian inheritance (incomplete dominance, codominance, multiple alleles)
+4. Sex-linked traits
+5. Monohybrid and dihybrid crosses
+6. Meiosis in the context of genetic inheritance
+7. Mutations and their effects on inheritance
+
+**Learning Intention:**
+Students will learn to predict and analyze the possible outcomes of various genetic combinations using monohybrid and dihybrid crosses, including both Mendelian and non-Mendelian inheritance patterns.
+
+**Success Criteria — students can:**
+- Accurately define and differentiate between Mendelian and non-Mendelian inheritance patterns such as incomplete dominance, codominance, sex-linked traits, and multiple alleles
+- Predict the phenotypic and genotypic outcomes of monohybrid and dihybrid crosses by applying Mendelian genetics and extending to non-Mendelian traits
+- Explain how specific patterns of inheritance contribute to genetic diversity and apply to real-world examples
+- Construct and interpret Punnett squares for monohybrid and dihybrid crosses, correctly identifying genotypic and phenotypic ratios
+- Use scientific reasoning to support predictions and explain genetic outcomes with evidence from genetic principles
+- Recognize and explain patterns of inheritance by identifying trends and relationships within genetic data
+
+**Big Ideas:**
+- The outcomes of genetic crosses involving one or two traits can be predicted using mathematical models such as Punnett squares and the Law of Probability
+- We predict genetic crosses to better understand inheritance of traits, whether favorable or detrimental
+- Genetic traits are passed from parents to offspring through predictable patterns that can be explained by fundamental principles of genetics
+
+**Essential Questions:**
+- How can the outcomes of genetic crosses be predicted?
+- Why do we predict the outcome of genetic crosses?
+- How do Mendel's laws of inheritance explain the way traits are passed from one generation to the next?
+- What role does probability play in predicting genetic outcomes, and how can we use it to understand genetic variation within populations?
+
+**Learning Progression:**
+
+| Level | Description |
+|-------|-------------|
+| **Developing** | Understand basic components of heredity and genetic inheritance (genes, alleles, chromosomes). Demonstrate understanding of DNA structure and function. |
+| **Progressing** | Express genotypic and phenotypic ratios mathematically as ratios, percentages, or fractions. Express dominant alleles with capital letters and recessive with lowercase. Explain autosomes and sex chromosomes (XY male, XX female). Define homologous chromosome, chromatid, centromere. |
+| **Proficient** | Apply Mendel's laws to predict genetic outcomes: Law of Segregation, Law of Independent Assortment, monohybrid and dihybrid crosses. Explain non-Mendelian inheritance (incomplete dominance, codominance, multiple alleles, polygenic inheritance). Describe sex-linked trait inheritance. |
+| **Advanced** | Describe and predict inheritance patterns for multiple alleles (ABO blood groups). Describe epistasis effects on gene expression. Explain how environmental influences affect gene expression. |
+
+**Key Vocabulary:**
+
+- Everyday: division, combine, material, analysis, experiment, model, pairs, features, instructions, probability
+- Academic: offspring, gene, trait, heredity, inherited, chromosome
+- Content-specific: allele, meiosis, monohybrid cross, dihybrid cross, phenotype, genotype, Punnett square, codominance, incomplete dominance, homozygous, heterozygous, sex-linked trait, gamete, law of segregation
+
+**Common Misconceptions:**
+1. Dominant alleles are more common than recessive alleles → dominance refers to how alleles interact, not frequency in a population
+2. A 3:1 ratio is always expected in monohybrid crosses → 3:1 is specific to heterozygous × heterozygous with complete dominance; other crosses yield different ratios
+3. Incomplete dominance and codominance are the same → incomplete dominance = blended intermediate phenotype; codominance = both alleles fully and separately expressed
+4. All traits are inherited through Mendelian patterns → non-Mendelian traits (incomplete dominance, codominance, multiple alleles, sex-linked) require different considerations
+5. Punnett squares show actual outcomes, not just probabilities → Punnett squares represent probability, not certainty
+6. Sex-linked traits are only found on the Y chromosome → most sex-linked traits are X-linked; X-linked recessive traits more common in males (XY) who have only one X
+7. In a dihybrid cross, each trait is inherited independently without exception → law of independent assortment applies only to genes on different chromosomes or far apart; linked genes may be inherited together
+8. If a trait is dominant, it will always be the most common in a population → trait frequency is influenced by selection pressure, genetic drift, and mutation, not just dominance
+9. Traits controlled by multiple alleles have more than two alleles in each individual → individuals carry only two alleles; multiple alleles refers to population-level variation
+10. Heterozygous individuals will always show the dominant phenotype → true only for complete dominance; not for incomplete dominance or codominance
+
+**Intervention Strategies:**
+
+Tier 2: Structured practice with guided handouts (step-by-step Punnett square setup); interactive Punnett square simulations with immediate feedback; color coding to differentiate dominant/recessive alleles
+
+Tier 3: One-on-one instruction starting with simple monohybrid crosses; manipulatives (colored beads/cards) to model genetic crosses; scaffolded problem solving with gradually reduced support; guided questioning to reinforce learning aloud
+
+---
+
+### Concept 2: Molecular Technologies (6 days)
+
+**Concept Sequence:**
+1. DNA structure and functions review
+2. Basic molecular biology techniques: DNA extraction, gel electrophoresis, PCR
+3. Genetic engineering fundamentals: restriction enzymes, DNA ligase, plasmids/vectors
+4. Recombinant DNA technology
+5. DNA sequencing
+6. Biotechnology applications
+
+**Learning Intention:**
+Students will explore and understand the significance of molecular technologies, including polymerase chain reaction (PCR), gel electrophoresis, and genetic engineering.
+
+**Success Criteria — students can:**
+- Understand and explain the principles and applications of PCR, gel electrophoresis, and genetic engineering techniques
+- Describe the importance of these molecular technologies in current research and engineering practices
+- Demonstrate basic knowledge of the steps involved in each technique and their purposes
+- Connect the applications of these technologies to fundamental concepts in DNA structure, replication, and gene expression
+- Interpret and analyze data generated from molecular techniques such as gel electrophoresis results
+
+**Big Ideas:**
+- Molecular technologies like PCR, gel electrophoresis, and genetic engineering are foundational tools in modern biology and biotechnology
+- PCR enables amplification of specific DNA sequences from small samples; revolutionized genetics, diagnostics, and forensics
+- Gel electrophoresis separates DNA fragments by size; essential for genetic research, DNA fingerprinting, and disorder diagnosis
+- Genetic engineering allows modification of an organism's DNA; applications include GMOs, gene therapy, and synthetic biology
+
+**Essential Questions:**
+- How do molecular technologies like PCR, gel electrophoresis, and genetic engineering revolutionize our understanding and manipulation of genetic material?
+- In what ways do PCR and gel electrophoresis enable scientists to analyze and interpret genetic information?
+- What are the potential benefits and risks of genetic engineering in agriculture, medicine, and environmental management?
+- How do molecular technologies contribute to advancements in personalized medicine and new treatments for diseases?
+
+**Learning Progression:**
+
+| Level | Description |
+|-------|-------------|
+| **Developing** | Demonstrate understanding of DNA structure and function. Identify basic molecular biology techniques such as DNA extraction. |
+| **Progressing** | Describe restriction enzymes and their role in cutting DNA. Explain DNA ligase and its role in joining DNA fragments. Describe purpose of plasmids and vectors in genetic engineering. |
+| **Proficient** | Explain how mutations can lead to genetic disorders. Examine how modern technologies are used to study and manipulate genetics. Describe applications of DNA sequencing, genomics, genetic engineering, and CRISPR. Discuss ethical implications of genetic research. |
+| **Advanced** | Perform and explain principles behind DNA extraction, gel electrophoresis, and PCR; understand their applications in research and diagnostics. Use bioinformatics tools to analyze genomic data and identify genes. |
+
+**Key Vocabulary:**
+
+- Everyday: test, data, table, experiment, write, notebook, strategy, record
+- Academic: genetics, informatics, chromosome, gene, DNA, RNA, molecule
+- Content-specific: polymerase chain reaction, gel electrophoresis, microcentrifuge, agar, biotechnology, nanotechnology, genetic engineering, CRISPR, thermocycler
+
+**Common Misconceptions:**
+1. PCR can copy entire genomes → PCR amplifies only specific target sequences defined by primers
+2. Gel electrophoresis shows the DNA sequence → gel electrophoresis only separates by size; sequencing requires additional techniques
+3. Genetic engineering creates "super" organisms → genetic engineering involves precise, targeted modifications with specific, controlled outcomes
+4. PCR is solely a diagnostic process → PCR's primary function is amplifying DNA; diagnostic use is one application
+5. Gel electrophoresis can identify specific genes → it separates by size only; identifying specific genes requires further analysis
+6. Genetic engineering is the same as cloning → genetic engineering alters genes; cloning creates a genetically identical copy
+7. Genetic engineering has no ethical concerns → raises significant ethical questions including human gene editing and GMO environmental impacts
+8. PCR and gel electrophoresis are outdated technologies → remain foundational and extensively used in research and clinical labs
+9. Genetic engineering is just for agriculture → also crucial in medicine, gene therapy, vaccine development, and environmental science
+10. All genetic modifications are safe → modifications can have unintended consequences; safety assessments and regulations are essential
+
+**Intervention Strategies:**
+
+Tier 2: Guided practice with interactive online simulations (Learn Genetics by University of Utah); small group instruction on core concepts with concrete examples; scaffolded hands-on lab using non-hazardous materials (food coloring for gel electrophoresis simulation)
+
+Tier 3: One-on-one instruction with simplified language and real-life analogies; multi-sensory learning (tactile models, videos, interactive software); concept reinforcement through analogies (PCR = photocopying a specific book page; gel electrophoresis = sorting objects by size)
+
+---
+
+## 11. Upcoming Units (stubs - curriculum docs not yet uploaded)
 
 These units will be added to the curriculum as documents are provided.
 Generate placeholder route stubs only - do not generate lesson content without curriculum docs.
 
 | Unit | Placeholder Title |
 | ---- | ----------------- |
-| 3    | (TBD)             |
-| 4    | (TBD)             |
+| 3    | Cell Cycle (stub) |
 | 5    | (TBD)             |
 | 6    | (TBD)             |
 | 8    | (TBD)             |
 
 ---
 
-## 11. Pull Request Standards
+## 12. Pull Request Standards
 
 Every PR that touches UI must include visual documentation in the description. When drafting or reviewing a PR, always include a **Visual changes** section and prompt the author to fill it in with a screenshot or screen recording before merging.
 
@@ -630,7 +777,7 @@ When generating a PR description, flag any UI files changed in the diff and expl
 
 ---
 
-## 12. Hard Constraints - Do Not Violate
+## 13. Hard Constraints - Do Not Violate
 
 - Do not generate lesson content that contradicts the TEA Boundaries specified above
 - Do not require students to know aerobic vs anaerobic respiration details, Krebs cycle, or ETC in Tier 1

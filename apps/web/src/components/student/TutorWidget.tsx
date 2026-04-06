@@ -115,6 +115,18 @@ export function TutorWidget({
     if (saved) setDragPos(saved);
   }, []);
 
+  // Allow external callers (e.g. dashboard card) to open the widget via a
+  // custom DOM event — avoids the need for prop drilling or a shared store.
+  useEffect(() => {
+    function handleOpenTutor() {
+      setOpen(true);
+    }
+    window.addEventListener("biospark:open-tutor", handleOpenTutor);
+    return () => {
+      window.removeEventListener("biospark:open-tutor", handleOpenTutor);
+    };
+  }, []);
+
   // Scroll to bottom when messages update
   useEffect(() => {
     if (listRef.current) {

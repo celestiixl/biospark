@@ -9,7 +9,7 @@ import StudentFloatingDock from "@/components/student/StudentFloatingDock";
 
 /**
  * Layout wrapper for all student-facing pages.
- * Guards against unauthenticated access — redirects to /student/login.
+ * Guards against unauthenticated access — redirects to /auth/student/login.
  * Also injects the floating AI tutor widget gated by permission settings
  * and the student floating navigation dock.
  */
@@ -19,7 +19,7 @@ export default function StudentLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!student) {
-      router.replace("/student/login");
+      router.replace("/auth/student/login");
     }
   }, [student, router]);
 
