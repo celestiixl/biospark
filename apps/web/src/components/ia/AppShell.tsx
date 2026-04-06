@@ -21,8 +21,8 @@ export function AppShell({
     : "mx-auto grid w-full max-w-screen-2xl grid-cols-1 gap-6 px-6 py-6 md:grid-cols-[280px_1fr]";
 
   return (
-    <div className="min-h-dvh bg-bs-bg text-bs-text">
-      <div className="sticky top-0 z-100 w-full border-b border-bs-border bg-bs-surface/95 backdrop-blur-md">
+    <div className="min-h-dvh bg-bs-page text-bs-ink">
+      <div className="sticky top-0 z-100 w-full border-b border-black/[0.06] bg-white backdrop-blur-md">
         <div className={headerClass}>
           <Topbar />
         </div>

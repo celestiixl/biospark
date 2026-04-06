@@ -29,10 +29,10 @@ export function Topbar({
             ⚡
           </div>
           <div>
-            <div className="text-sm font-semibold text-bs-text">
+            <div className="text-sm font-semibold text-bs-ink">
               Bio<span className="text-bs-teal">Spark</span>
             </div>
-            <div className="text-xs text-bs-text-muted">
+            <div className="text-xs text-bs-text-sub">
               STAAR Biology • Practice & Mastery
             </div>
           </div>
@@ -72,11 +72,11 @@ export function Topbar({
           {teacher ? (
             /* Authenticated teacher — show name badge + logout */
             <div className="flex items-center gap-2">
-              <div className="hidden items-center gap-2 rounded-xl border border-bs-border bg-bs-raised px-3 py-2 sm:flex">
-                <div className="grid h-6 w-6 place-items-center rounded-full bg-bs-overlay text-xs font-bold text-bs-text">
+              <div className="hidden items-center gap-2 rounded-xl border border-black/[0.08] bg-bs-teal-soft/40 px-3 py-2 sm:flex">
+                <div className="grid h-6 w-6 place-items-center rounded-full bg-bs-teal-soft text-xs font-bold text-bs-teal-dark">
                   {teacher.name.charAt(0)}
                 </div>
-                <span className="text-sm font-semibold text-bs-text">
+                <span className="text-sm font-semibold text-bs-ink">
                   {teacher.name}
                 </span>
               </div>
@@ -92,7 +92,7 @@ export function Topbar({
             /* Unauthenticated — show Sign In link */
             <Link
               href="/teacher/login"
-              className="rounded-full border border-bs-border bg-transparent px-4 py-2 text-sm font-semibold text-bs-text transition hover:border-bs-teal/55 hover:text-bs-teal"
+              className="rounded-full border border-black/[0.12] bg-transparent px-4 py-2 text-sm font-semibold text-bs-ink transition hover:border-bs-teal/55 hover:text-bs-teal"
             >
               Teacher Sign In
             </Link>
