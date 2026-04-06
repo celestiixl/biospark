@@ -119,6 +119,7 @@
   --bs-ink:           #0a1a14;
   --bs-ink-2:         #2d4d3f;
   --bs-muted:         #8aada0;
+  --bs-text-sub:      #5a7d72;
 
   --bs-page-bg:       #f0f4f2;
   --bs-surface:       #ffffff;
@@ -148,6 +149,7 @@
   --ia-muted: 148 163 184;
   --ia-violet: 196 181 253;
   --ia-amber: 252 211 77;
+  --bs-text-sub: #9abcb0;
 }
 
 *,
@@ -199,9 +201,13 @@ h3 {
 }
 
 :focus-visible {
-  outline: 2px solid var(--bs-teal);
-  outline-offset: 3px;
-  border-radius: var(--bs-r-sm);
+  outline: 2px solid #006e55;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 body::before {

@@ -102,7 +102,7 @@ export default function StudentLearningHubPage() {
   );
 
   return (
-    <main className="ia-vh-page relative min-h-dvh bg-bs-page px-3 py-3 text-bs-text sm:px-4 sm:py-4">
+    <main className="ia-vh-page relative min-h-dvh bg-bs-page px-3 py-3 text-bs-ink sm:px-4 sm:py-4">
       <div className="mx-auto grid w-full max-w-6xl gap-3">
         <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -110,7 +110,7 @@ export default function StudentLearningHubPage() {
               <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
                 Learning Hub
               </div>
-              <h1 className="mt-1 text-2xl font-bold text-bs-text">
+              <h1 className="mt-1 text-2xl font-bold text-bs-ink">
                 Curriculum Roadmap
               </h1>
               <p className="mt-2 text-sm text-bs-text-sub">
@@ -133,19 +133,19 @@ export default function StudentLearningHubPage() {
             <div className="flex flex-wrap gap-2">
               <Link
                 href="/student/learn/standards"
-                className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-4 py-2 text-sm font-semibold text-bs-text hover:bg-bs-raised"
+                className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-4 py-2 text-sm font-semibold text-bs-ink hover:bg-bs-raised"
               >
                 Standards Heatmap
               </Link>
               <Link
                 href="/student/learn/interventions"
-                className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-4 py-2 text-sm font-semibold text-bs-text hover:bg-bs-raised"
+                className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-4 py-2 text-sm font-semibold text-bs-ink hover:bg-bs-raised"
               >
                 Interventions
               </Link>
               <Link
                 href="/student/guardian"
-                className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-4 py-2 text-sm font-semibold text-bs-text hover:bg-bs-raised"
+                className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-4 py-2 text-sm font-semibold text-bs-ink hover:bg-bs-raised"
               >
                 Guardian Snapshot
               </Link>
@@ -171,7 +171,7 @@ export default function StudentLearningHubPage() {
               </div>
               <Link
                 href={`/student/learn/${continueLesson.unit.id}/${continueLesson.lesson.slug}`}
-                className="rounded-bs bg-bs-bg px-4 py-2 text-sm font-semibold text-white hover:bg-bs-bg"
+                className="rounded-bs bg-bs-teal-dark px-4 py-2 text-sm font-semibold text-white hover:bg-bs-teal-deep"
               >
                 Resume Lesson
               </Link>
@@ -188,7 +188,7 @@ export default function StudentLearningHubPage() {
                 onClick={() => setGradingPeriodFilter(gp)}
                 className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                   gradingPeriodFilter === gp
-                    ? "border-[var(--bs-border)] bg-bs-bg text-white"
+                    ? "border-transparent bg-bs-teal-dark text-white"
                     : "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
                 }`}
               >
@@ -223,7 +223,7 @@ export default function StudentLearningHubPage() {
 
         <div className="grid gap-3 lg:grid-cols-[1.5fr_1fr]">
           <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-            <div className="text-sm font-semibold text-bs-text">
+            <div className="text-sm font-semibold text-bs-ink">
               Unit Roadmap
             </div>
             <div className="mt-3 space-y-3">
@@ -245,7 +245,7 @@ export default function StudentLearningHubPage() {
                         <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
                           GP {unit.gradingPeriod} • Unit {unit.unitNumber}
                         </div>
-                        <h2 className="mt-1 text-base font-semibold text-bs-text">
+                        <h2 className="mt-1 text-base font-semibold text-bs-ink">
                           {unit.title}
                         </h2>
                         <p className="mt-1 text-sm text-bs-text-sub">
@@ -270,7 +270,7 @@ export default function StudentLearningHubPage() {
                       </Link>
                     </div>
 
-                    <div className="mt-3 h-2 rounded-full bg-bs-raised">
+                    <div className="mt-3 h-2 rounded-full bg-[rgba(0,0,0,0.08)]">
                       <div
                         className="h-2 rounded-full bg-blue-600 transition-all"
                         style={{ width: `${unitPct}%` }}
@@ -299,7 +299,7 @@ export default function StudentLearningHubPage() {
                             className={`rounded-bs border px-3 py-2 text-xs font-semibold ${
                               unlocked
                                 ? "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
-                                : "cursor-not-allowed border-[var(--bs-border)] bg-bs-raised text-bs-text-muted"
+                                : "cursor-not-allowed border-[var(--bs-border)] bg-[rgba(0,0,0,0.04)] text-bs-text-muted"
                             }`}
                           >
                             {unlocked ? "Open" : "Locked"} • {lesson.title}
@@ -315,7 +315,7 @@ export default function StudentLearningHubPage() {
 
           <aside className="space-y-3">
             <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-4 shadow-sm">
-              <div className="text-sm font-semibold text-bs-text">
+              <div className="text-sm font-semibold text-bs-ink">
                 Weakest Standards
               </div>
               <div className="mt-2 space-y-2">
@@ -324,7 +324,7 @@ export default function StudentLearningHubPage() {
                     key={row.teks}
                     className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-xs"
                   >
-                    <div className="font-semibold text-bs-text">
+                    <div className="font-semibold text-bs-ink">
                       {row.teks}
                     </div>
                     <div className="text-bs-text-sub">
@@ -337,7 +337,7 @@ export default function StudentLearningHubPage() {
             </section>
 
             <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-4 shadow-sm">
-              <div className="text-sm font-semibold text-bs-text">
+              <div className="text-sm font-semibold text-bs-ink">
                 Intervention Queue
               </div>
               <div className="mt-2 space-y-2">

@@ -77,16 +77,16 @@ export default function StudentProfilePage() {
   const xpInLevel = profile.xp % 100;
 
   if (!ready) {
-    return <main className="p-6 text-bs-text">Loading profile...</main>;
+    return <main className="p-6 text-bs-ink">Loading profile...</main>;
   }
 
   return (
-    <main className="ia-vh-page relative h-dvh overflow-hidden bg-bs-page px-3 py-3 text-bs-text sm:px-4 sm:py-4">
+    <main className="ia-vh-page relative h-dvh overflow-hidden bg-bs-page px-3 py-3 text-bs-ink sm:px-4 sm:py-4">
       <div className="ia-vh-grid grid h-full min-h-0 grid-rows-[auto_1fr] gap-3">
         <section className="ia-vh-tight rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-extrabold text-bs-text">My Profile</h1>
+              <h1 className="text-2xl font-extrabold text-bs-ink">My Profile</h1>
               <p className="mt-1 text-sm text-bs-text-sub">Track your BioSpark Quest progress, mastery, and unlocks.</p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -110,7 +110,7 @@ export default function StudentProfilePage() {
           <div className="ia-vh-grid grid gap-3 lg:grid-cols-[1.1fr_1fr]">
             <section className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-4">
               <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">Student</div>
-              <div className="mt-2 text-xl font-bold text-bs-text">{profile.name || "New Explorer"}</div>
+              <div className="mt-2 text-xl font-bold text-bs-ink">{profile.name || "New Explorer"}</div>
               <div className="mt-1 text-sm text-bs-text-sub">Class Code: {profile.classCode}</div>
 
               <div className="mt-4 rounded-bs border border-[var(--bs-border)] bg-bs-surface p-3">
@@ -129,14 +129,14 @@ export default function StudentProfilePage() {
                     }}
                     disabled={profile.nameLocked}
                     placeholder="Enter your display name"
-                    className="w-full max-w-sm rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm text-bs-text disabled:cursor-not-allowed disabled:bg-bs-raised"
+                    className="w-full max-w-sm rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm text-bs-ink disabled:cursor-not-allowed disabled:bg-bs-raised"
                     maxLength={24}
                   />
                   <button
                     type="button"
                     onClick={handleSetNameOnce}
                     disabled={profile.nameLocked || isSavingName}
-                    className="rounded-bs bg-bs-bg px-3 py-2 text-sm font-semibold text-white hover:bg-[var(--bs-raised)] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-bs bg-bs-teal-dark px-3 py-2 text-sm font-semibold text-white hover:bg-bs-teal-deep disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isSavingName ? "Checking..." : "Set name permanently"}
                   </button>
@@ -159,7 +159,7 @@ export default function StudentProfilePage() {
                   <button
                     type="button"
                     onClick={showForStudent}
-                    className="mt-2 rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm font-semibold text-bs-text hover:bg-bs-raised"
+                    className="mt-2 rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm font-semibold text-bs-ink hover:bg-bs-raised"
                   >
                     Show AI Tutor
                   </button>
@@ -167,7 +167,7 @@ export default function StudentProfilePage() {
               )}
 
               <div className="mt-4 rounded-bs border border-[var(--bs-border)] bg-bs-surface p-3">
-                <div className="flex items-center justify-between text-sm font-semibold text-bs-text">
+                <div className="flex items-center justify-between text-sm font-semibold text-bs-ink">
                   <span>XP Progress</span>
                   <span>{xpInLevel}/100</span>
                 </div>
