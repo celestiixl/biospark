@@ -27,13 +27,13 @@ export default function PhenomenonBanner({ phenomenon }: PhenomenonBannerProps) 
           <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
             Texas Phenomenon · {phenomenon.location}
           </div>
-          <h2 className="text-lg font-bold text-[#4ade80] dark:text-emerald-100">
+          <h2 className="text-lg font-bold text-emerald-800 dark:text-emerald-100">
             {phenomenon.title}
           </h2>
         </div>
       </div>
 
-      <p className="text-sm leading-7 text-[#4ade80] dark:text-emerald-200">
+      <p className="text-sm leading-7 text-emerald-800 dark:text-emerald-200">
         {phenomenon.description}
       </p>
 
@@ -42,7 +42,7 @@ export default function PhenomenonBanner({ phenomenon }: PhenomenonBannerProps) 
           <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
             Did You Know?
           </span>
-          <span className="text-xs leading-6 text-[#4ade80] dark:text-emerald-300">
+          <span className="text-xs leading-6 text-emerald-800 dark:text-emerald-300">
             {phenomenon.funFact}
           </span>
         </div>
@@ -52,7 +52,7 @@ export default function PhenomenonBanner({ phenomenon }: PhenomenonBannerProps) 
         <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
           Driving Question
         </div>
-        <p className="text-sm font-semibold italic leading-6 text-[#4ade80] dark:text-emerald-100">
+        <p className="text-sm font-semibold italic leading-6 text-emerald-800 dark:text-emerald-100">
           &ldquo;{phenomenon.drivingQuestion}&rdquo;
         </p>
       </div>
@@ -61,7 +61,7 @@ export default function PhenomenonBanner({ phenomenon }: PhenomenonBannerProps) 
         {phenomenon.teks.map((code) => (
           <span
             key={code}
-            className="rounded-full border border-emerald-300 bg-bs-surface px-3 py-1 text-xs font-semibold text-[#4ade80] dark:border-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
+            className="rounded-full border border-emerald-300 bg-bs-surface px-3 py-1 text-xs font-semibold text-emerald-800 dark:border-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"
           >
             {code}
           </span>

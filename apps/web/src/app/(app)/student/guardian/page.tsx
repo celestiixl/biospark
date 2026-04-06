@@ -12,7 +12,7 @@ export default function GuardianSnapshotPage() {
   );
 
   return (
-    <main className="mx-auto w-full max-w-5xl p-6 text-bs-text">
+    <main className="mx-auto w-full max-w-5xl bg-bs-page p-6 text-bs-ink">
       <BackLink href="/student/learn" label="Back to hub" />
       <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
         <div>
@@ -28,7 +28,7 @@ export default function GuardianSnapshotPage() {
           <div className="text-xs uppercase tracking-wide text-bs-text-sub">
             Lessons completed
           </div>
-          <div className="mt-1 text-2xl font-bold text-bs-text">
+          <div className="mt-1 text-2xl font-bold text-bs-ink">
             {snapshot.lessonsCompleted}
           </div>
         </div>
@@ -36,7 +36,7 @@ export default function GuardianSnapshotPage() {
           <div className="text-xs uppercase tracking-wide text-bs-text-sub">
             Average check score
           </div>
-          <div className="mt-1 text-2xl font-bold text-bs-text">
+          <div className="mt-1 text-2xl font-bold text-bs-ink">
             {snapshot.avgCheck}%
           </div>
         </div>
@@ -44,7 +44,7 @@ export default function GuardianSnapshotPage() {
           <div className="text-xs uppercase tracking-wide text-bs-text-sub">
             Time spent
           </div>
-          <div className="mt-1 text-2xl font-bold text-bs-text">
+          <div className="mt-1 text-2xl font-bold text-bs-ink">
             {snapshot.timeSpentMin} min
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function GuardianSnapshotPage() {
 
       <section className="mt-4 grid gap-3 md:grid-cols-2">
         <div className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-4 shadow-sm">
-          <div className="text-sm font-semibold text-bs-text">
+          <div className="text-sm font-semibold text-bs-ink">
             Upcoming Assignments
           </div>
           <div className="mt-2 space-y-2 text-sm text-bs-text-sub">
@@ -79,7 +79,7 @@ export default function GuardianSnapshotPage() {
         </div>
 
         <div className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-4 shadow-sm">
-          <div className="text-sm font-semibold text-bs-text">
+          <div className="text-sm font-semibold text-bs-ink">
             Missing / Not Started
           </div>
           <div className="mt-2 space-y-2 text-sm text-bs-text-sub">

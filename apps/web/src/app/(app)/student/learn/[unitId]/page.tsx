@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ThemeToggle from "@/components/ia/ThemeToggle";
 import { getUnitById } from "@/lib/learningHubContent";
 import { BackLink } from "@/components/nav/BackLink";
 
@@ -15,14 +14,14 @@ export default async function Page({ params }: UnitPageProps) {
   if (!unit) notFound();
 
   return (
-    <main className="ia-vh-page relative min-h-dvh px-3 py-3 text-bs-text sm:px-4 sm:py-4">
+    <main className="ia-vh-page relative min-h-dvh bg-bs-page px-3 py-3 text-bs-ink sm:px-4 sm:py-4">
       <BackLink href="/student/learn" label="Back to hub" />
       <div className="mx-auto grid w-full max-w-5xl gap-3">
         <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
           <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
             Grading Period {unit.gradingPeriod}
           </div>
-          <h1 className="mt-1 text-2xl font-bold text-bs-text">
+          <h1 className="mt-1 text-2xl font-bold text-bs-ink">
             Unit {unit.unitNumber}: {unit.title}
           </h1>
           <p className="mt-2 text-sm text-bs-text-sub">
@@ -76,7 +75,7 @@ export default async function Page({ params }: UnitPageProps) {
 
         {unit.lessons.some((lesson) => lesson.vocabularyTiers) ? (
           <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-            <h2 className="text-lg font-semibold text-bs-text">Vocabulary</h2>
+            <h2 className="text-lg font-semibold text-bs-ink">Vocabulary</h2>
             <p className="mt-1 text-sm text-bs-text-sub">
               Everyday → Academic → Content Specific
             </p>
@@ -88,7 +87,7 @@ export default async function Page({ params }: UnitPageProps) {
                     key={`${lesson.id}-vocab`}
                     className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-4"
                   >
-                    <div className="text-sm font-semibold text-bs-text">
+                    <div className="text-sm font-semibold text-bs-ink">
                       {lesson.title}
                     </div>
                     <div className="mt-2 grid gap-3 md:grid-cols-3">
@@ -150,7 +149,7 @@ export default async function Page({ params }: UnitPageProps) {
 
         <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
           <div className="mb-3">
-            <h2 className="text-lg font-semibold text-bs-text">
+            <h2 className="text-lg font-semibold text-bs-ink">
               Lessons in this Unit
             </h2>
           </div>
@@ -164,7 +163,7 @@ export default async function Page({ params }: UnitPageProps) {
                 <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
                   Lesson {index + 1} • {lesson.type} • {lesson.minutes} min
                 </div>
-                <h3 className="mt-1 text-base font-semibold text-bs-text">
+                <h3 className="mt-1 text-base font-semibold text-bs-ink">
                   {lesson.title}
                 </h3>
                 <p className="mt-1 text-sm text-bs-text-sub">{lesson.summary}</p>
@@ -172,7 +171,7 @@ export default async function Page({ params }: UnitPageProps) {
                 <div className="mt-3">
                   <Link
                     href={`/student/learn/${unit.id}/${lesson.slug}`}
-                    className="inline-flex rounded-bs bg-bs-bg px-3 py-2 text-xs font-semibold text-white hover:bg-bs-bg"
+                    className="inline-flex rounded-bs bg-bs-teal-dark px-3 py-2 text-xs font-semibold text-white hover:bg-bs-teal-deep"
                   >
                     Open Lesson →
                   </Link>
@@ -182,8 +181,6 @@ export default async function Page({ params }: UnitPageProps) {
           </div>
         </section>
       </div>
-
-      <ThemeToggle />
     </main>
   );
 }

@@ -79,12 +79,12 @@ function ActionCard({
 
         <div className="flex items-start justify-between gap-6">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-bs-text">
+            <h2 className="text-lg font-semibold tracking-tight" style={{ color: "#0a1a14" }}>
               {title}
             </h2>
-            <p className="mt-2 text-sm text-bs-text-sub">{desc}</p>
+            <p className="mt-2 text-sm" style={{ color: "#5a7d72" }}>{desc}</p>
           </div>
-          <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--bs-border)] bg-white/70 text-lg text-bs-text transition group-hover:bg-bs-surface">
+          <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--bs-card-border)] bg-white text-lg transition group-hover:bg-bs-teal-soft" style={{ color: "#0a1a14" }}>
             →
           </div>
         </div>
@@ -108,10 +108,10 @@ export default function AssessmentDashboardEntry() {
   return (
     <AppShell activeKey="assessment">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-bs-text">
+        <h1 className="text-3xl font-semibold tracking-tight" style={{ color: "#0a1a14" }}>
           Assessment
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-bs-text-sub">
+        <p className="mt-2 max-w-2xl text-sm" style={{ color: "#5a7d72" }}>
           Choose your view. Student is the practice + item sandbox. Teacher is
           building, managing, and analytics.
         </p>
@@ -126,7 +126,7 @@ export default function AssessmentDashboardEntry() {
           chips={["Practice", "Interactive items", "Goals", "Mastery"]}
         />
         <ActionCard
-          href="/auth/teacher/login"
+          href="/teacher/dashboard"
           accent="slate"
           title="Continue as Teacher"
           desc="Build items, manage assessments, view analytics, and jump into student view."
@@ -138,10 +138,10 @@ export default function AssessmentDashboardEntry() {
         <Surface className="xl:col-span-2 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-bs-text">
+              <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
                 Quick actions
               </div>
-              <div className="mt-1 text-xs text-bs-text-sub">
+              <div className="mt-1 text-xs" style={{ color: "#5a7d72" }}>
                 Handy jumps while you’re building and testing.
               </div>
             </div>

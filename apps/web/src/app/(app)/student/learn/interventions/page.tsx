@@ -11,7 +11,7 @@ export default function InterventionQueuePage() {
   const queue = useMemo(() => buildInterventionQueue(progress), [progress]);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-5xl bg-bs-page p-6 text-bs-text">
+    <main className="mx-auto min-h-screen w-full max-w-5xl bg-bs-page p-6 text-bs-ink">
       <BackLink href="/student/learn" label="Back to hub" />
       <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
         <div>
@@ -51,7 +51,7 @@ export default function InterventionQueuePage() {
               <div className="mt-3">
                 <Link
                   href={item.href}
-                  className="rounded-bs bg-bs-bg px-3 py-2 text-xs font-semibold text-white hover:bg-bs-bg"
+                  className="rounded-bs bg-bs-teal-dark px-3 py-2 text-xs font-semibold text-white hover:bg-bs-teal-deep"
                 >
                   Open Lesson
                 </Link>

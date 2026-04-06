@@ -1,4 +1,15 @@
 import Link from "next/link";
+import { BackLink } from "@/components/nav/BackLink";
+
+const C = {
+  ink:     "#0a1a14",
+  muted:   "#8aada0",
+  surface: "#ffffff",
+  tealDeep:"#003d2e",
+  tealDark:"#006e55",
+  border:  "rgba(0,0,0,0.07)",
+  pageBg:  "#f0f4f2",
+} as const;
 
 const SIMULATIONS = [
   {
@@ -41,49 +52,53 @@ const SIMULATIONS = [
 
 export default function SimulationsPage() {
   return (
-    <main className="min-h-screen bg-bs-surface pb-28 dark:bg-[#0d1117]">
-      <div className="mx-auto max-w-3xl px-4 py-10">
-        <h1 className="text-2xl font-bold text-bs-text dark:text-slate-100">
-          🔬 Simulations
-        </h1>
-        <p className="mt-1 text-sm text-bs-text-sub dark:text-slate-400">
-          Interactive labs and simulations aligned to FBISD Biology TEKS.
-        </p>
+    <div style={{ minHeight: "100vh", background: C.pageBg, fontFamily: "var(--font-dm-sans), sans-serif" }}>
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 20px 60px" }}>
+        <BackLink href="/student/learn" label="Back to learn" />
 
-        <div className="mt-8 grid gap-4">
+        <div style={{ background: C.tealDeep, borderRadius: 16, padding: "28px 30px 24px", marginBottom: 24, marginTop: 12 }}>
+          <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 28, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>
+            🔬 Simulations ✦
+          </h1>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+            Interactive labs and simulations aligned to FBISD Biology TEKS.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {SIMULATIONS.map((sim) => (
             <article
               key={sim.slug}
-              className="rounded-2xl border border-[var(--bs-border)] bg-[var(--bs-raised)] p-5 dark:border-[#1e3a52] dark:bg-[#0f1e2c]"
+              style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}
             >
-              <div className="flex items-start gap-4">
-                <span className="text-3xl" aria-hidden>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
+                <span style={{ fontSize: 28 }} aria-hidden>
                   {sim.icon}
                 </span>
-                <div className="flex-1">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub dark:text-slate-400">
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: C.muted }}>
                     Simulation • {sim.duration}
                   </div>
-                  <h2 className="mt-0.5 text-base font-semibold text-bs-text dark:text-slate-100">
+                  <h2 style={{ fontSize: 15, fontWeight: 600, color: C.ink, marginTop: 2 }}>
                     {sim.title}
                   </h2>
-                  <p className="mt-1 text-sm text-bs-text-sub dark:text-slate-400">
+                  <p style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>
                     {sim.description}
                   </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {sim.teks.map((t) => (
                       <span
                         key={t}
-                        className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                        style={{ borderRadius: 999, border: "1px solid #bbf7d0", background: "#f0fdf4", padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#166534" }}
                       >
                         {t}
                       </span>
                     ))}
                   </div>
-                  <div className="mt-3">
+                  <div style={{ marginTop: 12 }}>
                     <Link
                       href={`/student/learn/simulations/${sim.slug}`}
-                      className="inline-flex rounded-bs bg-bs-bg px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 dark:bg-[#00d4aa] dark:text-[#0d1117] dark:hover:bg-[#00bfa0]"
+                      style={{ display: "inline-flex", background: C.tealDark, borderRadius: 10, padding: "8px 14px", fontSize: 12, fontWeight: 600, color: "white", textDecoration: "none" }}
                     >
                       Open Simulation →
                     </Link>
@@ -94,7 +109,6 @@ export default function SimulationsPage() {
           ))}
         </div>
       </div>
-
-    </main>
+    </div>
   );
 }

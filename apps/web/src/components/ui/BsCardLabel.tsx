@@ -7,7 +7,7 @@ interface BsCardLabelProps {
 
 export default function BsCardLabel({ children, className = "" }: BsCardLabelProps) {
   return (
-    <p className={`mb-[7px] text-[10px] font-semibold uppercase tracking-[0.08em] text-bs-muted ${className}`}>
+    <p className={`mb-[7px] text-[11px] font-semibold uppercase tracking-[0.08em] text-bs-text-sub ${className}`}>
       {children}
     </p>
   );

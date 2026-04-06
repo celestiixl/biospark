@@ -30,8 +30,9 @@ export function NavigationSidebar({
               "relative block overflow-hidden rounded-xl border px-3 py-2.5 transition",
               active
                 ? "border-bs-teal/60 bg-[var(--bs-teal-dim)]"
-                : "border-bs-border bg-bs-surface hover:bg-bs-raised",
+                : "border-black/[0.08] hover:bg-[rgba(0,0,0,0.04)]",
             )}
+            style={active ? undefined : { background: "white" }}
           >
             <AnimatePresence>
               {active ? (
@@ -48,11 +49,11 @@ export function NavigationSidebar({
               ) : null}
             </AnimatePresence>
             <div className="pl-2">
-              <div className="text-sm font-semibold text-bs-text">
+              <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
                 {item.label}
               </div>
               {item.description ? (
-                <div className="text-xs text-bs-text-muted">
+                <div className="text-xs" style={{ color: "#5a7d72" }}>
                   {item.description}
                 </div>
               ) : null}

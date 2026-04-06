@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { BackLink } from "@/components/nav/BackLink";
-import { PageBanner, PageContent } from "@/components/ui";
 import SuccessionPhenomenonBanner from "@/components/student/SuccessionPhenomenonBanner";
 import SuccessionScene from "@/components/student/SuccessionScene";
 import SuccessionTimeline from "@/components/student/SuccessionTimeline";
@@ -241,18 +240,20 @@ export default function EcologicalSuccessionPage() {
   }
 
   return (
-    <main
-      className="ia-vh-page flex h-dvh flex-col overflow-hidden"
-      style={{ background: "#0d1e2c", color: "#e2e8f0" }}
-    >
-      <BackLink href="/student/dashboard" label="Back to dashboard" />
-      <PageBanner
-        title="Ecological Succession Visualizer"
-        subtitle="Explore how ecosystems recover after disturbance — TEKS B.6D & B.11A"
-      >
-      </PageBanner>
+    <main style={{ minHeight: "100vh", background: "#0d1e2c", color: "#e2e8f0", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "12px 16px 4px" }}>
+        <BackLink href="/student/dashboard" label="Back to dashboard" />
+      </div>
+      <div style={{ background: "#003d2e", padding: "16px 24px", marginBottom: 0 }}>
+        <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 22, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 2 }}>
+          Ecological Succession Visualizer ✦
+        </h1>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+          Explore how ecosystems recover after disturbance — TEKS B.6D &amp; B.11A
+        </p>
+      </div>
 
-      <PageContent className="flex-1 overflow-y-auto py-6">
+      <div style={{ flex: 1, overflowY: "auto", padding: "24px 0" }}>
         <div
           className="mx-auto w-full max-w-3xl space-y-5 px-4"
           style={{ fontFamily: "DynaPuff, sans-serif" }}
@@ -344,7 +345,7 @@ export default function EcologicalSuccessionPage() {
             feedback={reflectionFeedback}
           />
         </div>
-      </PageContent>
+      </div>
 
     </main>
   );

@@ -10,18 +10,18 @@ import type { PeriodMasterySnapshot } from "@/types/period-mastery";
 function HeatmapSkeleton() {
   return (
     <div
-      className="rounded-2xl border border-[#1e3f5a] bg-[#132638] p-4"
+      className="rounded-2xl border border-[rgba(0,0,0,0.06)] bg-white p-4"
       aria-busy="true"
       aria-label="Loading mastery data…"
     >
       {/* Fake header */}
       <div className="mb-3 flex items-center justify-between">
-        <div className="h-4 w-36 animate-pulse rounded-md bg-[#1a3148]" />
-        <div className="h-4 w-20 animate-pulse rounded-full bg-[#1a3148]" />
+        <div className="h-4 w-36 animate-pulse rounded-md bg-[rgba(0,0,0,0.07)]" />
+        <div className="h-4 w-20 animate-pulse rounded-full bg-[rgba(0,0,0,0.07)]" />
       </div>
       {/* 3 fake rows */}
       {[0, 1, 2].map((i) => (
-        <div key={i} className="mt-2 h-8 animate-pulse rounded-lg bg-[#1a3148]" />
+        <div key={i} className="mt-2 h-8 animate-pulse rounded-lg bg-[rgba(0,0,0,0.05)]" />
       ))}
     </div>
   );
@@ -42,11 +42,11 @@ function PeriodPill({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-full border px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d4aa]"
+      className="rounded-full border px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e55]"
       style={{
-        backgroundColor: active ? "#00d4aa" : "#132638",
-        borderColor: active ? "#00d4aa" : "#1e3f5a",
-        color: active ? "#0d1e2c" : "#9abcb0",
+        backgroundColor: active ? "#006e55" : "white",
+        borderColor: active ? "#006e55" : "rgba(0,0,0,0.1)",
+        color: active ? "white" : "#8aada0",
       }}
       aria-pressed={active}
     >
@@ -90,11 +90,11 @@ export default function PeriodMasterySection() {
       <div className="mb-4">
         <h2
           id="period-mastery-heading"
-          className="font-sans text-lg font-bold text-[#e8f4f0]"
+          className="font-sans text-lg font-bold text-bs-ink"
         >
           Period Mastery Snapshot
         </h2>
-        <p className="mt-0.5 text-sm text-[#9abcb0]">
+        <p className="mt-0.5 text-sm text-bs-muted">
           Average TEKS mastery by class period
         </p>
       </div>
@@ -133,7 +133,7 @@ export default function PeriodMasterySection() {
       {!loading && error && (
         <div
           role="alert"
-          className="rounded-2xl border border-[#1e3f5a] bg-[#132638] px-4 py-3 text-sm text-[#ff6b6b]"
+          className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
         >
           <span className="font-semibold">Could not load mastery data.</span>{" "}
           {error}
@@ -144,7 +144,7 @@ export default function PeriodMasterySection() {
       {!loading && !error && (
         <div className="flex flex-col gap-4">
           {visibleSnapshots.length === 0 ? (
-            <p className="text-sm text-[#9abcb0]">No period data available.</p>
+            <p className="text-sm text-bs-muted">No period data available.</p>
           ) : (
             visibleSnapshots.map((snapshot) => (
               <PeriodMasteryHeatmap key={snapshot.periodId} snapshot={snapshot} />

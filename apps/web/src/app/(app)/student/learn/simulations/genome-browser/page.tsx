@@ -8,7 +8,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { PageContent, PageBanner } from "@/components/ui";
 import GenomeBrowser from "@/components/student/GenomeBrowser";
 import {
   DEMO_SEQUENCES,
@@ -30,24 +29,33 @@ export default function GenomeBrowserPage() {
     DEMO_SEQUENCES.find((s) => s.id === activeId) ?? DEMO_SEQUENCES[0];
 
   return (
-    <main className="ia-vh-page flex h-dvh flex-col overflow-hidden text-bs-text">
-      <BackLink href="/student/dashboard" label="Back to dashboard" />
-      <PageBanner
-        title="🧬 Genome Browser"
-        subtitle="Navigate DNA sequences and gene annotations interactively • TEKS B.7A, B.7C"
-      >
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/student/learn"
-            className="rounded-2xl bg-bs-surface/20 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-bs-surface/25"
-          >
-            Learning Hub
-          </Link>
+    <main style={{ minHeight: "100vh", background: "#f0f4f2", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "16px 20px 8px" }}>
+        <BackLink href="/student/dashboard" label="Back to dashboard" />
+      </div>
+      <div style={{ background: "#003d2e", padding: "20px 24px", marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 24, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>
+              🧬 Genome Browser ✦
+            </h1>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+              Navigate DNA sequences and gene annotations interactively • TEKS B.7A, B.7C
+            </p>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <Link
+              href="/student/learn"
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 600, color: "white", textDecoration: "none" }}
+            >
+              Learning Hub
+            </Link>
+          </div>
         </div>
-      </PageBanner>
+      </div>
 
-      <PageContent className="flex-1 min-h-0 py-4">
-        <div className="ia-vh-scroll h-full min-h-0 overflow-y-auto pr-1 space-y-6">
+      <div style={{ flex: 1, padding: "0 20px 40px", overflowY: "auto" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24, paddingRight: 4 }}>
 
           {/* ── Sequence selector ──────────────────────────────────────── */}
           {DEMO_SEQUENCES.length > 1 && (
@@ -154,7 +162,7 @@ export default function GenomeBrowserPage() {
             </div>
           </section>
         </div>
-      </PageContent>
+      </div>
     </main>
   );
 }

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BackLink } from "@/components/nav/BackLink";
-import { PageContent, PageBanner, Card } from "@/components/ui";
 import {
   defaultAssignmentPublishMeta,
   loadAssignmentPublishingState,
@@ -11,6 +10,15 @@ import {
   type AssignmentPublishMeta,
   type ClassPeriod,
 } from "@/lib/assignmentPublishing";
+
+const C = {
+  ink:    "#0a1a14",
+  muted:  "#8aada0",
+  surface:"#ffffff",
+  tealDeep:"#003d2e",
+  border: "rgba(0,0,0,0.07)",
+  pageBg: "#f0f4f2",
+} as const;
 
 type Assignment = {
   id: string;
@@ -105,25 +113,31 @@ export default function TeacherAssessmentsPage() {
   }, []);
 
   return (
-    <main>
-      <BackLink href="/teacher/dashboard" label="Back to dashboard" />
-      <PageBanner
-        title="Assessments"
-        subtitle="A list of your assignments will appear here."
-      />
-      <PageContent className="py-6">
-        <Card className="p-4">
+    <div style={{ minHeight: "100vh", background: C.pageBg, fontFamily: "var(--font-dm-sans), sans-serif" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px 60px" }}>
+        <BackLink href="/teacher/dashboard" label="Back to dashboard" />
+
+        <div style={{ background: C.tealDeep, borderRadius: 16, padding: "28px 30px 24px", marginBottom: 24, marginTop: 12 }}>
+          <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 28, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>
+            Assessments ✦
+          </h1>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+            A list of your assignments will appear here.
+          </p>
+        </div>
+
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
           {loading ? (
-            <div>Loading…</div>
+            <div style={{ color: C.muted, fontSize: 14 }}>Loading…</div>
           ) : assignments && assignments.length > 0 ? (
-            <div className="space-y-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {assignments.map((a) => (
-                <div key={a.id} className="rounded-bs border p-3">
-                  <div className="flex items-start justify-between gap-3">
+                <div key={a.id} style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: 12 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                     <div>
-                      <div className="font-medium">{a.title || a.id}</div>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-bs-text-sub">
-                        <span>
+                      <div style={{ fontWeight: 500, color: C.ink, fontSize: 14 }}>{a.title || a.id}</div>
+                      <div style={{ marginTop: 4, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, fontSize: 11 }}>
+                        <span style={{ color: C.muted }}>
                           {a.updatedAt
                             ? new Date(a.updatedAt).toLocaleString()
                             : a.createdAt
@@ -131,16 +145,16 @@ export default function TeacherAssessmentsPage() {
                               : ""}
                         </span>
                         {getMeta(a).published ? (
-                          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-900">
+                          <span style={{ borderRadius: 999, border: "1px solid #bbf7d0", background: "#f0fdf4", padding: "2px 8px", fontWeight: 600, color: "#166534" }}>
                             Published
                           </span>
                         ) : (
-                          <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">
+                          <span style={{ borderRadius: 999, border: "1px solid #fde68a", background: "#fffbeb", padding: "2px 8px", fontWeight: 600, color: "#92400e" }}>
                             Draft
                           </span>
                         )}
                         {getMeta(a).dueDate ? (
-                          <span className="rounded-full border border-[var(--bs-border)] bg-[var(--bs-raised)] px-2 py-0.5 font-semibold text-bs-text-sub">
+                          <span style={{ borderRadius: 999, border: `1px solid ${C.border}`, background: C.pageBg, padding: "2px 8px", fontWeight: 600, color: C.muted }}>
                             Due{" "}
                             {new Date(
                               getMeta(a).dueDate as string,
@@ -148,23 +162,23 @@ export default function TeacherAssessmentsPage() {
                           </span>
                         ) : null}
                         {getMeta(a).classPeriods.length ? (
-                          <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 font-semibold text-blue-900">
+                          <span style={{ borderRadius: 999, border: "1px solid #bfdbfe", background: "#eff6ff", padding: "2px 8px", fontWeight: 600, color: "#1e40af" }}>
                             {getMeta(a).classPeriods.join(", ")}
                           </span>
                         ) : null}
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap justify-end gap-2">
+                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
                       <button
                         type="button"
                         onClick={() => togglePublish(a)}
-                        className={[
-                          "rounded-bs-sm px-3 py-1.5 text-xs font-semibold",
-                          getMeta(a).published
-                            ? "border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
-                            : "border border-emerald-200 bg-emerald-50 text-emerald-900 hover:bg-emerald-100",
-                        ].join(" ")}
+                        style={{
+                          borderRadius: 8, padding: "6px 12px", fontSize: 11, fontWeight: 600, cursor: "pointer",
+                          ...(getMeta(a).published
+                            ? { border: "1px solid #fecaca", background: "#fef2f2", color: "#b91c1c" }
+                            : { border: "1px solid #bbf7d0", background: "#f0fdf4", color: "#166534" })
+                        }}
                       >
                         {getMeta(a).published ? "Unpublish" : "Publish"}
                       </button>
@@ -174,14 +188,14 @@ export default function TeacherAssessmentsPage() {
                         onClick={() =>
                           setExpandedId((prev) => (prev === a.id ? null : a.id))
                         }
-                        className="rounded-bs-sm border border-[var(--bs-border)] bg-bs-surface px-3 py-1.5 text-xs font-semibold text-bs-text-sub hover:bg-[var(--bs-raised)]"
+                        style={{ border: `1px solid ${C.border}`, background: C.surface, borderRadius: 8, padding: "6px 12px", fontSize: 11, fontWeight: 600, color: C.muted, cursor: "pointer" }}
                       >
                         Publishing Settings
                       </button>
 
                       <Link
                         href={`/teacher/assignments/${encodeURIComponent(a.id)}/summary`}
-                        className="ia-btn-xs"
+                        style={{ border: `1px solid ${C.border}`, background: C.surface, borderRadius: 8, padding: "6px 12px", fontSize: 11, fontWeight: 600, color: C.ink, textDecoration: "none" }}
                       >
                         Summary
                       </Link>
@@ -189,12 +203,12 @@ export default function TeacherAssessmentsPage() {
                   </div>
 
                   {expandedId === a.id ? (
-                    <div className="mt-3 rounded-bs border border-[var(--bs-border)] bg-[var(--bs-raised)] p-3">
-                      <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
+                    <div style={{ marginTop: 12, border: `1px solid ${C.border}`, background: C.pageBg, borderRadius: 10, padding: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: C.muted }}>
                         Publish Assignment
                       </div>
 
-                      <label className="mt-2 block text-xs font-semibold text-bs-text-sub">
+                      <label style={{ display: "block", marginTop: 8, fontSize: 11, fontWeight: 600, color: C.muted }}>
                         Due Date
                         <input
                           type="date"
@@ -204,15 +218,15 @@ export default function TeacherAssessmentsPage() {
                               dueDate: event.target.value || null,
                             })
                           }
-                          className="mt-1 w-full rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm"
+                          style={{ display: "block", marginTop: 4, width: "100%", border: `1px solid ${C.border}`, background: C.surface, borderRadius: 8, padding: "8px 12px", fontSize: 13 }}
                         />
                       </label>
 
-                      <div className="mt-3">
-                        <div className="text-xs font-semibold text-bs-text-sub">
+                      <div style={{ marginTop: 12 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>
                           Class Filters
                         </div>
-                        <div className="mt-2 flex flex-wrap gap-2">
+                        <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 8 }}>
                           {CLASS_PERIODS.map((period) => {
                             const selected =
                               getMeta(a).classPeriods.includes(period);
@@ -221,12 +235,12 @@ export default function TeacherAssessmentsPage() {
                                 key={`${a.id}-${period}`}
                                 type="button"
                                 onClick={() => togglePeriod(a, period)}
-                                className={[
-                                  "rounded-full border px-3 py-1 text-xs font-semibold",
-                                  selected
-                                    ? "border-blue-300 bg-blue-100 text-blue-800"
-                                    : "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub",
-                                ].join(" ")}
+                                style={{
+                                  borderRadius: 999, fontSize: 11, fontWeight: 600, padding: "4px 12px", cursor: "pointer",
+                                  ...(selected
+                                    ? { border: "1px solid #93c5fd", background: "#dbeafe", color: "#1e40af" }
+                                    : { border: `1px solid ${C.border}`, background: C.surface, color: C.muted })
+                                }}
                               >
                                 {period}
                               </button>
@@ -237,7 +251,7 @@ export default function TeacherAssessmentsPage() {
 
                       {!getMeta(a).dueDate ||
                       getMeta(a).classPeriods.length === 0 ? (
-                        <div className="mt-3 rounded-bs border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                        <div style={{ marginTop: 12, border: "1px solid #fde68a", background: "#fffbeb", borderRadius: 8, padding: "8px 12px", fontSize: 11, color: "#92400e" }}>
                           Set a due date and select at least one class period
                           before publishing.
                         </div>
@@ -249,17 +263,19 @@ export default function TeacherAssessmentsPage() {
             </div>
           ) : (
             <div>
-              <div className="text-bs-text-sub">No assessments found.</div>
-              <div className="mt-4">
-                <Link href="/teacher/builder" className="ia-btn">
+              <div style={{ color: C.muted, fontSize: 14 }}>No assessments found.</div>
+              <div style={{ marginTop: 16 }}>
+                <Link
+                  href="/teacher/builder"
+                  style={{ background: "#006e55", color: "white", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 600, textDecoration: "none" }}
+                >
                   Create an assessment
                 </Link>
               </div>
             </div>
           )}
-        </Card>
-
-      </PageContent>
-    </main>
+        </div>
+      </div>
+    </div>
   );
 }

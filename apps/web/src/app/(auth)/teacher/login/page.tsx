@@ -9,7 +9,7 @@ import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
 import FormHelperText from "@mui/joy/FormHelperText";
 import { useTeacherAuth } from "@/lib/teacherAuth";
-import { BlurText, SpotlightCard, ShinyText } from "@/components/ui";
+import { BlurText, SpotlightCard } from "@/components/ui";
 
 export default function TeacherLoginPage() {
   const { login } = useTeacherAuth();
@@ -36,18 +36,20 @@ export default function TeacherLoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      {/* Gradient header band */}
-      <div className="bg-linear-to-r from-sky-500 via-blue-600 to-indigo-600">
-        <div className="mx-auto max-w-6xl px-6 py-6">
+    <div className="flex min-h-dvh flex-col" style={{ background: "#f0f4f2" }}>
+      {/* Standard white BioSpark header */}
+      <div className="border-b border-[rgba(0,0,0,0.06)]" style={{ background: "white", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl border border-white/30 bg-white/20 text-sm font-bold text-white">
-              BS
+            <div className="grid h-8 w-8 place-items-center rounded-xl text-sm font-bold" style={{ background: "#006e55", color: "white" }}>
+              ⚡
             </div>
             <div>
-              <div className="text-sm font-semibold text-white">BioSpark</div>
-              <div className="text-xs text-white/70">
-                STAAR Biology • Practice & Mastery
+              <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
+                Bio<span className="text-bs-teal">Spark</span>
+              </div>
+              <div className="text-xs" style={{ color: "#5a7d72" }}>
+                STAAR Biology • Practice &amp; Mastery
               </div>
             </div>
           </div>
@@ -60,23 +62,24 @@ export default function TeacherLoginPage() {
           <div className="mb-8 text-center">
             <BlurText
               text="Teacher Sign In"
-              className="text-3xl font-semibold tracking-tight text-bs-text"
+              className="text-3xl font-semibold tracking-tight" style={{ color: "#0a1a14" }}
               delay={80}
               animateBy="words"
             />
-            <p className="mt-2 text-bs-text-sub">
+            <p className="mt-2" style={{ color: "#5a7d72" }}>
               Access your dashboard, item bank, and AI grading tools.
             </p>
           </div>
 
+          <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 16, overflow: "hidden" }}>
           <SpotlightCard
-            className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-8 shadow-lg"
-            spotlightColor="rgba(14,165,233,0.14)"
+            className="rounded-2xl p-8 shadow-sm"
+            spotlightColor="rgba(0,196,154,0.10)"
           >
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <FormControl error={!!error}>
                 <FormLabel
-                  sx={{ color: "rgba(241,245,249,0.92)", fontWeight: 600 }}
+                  sx={{ color: "#0a1a14", fontWeight: 600 }}
                 >
                   Email address
                 </FormLabel>
@@ -94,7 +97,7 @@ export default function TeacherLoginPage() {
 
               <FormControl error={!!error}>
                 <FormLabel
-                  sx={{ color: "rgba(241,245,249,0.92)", fontWeight: 600 }}
+                  sx={{ color: "#0a1a14", fontWeight: 600 }}
                 >
                   Password
                 </FormLabel>
@@ -109,7 +112,7 @@ export default function TeacherLoginPage() {
                   sx={{ borderRadius: "14px" }}
                 />
                 {error && (
-                  <FormHelperText sx={{ color: "#fda4af", fontWeight: 500 }}>
+                  <FormHelperText sx={{ color: "#b91c1c", fontWeight: 500 }}>
                     {error}
                   </FormHelperText>
                 )}
@@ -124,11 +127,11 @@ export default function TeacherLoginPage() {
                 fullWidth
                 sx={{
                   borderRadius: "14px",
-                  background: "linear-gradient(to right, #0ea5e9, #2563eb)",
+                  background: "#006e55",
                   fontWeight: 700,
                   mt: 1,
                   "&:hover": {
-                    background: "linear-gradient(to right, #0284c7, #1d4ed8)",
+                    background: "#003d2e",
                   },
                 }}
               >
@@ -137,24 +140,25 @@ export default function TeacherLoginPage() {
             </form>
 
             {/* Demo credentials hint */}
-            <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm">
-              <div className="font-semibold text-blue-800">
+            <div className="mt-6 rounded-2xl p-4 text-sm" style={{ background: "#e6faf5", border: "1px solid rgba(0,196,154,0.2)", borderRadius: 12 }}>
+              <div className="font-semibold" style={{ color: "#006e55" }}>
                 Demo credentials
               </div>
-              <div className="mt-1 text-blue-700">
+              <div className="mt-1" style={{ color: "rgba(10,26,20,0.8)" }}>
                 <span className="font-medium">Email:</span> teacher@biospark.app
               </div>
-              <div className="text-blue-700">
+              <div style={{ color: "rgba(10,26,20,0.8)" }}>
                 <span className="font-medium">Password:</span> biospark
               </div>
             </div>
           </SpotlightCard>
+          </div>
 
-          <p className="mt-6 text-center text-sm text-bs-text-sub">
+          <p className="mt-6 text-center text-sm" style={{ color: "#5a7d72" }}>
             Student?{" "}
             <Link
               href="/auth/student/login"
-              className="font-semibold text-blue-600 hover:underline"
+              className="font-semibold hover:underline" style={{ color: "#006e55" }}
             >
               Log in here
             </Link>

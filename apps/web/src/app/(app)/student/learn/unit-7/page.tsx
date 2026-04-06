@@ -1,44 +1,54 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ThemeToggle from "@/components/ia/ThemeToggle";
 import { getUnitById } from "@/lib/learningHubContent";
 import { BackLink } from "@/components/nav/BackLink";
+
+const C = {
+  ink:    "#0a1a14",
+  muted:  "#8aada0",
+  surface:"#ffffff",
+  tealDeep:"#003d2e",
+  tealDark:"#006e55",
+  border: "rgba(0,0,0,0.07)",
+  pageBg: "#f0f4f2",
+} as const;
 
 export default function Unit7Page() {
   const unit = getUnitById("unit-7");
   if (!unit) notFound();
 
   return (
-    <main className="ia-vh-page relative min-h-dvh px-3 py-3 text-bs-text sm:px-4 sm:py-4">
-      <BackLink href="/student/learn" label="Back to hub" />
-      <div className="mx-auto grid w-full max-w-5xl gap-3">
-        <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-          <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+    <div style={{ minHeight: "100vh", background: C.pageBg, fontFamily: "var(--font-dm-sans), sans-serif" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px 60px" }}>
+        <BackLink href="/student/learn" label="Back to hub" />
+
+        <div style={{ background: C.tealDeep, borderRadius: 16, padding: "28px 30px 24px", marginBottom: 24, marginTop: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "rgba(255,255,255,0.5)" }}>
             Grading Period {unit.gradingPeriod}
           </div>
-          <h1 className="mt-1 text-2xl font-bold text-bs-text">
-            Unit {unit.unitNumber}: {unit.title}
+          <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 28, fontWeight: 800, fontStyle: "italic", color: "white", marginTop: 4, marginBottom: 4 }}>
+            Unit {unit.unitNumber}: {unit.title} ✦
           </h1>
-          <p className="mt-2 text-sm text-bs-text-sub">
-            Objective: {unit.objective}
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+            {unit.objective}
           </p>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-bs-text-sub">
+          <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
             {unit.instructionalDays ? (
-              <span className="rounded-full border border-[var(--bs-border)] bg-[var(--bs-raised)] px-2 py-0.5">
+              <span style={{ borderRadius: 999, background: "rgba(255,255,255,0.15)", padding: "2px 10px", fontSize: 11, fontWeight: 600, color: "white" }}>
                 {unit.instructionalDays} instructional days
               </span>
             ) : null}
             {unit.dateRange ? (
-              <span className="rounded-full border border-[var(--bs-border)] bg-[var(--bs-raised)] px-2 py-0.5">
+              <span style={{ borderRadius: 999, background: "rgba(255,255,255,0.15)", padding: "2px 10px", fontSize: 11, fontWeight: 600, color: "white" }}>
                 {unit.dateRange}
               </span>
             ) : null}
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 6 }}>
             {unit.teks.map((teks) => (
               <span
                 key={teks}
-                className="rounded-full border border-[var(--bs-border)] bg-[var(--bs-raised)] px-3 py-1 text-xs font-semibold text-bs-text-sub"
+                style={{ borderRadius: 999, background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.2)", padding: "2px 10px", fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}
               >
                 {teks}
               </span>
@@ -46,120 +56,117 @@ export default function Unit7Page() {
             {unit.priorityTeks.map((teks) => (
               <span
                 key={`priority-${teks}`}
-                className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800"
+                style={{ borderRadius: 999, border: "1px solid #bbf7d0", background: "rgba(0,196,154,0.15)", padding: "2px 10px", fontSize: 11, fontWeight: 600, color: "#6ee7b7" }}
               >
                 {teks} ★ Priority
               </span>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-          <div className="mb-3">
-            <h2 className="text-lg font-semibold text-bs-text">
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: C.ink, marginBottom: 4 }}>
               Lessons in this Unit
             </h2>
-            <p className="mt-1 text-sm text-bs-text-sub">
+            <p style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>
               {unit.lessons.length} lessons • Work through them in order.
             </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {unit.lessons.map((lesson, index) => (
+                <article
+                  key={lesson.id}
+                  style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, background: "#f9fbfa" }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: C.muted }}>
+                    Lesson {index + 1} • {lesson.type} • {lesson.minutes} min
+                  </div>
+                  <h3 style={{ fontSize: 14, fontWeight: 600, color: C.ink, marginTop: 4 }}>
+                    {lesson.title}
+                  </h3>
+                  <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>{lesson.summary}</p>
+                  <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {lesson.teks?.map((t) => (
+                      <span
+                        key={t}
+                        style={{ borderRadius: 999, border: "1px solid #bbf7d0", background: "#f0fdf4", padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#166534" }}
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 12 }}>
+                    <Link
+                      href={`/student/learn/${unit.id}/${lesson.slug}`}
+                      style={{ display: "inline-flex", background: C.tealDark, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, color: "white", textDecoration: "none" }}
+                    >
+                      Open Lesson →
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-3">
-            {unit.lessons.map((lesson, index) => (
-              <article
-                key={lesson.id}
-                className="rounded-2xl border border-[var(--bs-border)] bg-[var(--bs-raised)] p-4"
-              >
-                <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
-                  Lesson {index + 1} • {lesson.type} • {lesson.minutes} min
+          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 20 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: C.ink, marginBottom: 12 }}>
+              Supplemental Resources
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <article style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, background: "#f9fbfa" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: C.muted }}>
+                  Phenomenon • 12 min
                 </div>
-                <h3 className="mt-1 text-base font-semibold text-bs-text">
-                  {lesson.title}
+                <h3 style={{ fontSize: 14, fontWeight: 600, color: C.ink, marginTop: 4 }}>
+                  Plant Systems B.12B — Buffalo Bayou Phenomenon
                 </h3>
-                <p className="mt-1 text-sm text-bs-text-sub">{lesson.summary}</p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {lesson.teks?.map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-3">
+                <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>
+                  Explore a Buffalo Bayou flooding scenario and identify how plant
+                  systems depend on each other.
+                </p>
+                <div style={{ marginTop: 12 }}>
                   <Link
-                    href={`/student/learn/${unit.id}/${lesson.slug}`}
-                    className="inline-flex rounded-bs bg-bs-bg px-3 py-2 text-xs font-semibold text-white hover:bg-bs-bg"
+                    href="/student/learn/unit-7/plant-systems-b12b-phenomenon"
+                    style={{ display: "inline-flex", border: `1px solid ${C.border}`, background: C.surface, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, color: C.muted, textDecoration: "none" }}
                   >
-                    Open Lesson →
+                    Open Phenomenon →
                   </Link>
                 </div>
               </article>
-            ))}
-          </div>
-        </section>
 
-        {/* Supplemental resources kept for backward compatibility */}
-        <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-          <h2 className="mb-3 text-lg font-semibold text-bs-text">
-            Supplemental Resources
-          </h2>
-          <div className="space-y-3">
-            <article className="rounded-2xl border border-[var(--bs-border)] bg-[var(--bs-raised)] p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
-                Phenomenon • 12 min
-              </div>
-              <h3 className="mt-1 text-base font-semibold text-bs-text">
-                Plant Systems B.12B — Buffalo Bayou Phenomenon
-              </h3>
-              <p className="mt-1 text-sm text-bs-text-sub">
-                Explore a Buffalo Bayou flooding scenario and identify how plant
-                systems depend on each other.
-              </p>
-              <div className="mt-3">
-                <Link
-                  href="/student/learn/unit-7/plant-systems-b12b-phenomenon"
-                  className="inline-flex rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-xs font-semibold text-bs-text-sub hover:bg-[var(--bs-raised)]"
-                >
-                  Open Phenomenon →
-                </Link>
-              </div>
-            </article>
-
-            <article className="rounded-2xl border border-[var(--bs-border)] bg-[var(--bs-raised)] p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
-                Simulation • 20 min
-              </div>
-              <h3 className="mt-1 text-base font-semibold text-bs-text">
-                Bottle Ecosystem Cycles Lab
-              </h3>
-              <p className="mt-1 text-sm text-bs-text-sub">
-                Build a sealed bottle ecosystem and observe how water, carbon,
-                and nitrogen cycle through the system.
-              </p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
-                  B.12A
-                </span>
-                <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800">
-                  B.12B
-                </span>
-              </div>
-              <div className="mt-3">
-                <Link
-                  href="/student/learn/simulations/bottle-ecosystem-cycles"
-                  className="inline-flex rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-xs font-semibold text-bs-text-sub hover:bg-[var(--bs-raised)]"
-                >
-                  Open Simulation →
-                </Link>
-              </div>
-            </article>
+              <article style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, background: "#f9fbfa" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: C.muted }}>
+                  Simulation • 20 min
+                </div>
+                <h3 style={{ fontSize: 14, fontWeight: 600, color: C.ink, marginTop: 4 }}>
+                  Bottle Ecosystem Cycles Lab
+                </h3>
+                <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>
+                  Build a sealed bottle ecosystem and observe how water, carbon,
+                  and nitrogen cycle through the system.
+                </p>
+                <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  <span style={{ borderRadius: 999, border: "1px solid #bbf7d0", background: "#f0fdf4", padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#166534" }}>
+                    B.12A
+                  </span>
+                  <span style={{ borderRadius: 999, border: "1px solid #bbf7d0", background: "#f0fdf4", padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#166534" }}>
+                    B.12B
+                  </span>
+                </div>
+                <div style={{ marginTop: 12 }}>
+                  <Link
+                    href="/student/learn/simulations/bottle-ecosystem-cycles"
+                    style={{ display: "inline-flex", border: `1px solid ${C.border}`, background: C.surface, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, color: C.muted, textDecoration: "none" }}
+                  >
+                    Open Simulation →
+                  </Link>
+                </div>
+              </article>
+            </div>
           </div>
-        </section>
+        </div>
       </div>
-
-      <ThemeToggle />
-    </main>
+    </div>
   );
 }

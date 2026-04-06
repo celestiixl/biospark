@@ -9,6 +9,7 @@ export default function GulfDeadZoneLessonPage() {
         minHeight: "100dvh",
         display: "flex",
         flexDirection: "column",
+        background: "#f0f4f2",
       }}
     >
       <header
@@ -19,8 +20,8 @@ export default function GulfDeadZoneLessonPage() {
           justifyContent: "space-between",
           gap: 12,
           padding: "0 16px",
-          borderBottom: "1px solid var(--bs-border)",
-          background: "var(--bs-surface)",
+          borderBottom: "1px solid rgba(0,0,0,0.07)",
+          background: "#ffffff",
         }}
       >
         <BackLink href="/phenomena-studio" label="Back to phenomena" />
@@ -30,11 +31,11 @@ export default function GulfDeadZoneLessonPage() {
             href="/animations/gulf_dead_zone.html"
             download="gulf-dead-zone-experience.html"
             style={{
-              border: "1px solid var(--bs-border)",
+              border: "1px solid rgba(0,0,0,0.07)",
               borderRadius: 999,
               padding: "4px 10px",
               fontSize: 12,
-              color: "var(--bs-text-sub)",
+              color: "#8aada0",
               textDecoration: "none",
             }}
           >
@@ -42,33 +43,33 @@ export default function GulfDeadZoneLessonPage() {
           </a>
           <span
             style={{
-              border: "1px solid var(--bs-border)",
+              border: "1px solid rgba(0,0,0,0.07)",
               borderRadius: 999,
               padding: "4px 10px",
               fontSize: 12,
-              color: "var(--bs-text-sub)",
+              color: "#8aada0",
             }}
           >
             B.10C
           </span>
           <span
             style={{
-              border: "1px solid var(--bs-border)",
+              border: "1px solid rgba(0,0,0,0.07)",
               borderRadius: 999,
               padding: "4px 10px",
               fontSize: 12,
-              color: "var(--bs-text-sub)",
+              color: "#8aada0",
             }}
           >
             B.13C
           </span>
           <span
             style={{
-              border: "1px solid var(--bs-border)",
+              border: "1px solid rgba(0,0,0,0.07)",
               borderRadius: 999,
               padding: "4px 10px",
               fontSize: 12,
-              color: "var(--bs-text-sub)",
+              color: "#8aada0",
             }}
           >
             B.13D

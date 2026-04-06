@@ -88,30 +88,30 @@ function HeatmapTooltip({
   return (
     <div
       role="tooltip"
-      className="pointer-events-none fixed z-50 min-w-[180px] rounded-xl border border-[#1e3f5a] bg-[#1a3148] p-3 shadow-lg"
+      className="pointer-events-none fixed z-50 min-w-[180px] rounded-xl border border-[rgba(0,0,0,0.1)] bg-white p-3 shadow-lg"
       style={{ left: x + 12, top: y - 8 }}
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs font-bold text-[#e8f4f0]">{agg.teks}</span>
-        <span className="text-xs font-semibold text-[#00d4aa]">
+        <span className="text-xs font-bold text-[#0a1a14]">{agg.teks}</span>
+        <span className="text-xs font-semibold text-[#006e55]">
           {scorePct}% avg
         </span>
       </div>
-      <div className="mt-1.5 flex gap-3 text-[11px] text-[#9abcb0]">
+      <div className="mt-1.5 flex gap-3 text-[11px] text-[#8aada0]">
         <span>
           Mastered:{" "}
-          <span className="font-semibold text-[#00d4aa]">{agg.tier1Count}</span>
+          <span className="font-semibold text-[#006e55]">{agg.tier1Count}</span>
         </span>
         <span>
           Tier 2:{" "}
-          <span className="font-semibold text-[#f5a623]">{agg.tier2Count}</span>
+          <span className="font-semibold text-[#8a5e00]">{agg.tier2Count}</span>
         </span>
         <span>
           Tier 3:{" "}
-          <span className="font-semibold text-[#ff6b6b]">{agg.tier3Count}</span>
+          <span className="font-semibold text-[#c02a10]">{agg.tier3Count}</span>
         </span>
       </div>
-      <div className="mt-2 text-[11px] font-semibold text-[#00d4aa]">
+      <div className="mt-2 text-[11px] font-semibold text-[#006e55]">
         View students →
       </div>
     </div>
@@ -188,16 +188,16 @@ export function PeriodMasteryHeatmap({
 
   return (
     <section
-      className="rounded-2xl border border-[#1e3f5a] bg-[#132638] font-sans text-[#e8f4f0]"
+      className="rounded-2xl border border-[rgba(0,0,0,0.06)] bg-white font-sans text-[#0a1a14]"
       aria-label={`Mastery heatmap for ${snapshot.periodLabel}`}
     >
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-[#1e3f5a]">
-        <h2 className="text-sm font-bold text-[#e8f4f0]">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-[rgba(0,0,0,0.06)]">
+        <h2 className="text-sm font-bold text-[#0a1a14]">
           {snapshot.periodLabel}
         </h2>
         <span
-          className="rounded-full bg-[#1a3148] border border-[#1e3f5a] px-2.5 py-0.5 text-xs font-semibold text-[#9abcb0]"
+          className="rounded-full bg-[rgba(0,0,0,0.05)] border border-[rgba(0,0,0,0.06)] px-2.5 py-0.5 text-xs font-semibold text-[#8aada0]"
           aria-label={`${snapshot.studentCount} students`}
         >
           {snapshot.studentCount} students
@@ -211,7 +211,7 @@ export function PeriodMasteryHeatmap({
           aria-label="TEKS mastery score bands"
         >
           <thead>
-            <tr className="text-[#9abcb0]">
+            <tr className="text-[#8aada0]">
               <th
                 scope="col"
                 className="py-2 pl-4 pr-2 text-left font-semibold text-[11px] uppercase tracking-wide"
@@ -243,7 +243,7 @@ export function PeriodMasteryHeatmap({
                   role="row"
                   aria-label={`${agg.teks}, average score ${Math.round(agg.averageScore * 100)}%`}
                   aria-expanded={isTooltipOpen}
-                  className="cursor-default border-t border-[#1e3f5a] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00d4aa] focus-visible:ring-inset"
+                  className="cursor-default border-t border-[rgba(0,0,0,0.06)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006e55] focus-visible:ring-inset"
                   style={{ backgroundColor: bg }}
                   onMouseEnter={(e) => handleMouseEnter(e, agg.teks)}
                   onMouseMove={handleMouseMove}
@@ -255,51 +255,51 @@ export function PeriodMasteryHeatmap({
                     className="py-2.5 pl-3 pr-2 font-semibold"
                     style={
                       isPriority
-                        ? { borderLeft: "2px solid #00d4aa" }
+                        ? { borderLeft: "2px solid #006e55" }
                         : { borderLeft: "2px solid transparent" }
                     }
                   >
-                    <span className="text-[#e8f4f0]">{agg.teks}</span>
+                    <span className="text-[#0a1a14]">{agg.teks}</span>
                     {isPriority && (
                       <span className="sr-only"> (priority TEKS)</span>
                     )}
                   </td>
 
                   {/* Band count cells */}
-                  <td className="py-2.5 px-2 text-center tabular-nums text-[#e8f4f0]">
+                  <td className="py-2.5 px-2 text-center tabular-nums text-[#0a1a14]">
                     {bands.band0 > 0 ? (
-                      <span className="font-semibold text-[#ff6b6b]">
+                      <span className="font-semibold text-[#c02a10]">
                         {bands.band0}
                       </span>
                     ) : (
-                      <span className="text-[#5a8070]">—</span>
+                      <span className="text-[#8aada0]">—</span>
                     )}
                   </td>
-                  <td className="py-2.5 px-2 text-center tabular-nums text-[#e8f4f0]">
+                  <td className="py-2.5 px-2 text-center tabular-nums text-[#0a1a14]">
                     {bands.band1 > 0 ? (
-                      <span className="font-semibold text-[#f5a623]">
+                      <span className="font-semibold text-[#8a5e00]">
                         {bands.band1}
                       </span>
                     ) : (
-                      <span className="text-[#5a8070]">—</span>
+                      <span className="text-[#8aada0]">—</span>
                     )}
                   </td>
-                  <td className="py-2.5 px-2 text-center tabular-nums text-[#e8f4f0]">
+                  <td className="py-2.5 px-2 text-center tabular-nums text-[#0a1a14]">
                     {bands.band2 > 0 ? (
-                      <span className="font-semibold text-[#9abcb0]">
+                      <span className="font-semibold text-[#2d4d3f]">
                         {bands.band2}
                       </span>
                     ) : (
-                      <span className="text-[#5a8070]">—</span>
+                      <span className="text-[#8aada0]">—</span>
                     )}
                   </td>
-                  <td className="py-2.5 px-2 text-center tabular-nums text-[#e8f4f0]">
+                  <td className="py-2.5 px-2 text-center tabular-nums text-[#0a1a14]">
                     {bands.band3 > 0 ? (
-                      <span className="font-semibold text-[#00d4aa]">
+                      <span className="font-semibold text-[#006e55]">
                         {bands.band3}
                       </span>
                     ) : (
-                      <span className="text-[#5a8070]">—</span>
+                      <span className="text-[#8aada0]">—</span>
                     )}
                   </td>
                 </tr>
@@ -310,7 +310,7 @@ export function PeriodMasteryHeatmap({
               <tr>
                 <td
                   colSpan={5}
-                  className="py-6 text-center text-[#5a8070]"
+                  className="py-6 text-center text-[#8aada0]"
                 >
                   No TEKS data for this period.
                 </td>
@@ -322,10 +322,10 @@ export function PeriodMasteryHeatmap({
 
       {/* ── Legend ─────────────────────────────────────────────────────────── */}
       <div
-        className="flex flex-wrap items-center gap-3 border-t border-[#1e3f5a] px-4 py-2.5"
+        className="flex flex-wrap items-center gap-3 border-t border-[rgba(0,0,0,0.06)] px-4 py-2.5"
         aria-label="Color scale legend"
       >
-        <span className="text-[11px] text-[#5a8070] uppercase tracking-wide font-semibold mr-1">
+        <span className="text-[11px] text-[#8aada0] uppercase tracking-wide font-semibold mr-1">
           Row avg
         </span>
         {[
@@ -340,7 +340,7 @@ export function PeriodMasteryHeatmap({
               style={{ backgroundColor: item.bg }}
               aria-hidden="true"
             />
-            <span className="text-[11px] text-[#9abcb0]">{item.label}</span>
+            <span className="text-[11px] text-[#8aada0]">{item.label}</span>
           </span>
         ))}
       </div>
