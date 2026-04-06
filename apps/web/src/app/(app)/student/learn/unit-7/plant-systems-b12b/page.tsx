@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import ThemeToggle from "@/components/ia/ThemeToggle";
 import { getLessonBySlug, getUnitById } from "@/lib/learningHubContent";
 import LessonExperience from "@/components/student/LessonExperience";
 
@@ -18,14 +17,11 @@ export default function Unit7PlantSystemsB12BPage() {
       : null;
 
   return (
-    <>
-      <LessonExperience
-        unit={unit}
-        lesson={lesson}
-        previousLesson={previousLesson}
-        nextLesson={nextLesson}
-      />
-      <ThemeToggle />
-    </>
+    <LessonExperience
+      unit={unit}
+      lesson={lesson}
+      previousLesson={previousLesson}
+      nextLesson={nextLesson}
+    />
   );
 }

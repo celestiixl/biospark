@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useStudentAuth } from "@/lib/studentAuth";
 
 export default function StudentLoginPage() {
@@ -52,52 +51,35 @@ export default function StudentLoginPage() {
 
   return (
     <div
-      className="relative min-h-dvh overflow-hidden bg-[#0d1e2c] flex flex-col"
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
+      className="relative min-h-dvh flex flex-col"
+      style={{ background: "#f0f4f2", fontFamily: "'DM Sans', sans-serif" }}
     >
-      {/* Animated background orbs - classes defined in globals.css */}
-      <div
-        className="student-login-orb-teal pointer-events-none absolute top-[-200px] left-[-150px] w-[500px] h-[500px] rounded-full opacity-20"
-        style={{
-          background: "radial-gradient(circle, #00d4aa 0%, transparent 70%)",
-        }}
-        aria-hidden="true"
-      />
-      <div
-        className="student-login-orb-amber pointer-events-none absolute bottom-[-150px] right-[-100px] w-[400px] h-[400px] rounded-full opacity-20"
-        style={{
-          background: "radial-gradient(circle, #f5a623 0%, transparent 70%)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Wordmark top-left */}
-      <div className="absolute top-4 left-5 z-10">
-        <Link
-          href="/"
-          className="text-sm font-bold text-[#00d4aa] tracking-wide"
-          style={{ fontFamily: "'Syne', sans-serif" }}
-        >
-          BioSpark
-        </Link>
+      {/* Header */}
+      <div style={{ borderBottom: "1px solid rgba(0,0,0,0.06)", background: "white" }}>
+        <div className="mx-auto max-w-6xl px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="grid h-8 w-8 place-items-center rounded-xl text-sm font-bold" style={{ background: "#006e55", color: "white" }}>
+              ⚡
+            </div>
+            <div>
+              <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>BioSpark</div>
+              <div className="text-xs" style={{ color: "#5a7d72" }}>STAAR Biology • Practice &amp; Mastery</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Centered content */}
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-16">
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12">
         {/* Hero */}
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#00d4aa]/15 border border-[#00d4aa]/30 text-2xl">
-            <span role="img" aria-label="spark">
-              &#x26A1;
-            </span>
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl text-2xl" style={{ background: "rgba(0,110,85,0.1)", border: "1px solid rgba(0,110,85,0.2)" }}>
+            <span role="img" aria-label="spark">⚡</span>
           </div>
-          <h1
-            className="text-3xl font-bold text-[#e8f4f0]"
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
+          <h1 className="text-3xl font-bold" style={{ color: "#0a1a14" }}>
             Welcome back, scientist
           </h1>
-          <p className="mt-2 text-sm text-[#9abcb0]">
+          <p className="mt-2 text-sm" style={{ color: "#8aada0" }}>
             Enter your name and class period to sign in
           </p>
         </div>
@@ -105,15 +87,13 @@ export default function StudentLoginPage() {
         {/* Login card */}
         <form
           onSubmit={handleLogin}
-          className="w-full max-w-sm rounded-2xl border border-[#00d4aa]/20 bg-[#132638] p-8"
+          className="w-full max-w-sm rounded-2xl p-8"
+          style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)" }}
         >
           <div className="flex flex-col gap-5">
             {/* Name input */}
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="displayName"
-                className="text-sm font-medium text-[#9abcb0]"
-              >
+              <label htmlFor="displayName" className="text-sm font-medium" style={{ color: "#0a1a14" }}>
                 Your name
               </label>
               <input
@@ -126,19 +106,14 @@ export default function StudentLoginPage() {
                 onChange={(e) => { setDisplayName(e.target.value); setError(null); }}
                 disabled={loading}
                 autoComplete="name"
-                className="w-full bg-[#0d1e2c] border border-[#00d4aa]/30 rounded-xl px-4 py-3
-                           text-[#e8f4f0] placeholder-[#5a8070] text-base
-                           focus:outline-none focus:border-[#00d4aa] focus:ring-1 focus:ring-[#00d4aa]/40
-                           transition-all duration-200 disabled:opacity-50"
+                className="w-full rounded-xl px-4 py-3 text-base transition-all duration-200 disabled:opacity-50"
+                style={{ background: "#f0f4f2", border: "1px solid rgba(0,0,0,0.07)", color: "#0a1a14" }}
               />
             </div>
 
             {/* Period select */}
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="period"
-                className="text-sm font-medium text-[#9abcb0]"
-              >
+              <label htmlFor="period" className="text-sm font-medium" style={{ color: "#0a1a14" }}>
                 Class period
               </label>
               <select
@@ -147,10 +122,8 @@ export default function StudentLoginPage() {
                 value={period}
                 onChange={(e) => { setPeriod(e.target.value); setError(null); }}
                 disabled={loading}
-                className="w-full bg-[#0d1e2c] border border-[#00d4aa]/30 rounded-xl px-4 py-3
-                           text-[#e8f4f0] text-base
-                           focus:outline-none focus:border-[#00d4aa]
-                           disabled:opacity-50"
+                className="w-full rounded-xl px-4 py-3 text-base disabled:opacity-50"
+                style={{ background: "#f0f4f2", border: "1px solid rgba(0,0,0,0.07)", color: "#0a1a14" }}
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((p) => (
                   <option key={p} value={p}>Period {p}</option>
@@ -162,26 +135,15 @@ export default function StudentLoginPage() {
             <button
               type="submit"
               disabled={!displayName.trim() || loading}
-              className="w-full bg-[#00d4aa] text-[#0d1e2c] font-bold rounded-xl py-3
-                         text-base tracking-wide
-                         hover:bg-[#00e8bb] transition-all duration-200
-                         disabled:opacity-40 disabled:cursor-not-allowed
-                         active:scale-95"
-              style={{ fontFamily: "'Syne', sans-serif" }}
+              className="w-full rounded-xl py-3 text-base font-bold tracking-wide transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: "#006e55", color: "white" }}
             >
-              {loading ? (
-                <span className="student-login-btn-pulsing">Signing in...</span>
-              ) : (
-                "Sign in \u2192"
-              )}
+              {loading ? "Signing in..." : "Sign in →"}
             </button>
 
             {/* Error message */}
             {error && (
-              <p
-                role="alert"
-                className="text-sm text-[#ff6b6b] text-center -mt-1"
-              >
+              <p role="alert" className="text-sm text-center -mt-1" style={{ color: "#dc2626" }}>
                 {error}
               </p>
             )}

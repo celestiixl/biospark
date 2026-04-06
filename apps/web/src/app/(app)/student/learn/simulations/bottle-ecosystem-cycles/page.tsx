@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { BackLink } from "@/components/nav/BackLink";
-import { PageBanner, PageContent } from "@/components/ui";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -1548,15 +1547,20 @@ export default function BottleEcosystemCyclesPage() {
   const showAssemblyVis = labState.currentScene === 0;
 
   return (
-    <main className="ia-vh-page flex h-dvh flex-col overflow-hidden" style={{ background: "#0d1e2c", color: "#e2e8f0" }}>
-      <BackLink href="/student/learn/unit-7" label="Back to unit" />
-      <PageBanner
-        title="Bottle Ecosystem Cycles Lab"
-        subtitle="Build, populate & explore water, carbon & nitrogen cycles — TEKS B.12A & B.12B"
-      >
-      </PageBanner>
+    <main style={{ minHeight: "100vh", background: "#0d1e2c", color: "#e2e8f0", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "12px 16px 4px" }}>
+        <BackLink href="/student/learn/unit-7" label="Back to unit" />
+      </div>
+      <div style={{ background: "#003d2e", padding: "16px 24px", marginBottom: 0 }}>
+        <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 22, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 2 }}>
+          Bottle Ecosystem Cycles Lab ✦
+        </h1>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+          Build, populate &amp; explore water, carbon &amp; nitrogen cycles — TEKS B.12A &amp; B.12B
+        </p>
+      </div>
 
-      <PageContent className="flex-1 overflow-hidden">
+      <div style={{ flex: 1, overflow: "hidden" }}>
         <div className="mx-auto flex h-full w-full max-w-6xl gap-0 overflow-hidden" style={{ fontFamily: "DynaPuff,sans-serif" }}>
 
           {/* ── Left Sidebar: Scene Progress ── */}
@@ -1792,7 +1796,7 @@ export default function BottleEcosystemCyclesPage() {
             </div>
           </div>
         </div>
-      </PageContent>
+      </div>
 
     </main>
   );

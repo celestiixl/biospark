@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { BackLink } from "@/components/nav/BackLink";
-import { PageBanner, PageContent } from "@/components/ui";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type SimMode =
@@ -431,15 +430,21 @@ export default function PopulationGeneticsSimPage() {
   };
 
   return (
-    <main className="ia-vh-page flex min-h-dvh flex-col text-slate-900 dark:text-slate-100">
-      <BackLink href="/student/dashboard" label="Back to dashboard" />
-      <PageBanner
-        title="Population Genetics Simulator"
-        subtitle="Explore allele frequency dynamics: Hardy-Weinberg, genetic drift, natural selection, and bottleneck events."
-      >
-      </PageBanner>
-
-      <PageContent className="py-6">
+    <main style={{ minHeight: "100vh", background: "#f0f4f2", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "16px 20px 8px" }}>
+        <BackLink href="/student/dashboard" label="Back to dashboard" />
+      </div>
+      <div style={{ background: "#003d2e", padding: "20px 24px", marginBottom: 16 }}>
+        <div style={{ maxWidth: 1152, margin: "0 auto" }}>
+          <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 24, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>
+            Population Genetics Simulator ✦
+          </h1>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+            Explore allele frequency dynamics: Hardy-Weinberg, genetic drift, natural selection, and bottleneck events.
+          </p>
+        </div>
+      </div>
+      <div style={{ flex: 1, padding: "0 20px 40px", overflowY: "auto" }}>
         <div className="mx-auto max-w-6xl">
           {/* TEKS tag */}
           <div className="mb-4 flex flex-wrap gap-2">
@@ -876,8 +881,7 @@ export default function PopulationGeneticsSimPage() {
             </section>
           </div>
         </div>
-      </PageContent>
-
+      </div>
     </main>
   );
 }

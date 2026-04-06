@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { PageContent } from "@/components/ui";
+import { BackLink } from "@/components/nav/BackLink";
 import GlossaryText from "@/components/GlossaryText";
 import {
   TEKS_CATALOG,
@@ -330,14 +330,16 @@ export default function TeacherBuilderPage() {
   }
 
   return (
-    <PageContent className="py-6">
-      <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
+    <div style={{ minHeight: "100vh", background: "#f0f4f2", fontFamily: "var(--font-dm-sans), sans-serif" }}>
+      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "24px 20px 60px" }}>
+        <BackLink href="/teacher/dashboard" label="Back to dashboard" />
+        <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-bs-text">
+            <h1 className="text-2xl font-bold" style={{ color: "#0a1a14" }}>
               Teacher Question Builder
             </h1>
-            <p className="mt-1 text-sm text-bs-text-sub">
+            <p className="mt-1 text-sm" style={{ color: "#8aada0" }}>
               Build items quickly, tag TEKS, and preview exactly what students
               will see.
             </p>
@@ -1298,7 +1300,8 @@ export default function TeacherBuilderPage() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </PageContent>
+    </div>
   );
 }

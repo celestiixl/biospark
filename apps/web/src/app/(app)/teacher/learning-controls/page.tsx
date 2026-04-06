@@ -111,189 +111,193 @@ export default function TeacherLearningControlsPage() {
   );
 
   return (
-    <main className="mx-auto w-full max-w-6xl p-6 text-bs-text">
-      <BackLink href="/teacher/dashboard" label="Back to dashboard" />
-      <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-bold">Learning Hub Controls</h1>
-          <p className="mt-1 text-sm text-bs-text-sub">
-            Choose which units students can see and set pacing by grading
-            period.
+    <div style={{ minHeight: "100vh", background: "#f0f4f2", fontFamily: "var(--font-dm-sans), sans-serif" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px 60px" }}>
+        <BackLink href="/teacher/dashboard" label="Back to dashboard" />
+
+        <div style={{ background: "#003d2e", borderRadius: 16, padding: "28px 30px 24px", marginBottom: 24, marginTop: 12 }}>
+          <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 28, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>
+            Learning Hub Controls ✦
+          </h1>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+            Choose which units students can see and set pacing by grading period.
           </p>
         </div>
-      </section>
 
-      <section className="mt-4 rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-        <div className="text-sm font-semibold text-bs-text">
-          Pacing by Grading Period
-        </div>
-        <div className="mt-3 grid gap-3 md:grid-cols-2">
-          {[1, 2, 3, 4].map((gradingPeriod) => (
-            <div
-              key={gradingPeriod}
-              className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-3"
-            >
-              <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
-                Grading Period {gradingPeriod}
-              </div>
-              <select
-                value={
-                  settings.pacingByGradingPeriod[gradingPeriod as 1 | 2 | 3 | 4]
-                }
-                onChange={(event) =>
-                  setPacing(
-                    gradingPeriod as 1 | 2 | 3 | 4,
-                    event.target.value as PacingMode,
-                  )
-                }
-                className="mt-2 w-full rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm"
-              >
-                <option value="on_track">On Track</option>
-                <option value="review">Review Focus</option>
-                <option value="accelerated">Accelerated</option>
-              </select>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#0a1a14" }}>
+              Pacing by Grading Period
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mt-4 rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-        <div className="text-sm font-semibold text-bs-text">
-          Visible Units
-        </div>
-        <div className="mt-3 grid gap-3 md:grid-cols-2">
-          {LEARNING_UNITS.map((unit) => {
-            const checked = settings.visibleUnitIds.includes(unit.id);
-            return (
-              <label
-                key={unit.id}
-                className="flex items-start gap-3 rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-3"
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => toggleUnit(unit.id)}
-                  className="mt-0.5"
-                />
-                <div>
-                  <div className="text-sm font-semibold text-bs-text">
-                    GP {unit.gradingPeriod} • Unit {unit.unitNumber}:{" "}
-                    {unit.title}
+            <div style={{ marginTop: 12, display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
+              {[1, 2, 3, 4].map((gradingPeriod) => (
+                <div
+                  key={gradingPeriod}
+                  style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 12, padding: 12 }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#8aada0" }}>
+                    Grading Period {gradingPeriod}
                   </div>
-                  <div className="mt-1 text-xs text-bs-text-sub">
-                    {unit.teks.join(" • ")}
-                  </div>
-                </div>
-              </label>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="mt-4 rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-        <div className="text-sm font-semibold text-bs-text">
-          Class Period Playlists
-        </div>
-        <p className="mt-1 text-xs text-bs-text-sub">
-          Build lesson playlists per class period and set a due window.
-        </p>
-
-        <div className="mt-3 grid gap-3 md:grid-cols-2">
-          {(["P1", "P2", "P3", "P4"] as const).map((period) => {
-            const config = settings.playlistsByPeriod[period];
-            return (
-              <div
-                key={period}
-                className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-3"
-              >
-                <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
-                  {period} Playlist
-                </div>
-
-                <label className="mt-2 block text-xs font-semibold text-bs-text-sub">
-                  Due Date
-                  <input
-                    type="date"
-                    value={config.dueDate ?? ""}
-                    onChange={(event) =>
-                      setPeriodDueDate(period, event.target.value)
-                    }
-                    className="mt-1 w-full rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm"
-                  />
-                </label>
-
-                <label className="mt-2 block text-xs font-semibold text-bs-text-sub">
-                  Add Lesson
                   <select
-                    onChange={(event) => {
-                      addLessonToPeriod(period, event.target.value);
-                      event.target.value = "";
-                    }}
-                    defaultValue=""
-                    className="mt-1 w-full rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2 text-sm"
+                    value={
+                      settings.pacingByGradingPeriod[gradingPeriod as 1 | 2 | 3 | 4]
+                    }
+                    onChange={(event) =>
+                      setPacing(
+                        gradingPeriod as 1 | 2 | 3 | 4,
+                        event.target.value as PacingMode,
+                      )
+                    }
+                    style={{ marginTop: 8, width: "100%", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 8, padding: "8px 12px", fontSize: 13, background: "white", color: "#0a1a14" }}
                   >
-                    <option value="" disabled>
-                      Select lesson
-                    </option>
-                    {lessonOptions.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.label}
-                      </option>
-                    ))}
+                    <option value="on_track">On Track</option>
+                    <option value="review">Review Focus</option>
+                    <option value="accelerated">Accelerated</option>
                   </select>
-                </label>
-
-                <div className="mt-2 space-y-1">
-                  {config.lessonIds.length === 0 ? (
-                    <div className="text-xs text-bs-text-sub">
-                      No lessons added yet.
-                    </div>
-                  ) : (
-                    config.lessonIds.map((lessonId) => {
-                      const label =
-                        lessonOptions.find((option) => option.id === lessonId)
-                          ?.label ?? lessonId;
-                      return (
-                        <div
-                          key={lessonId}
-                          className="flex items-center justify-between gap-2 rounded-bs border border-[var(--bs-border)] bg-bs-surface px-2 py-1.5 text-xs"
-                        >
-                          <span className="text-bs-text-sub">{label}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              removeLessonFromPeriod(period, lessonId)
-                            }
-                            className="rounded-bs-sm border border-[var(--bs-border)] bg-bs-surface px-2 py-1 font-semibold text-bs-text-sub hover:bg-bs-raised"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      );
-                    })
-                  )}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+              ))}
+            </div>
+          </div>
 
-      <section className="mt-4 rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-        <div className="text-sm font-semibold text-bs-text">AI Tutor Access</div>
-        <p className="mt-1 text-xs text-bs-text-sub">
-          Students can hide the tutor themselves if enabled globally.
-        </p>
-        <label className="mt-3 flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={permissions.enabledByTeacher}
-            onChange={(e) => setTeacherEnabled(e.target.checked)}
-            className="h-4 w-4"
-          />
-          <span className="text-sm text-bs-text">Enable AI Tutor for all students</span>
-        </label>
-      </section>
-    </main>
+          <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#0a1a14" }}>
+              Visible Units
+            </div>
+            <div style={{ marginTop: 12, display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+              {LEARNING_UNITS.map((unit) => {
+                const checked = settings.visibleUnitIds.includes(unit.id);
+                return (
+                  <label
+                    key={unit.id}
+                    style={{ display: "flex", alignItems: "flex-start", gap: 12, background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 12, padding: 12, cursor: "pointer" }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleUnit(unit.id)}
+                      style={{ marginTop: 2 }}
+                    />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0a1a14" }}>
+                        GP {unit.gradingPeriod} • Unit {unit.unitNumber}:{" "}
+                        {unit.title}
+                      </div>
+                      <div style={{ marginTop: 4, fontSize: 11, color: "#8aada0" }}>
+                        {unit.teks.join(" • ")}
+                      </div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#0a1a14" }}>
+              Class Period Playlists
+            </div>
+            <p style={{ marginTop: 4, fontSize: 12, color: "#8aada0" }}>
+              Build lesson playlists per class period and set a due window.
+            </p>
+
+            <div style={{ marginTop: 12, display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))" }}>
+              {(["P1", "P2", "P3", "P4"] as const).map((period) => {
+                const config = settings.playlistsByPeriod[period];
+                return (
+                  <div
+                    key={period}
+                    style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 12, padding: 12 }}
+                  >
+                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#8aada0" }}>
+                      {period} Playlist
+                    </div>
+
+                    <label style={{ display: "block", marginTop: 8, fontSize: 11, fontWeight: 600, color: "#8aada0" }}>
+                      Due Date
+                      <input
+                        type="date"
+                        value={config.dueDate ?? ""}
+                        onChange={(event) =>
+                          setPeriodDueDate(period, event.target.value)
+                        }
+                        style={{ marginTop: 4, width: "100%", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 8, padding: "8px 12px", fontSize: 13, background: "white", color: "#0a1a14" }}
+                      />
+                    </label>
+
+                    <label style={{ display: "block", marginTop: 8, fontSize: 11, fontWeight: 600, color: "#8aada0" }}>
+                      Add Lesson
+                      <select
+                        onChange={(event) => {
+                          addLessonToPeriod(period, event.target.value);
+                          event.target.value = "";
+                        }}
+                        defaultValue=""
+                        style={{ marginTop: 4, width: "100%", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 8, padding: "8px 12px", fontSize: 13, background: "white", color: "#0a1a14" }}
+                      >
+                        <option value="" disabled>
+                          Select lesson
+                        </option>
+                        {lessonOptions.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+                      {config.lessonIds.length === 0 ? (
+                        <div style={{ fontSize: 12, color: "#8aada0" }}>
+                          No lessons added yet.
+                        </div>
+                      ) : (
+                        config.lessonIds.map((lessonId) => {
+                          const label =
+                            lessonOptions.find((option) => option.id === lessonId)
+                              ?.label ?? lessonId;
+                          return (
+                            <div
+                              key={lessonId}
+                              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, background: "#f0f4f2", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 8, padding: "6px 8px", fontSize: 12 }}
+                            >
+                              <span style={{ color: "#8aada0" }}>{label}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removeLessonFromPeriod(period, lessonId)
+                                }
+                                style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 6, padding: "4px 8px", fontSize: 11, fontWeight: 600, color: "#8aada0", cursor: "pointer" }}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#0a1a14" }}>AI Tutor Access</div>
+            <p style={{ marginTop: 4, fontSize: 12, color: "#8aada0" }}>
+              Students can hide the tutor themselves if enabled globally.
+            </p>
+            <label style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 12 }}>
+              <input
+                type="checkbox"
+                checked={permissions.enabledByTeacher}
+                onChange={(e) => setTeacherEnabled(e.target.checked)}
+                style={{ width: 16, height: 16 }}
+              />
+              <span style={{ fontSize: 13, color: "#0a1a14" }}>Enable AI Tutor for all students</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -71,76 +71,80 @@ export default function TeacherImportCurriculumPage() {
   }, [parsed]);
 
   return (
-    <main className="mx-auto w-full max-w-6xl p-6 text-bs-text">
-      <BackLink href="/teacher/dashboard" label="Back to dashboard" />
-      <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-bold">Curriculum Import Validator</h1>
-          <p className="mt-1 text-sm text-bs-text-sub">
-            Paste structured curriculum JSON to preview and validate before
-            publishing.
+    <div style={{ minHeight: "100vh", background: "#f0f4f2", fontFamily: "var(--font-dm-sans), sans-serif" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 20px 60px" }}>
+        <BackLink href="/teacher/dashboard" label="Back to dashboard" />
+
+        <div style={{ background: "#003d2e", borderRadius: 16, padding: "28px 30px 24px", marginBottom: 24, marginTop: 12 }}>
+          <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 28, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>
+            Curriculum Import Validator ✦
+          </h1>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+            Paste structured curriculum JSON to preview and validate before publishing.
           </p>
-          <p className="mt-1 text-xs font-semibold text-amber-700">
+          <p style={{ fontSize: 12, color: "rgba(245,168,0,0.9)", marginTop: 4, fontWeight: 600 }}>
             Current implementation scope: FBISD Biology Units 1-2 only.
           </p>
         </div>
-      </section>
 
-      <section className="mt-4 rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-        <label className="text-sm font-semibold text-bs-text">
-          Import payload (JSON)
-        </label>
-        <textarea
-          value={payload}
-          onChange={(event) => setPayload(event.target.value)}
-          rows={14}
-          className="mt-2 w-full rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-3 font-mono text-xs"
-        />
-      </section>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 16, padding: 20 }}>
+            <label style={{ fontSize: 14, fontWeight: 600, color: "#0a1a14" }}>
+              Import payload (JSON)
+            </label>
+            <textarea
+              value={payload}
+              onChange={(event) => setPayload(event.target.value)}
+              rows={14}
+              style={{ marginTop: 8, width: "100%", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 12, padding: 12, fontFamily: "monospace", fontSize: 12, background: "#f0f4f2", color: "#0a1a14", resize: "vertical", boxSizing: "border-box" }}
+            />
+          </div>
 
-      <section className="mt-4 grid gap-3 md:grid-cols-2">
-        <div className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-bs-text">Validation</h2>
-          <div className="mt-2 space-y-2 text-sm">
-            {errors.length === 0 ? (
-              <div className="rounded-bs border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-800">
-                No validation errors found.
+          <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}>
+            <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 16, padding: 20 }}>
+              <h2 style={{ fontSize: 14, fontWeight: 600, color: "#0a1a14" }}>Validation</h2>
+              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
+                {errors.length === 0 ? (
+                  <div style={{ border: "1px solid #bbf7d0", background: "#f0fdf4", borderRadius: 8, padding: "8px 12px", color: "#166534" }}>
+                    No validation errors found.
+                  </div>
+                ) : (
+                  errors.map((error) => (
+                    <div
+                      key={error}
+                      style={{ border: "1px solid #fecaca", background: "#fef2f2", borderRadius: 8, padding: "8px 12px", color: "#991b1b" }}
+                    >
+                      {error}
+                    </div>
+                  ))
+                )}
               </div>
-            ) : (
-              errors.map((error) => (
-                <div
-                  key={error}
-                  className="rounded-bs border border-rose-200 bg-rose-50 px-3 py-2 text-rose-800"
-                >
-                  {error}
-                </div>
-              ))
-            )}
+            </div>
+
+            <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 16, padding: 20 }}>
+              <h2 style={{ fontSize: 14, fontWeight: 600, color: "#0a1a14" }}>Preview</h2>
+              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8, fontSize: 13, color: "#8aada0" }}>
+                {parsed.rows.slice(0, 8).map((unit) => (
+                  <div
+                    key={unit.id}
+                    style={{ border: "1px solid rgba(0,0,0,0.07)", background: "#f0f4f2", borderRadius: 8, padding: "8px 12px" }}
+                  >
+                    <div style={{ fontWeight: 600, color: "#0a1a14" }}>
+                      {unit.id} • {unit.title}
+                    </div>
+                    <div style={{ fontSize: 11 }}>
+                      TEKS: {(unit.teks || []).join(", ") || "—"}
+                    </div>
+                    <div style={{ fontSize: 11 }}>
+                      Lessons: {unit.lessons?.length ?? 0}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-
-        <div className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-bs-text">Preview</h2>
-          <div className="mt-2 space-y-2 text-sm text-bs-text-sub">
-            {parsed.rows.slice(0, 8).map((unit) => (
-              <div
-                key={unit.id}
-                className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-2"
-              >
-                <div className="font-semibold">
-                  {unit.id} • {unit.title}
-                </div>
-                <div className="text-xs text-bs-text-sub">
-                  TEKS: {(unit.teks || []).join(", ") || "—"}
-                </div>
-                <div className="text-xs text-bs-text-sub">
-                  Lessons: {unit.lessons?.length ?? 0}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

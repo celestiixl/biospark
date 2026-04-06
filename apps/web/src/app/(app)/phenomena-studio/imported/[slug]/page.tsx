@@ -13,15 +13,19 @@ export default function ImportedPhenomenonPage() {
 
   if (!item || item.status !== "approved") {
     return (
-      <main className="mx-auto max-w-4xl p-6 text-bs-text">
-        <div className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-6 shadow-sm">
-          <h1 className="text-xl font-semibold text-bs-text">
-            Imported phenomenon not available
-          </h1>
-          <p className="mt-2 text-sm text-bs-text-sub">
-            This imported HTML is missing or still pending approval.
-          </p>
-          <BackLink href="/phenomena-studio" label="Back to phenomena" />
+      <main style={{ minHeight: "100vh", background: "#f0f4f2", fontFamily: "var(--font-dm-sans), sans-serif" }}>
+        <div style={{ maxWidth: 800, margin: "0 auto", padding: "32px 20px" }}>
+          <div style={{ background: "#ffffff", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 16, padding: 24 }}>
+            <h1 style={{ fontSize: 20, fontWeight: 600, color: "#0a1a14" }}>
+              Imported phenomenon not available
+            </h1>
+            <p style={{ marginTop: 8, fontSize: 14, color: "#8aada0" }}>
+              This imported HTML is missing or still pending approval.
+            </p>
+            <div style={{ marginTop: 16 }}>
+              <BackLink href="/phenomena-studio" label="Back to phenomena" />
+            </div>
+          </div>
         </div>
       </main>
     );
@@ -33,6 +37,7 @@ export default function ImportedPhenomenonPage() {
         minHeight: "100dvh",
         display: "flex",
         flexDirection: "column",
+        background: "#f0f4f2",
       }}
     >
       <header
@@ -43,8 +48,8 @@ export default function ImportedPhenomenonPage() {
           justifyContent: "space-between",
           gap: 12,
           padding: "0 16px",
-          borderBottom: "1px solid var(--bs-border)",
-          background: "var(--bs-surface)",
+          borderBottom: "1px solid rgba(0,0,0,0.07)",
+          background: "#ffffff",
         }}
       >
         <BackLink href="/phenomena-studio" label="Back to phenomena" />
@@ -52,22 +57,22 @@ export default function ImportedPhenomenonPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span
             style={{
-              border: "1px solid var(--bs-border)",
+              border: "1px solid rgba(0,0,0,0.07)",
               borderRadius: 999,
               padding: "4px 10px",
               fontSize: 12,
-              color: "var(--bs-text-sub)",
+              color: "#8aada0",
             }}
           >
             Imported
           </span>
           <span
             style={{
-              border: "1px solid var(--bs-border)",
+              border: "1px solid rgba(0,0,0,0.07)",
               borderRadius: 999,
               padding: "4px 10px",
               fontSize: 12,
-              color: "var(--bs-text-sub)",
+              color: "#8aada0",
             }}
           >
             {item.slug}

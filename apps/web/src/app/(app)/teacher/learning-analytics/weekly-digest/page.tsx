@@ -1,10 +1,20 @@
 "use client";
 
 import * as React from "react";
-import { Card, Badge } from "@/components/ui";
 import { BackLink } from "@/components/nav/BackLink";
 import { getMondayOf } from "@/lib/weeklyDigest";
 import type { DigestEntry, WeeklyDigestResult } from "@/lib/weeklyDigest";
+
+const C = {
+  ink:    "#0a1a14",
+  muted:  "#8aada0",
+  surface:"#ffffff",
+  tealDeep:"#003d2e",
+  amberText:"#8a5e00",
+  amberSoft:"#fff5d6",
+  border: "rgba(0,0,0,0.07)",
+  pageBg: "#f0f4f2",
+} as const;
 
 // ─── Period options (mock — replace with real period data when available) ──────
 const PERIOD_OPTIONS = [
@@ -34,29 +44,29 @@ function EntryRow({ entry }: { entry: DigestEntry }) {
   const [expanded, setExpanded] = React.useState(false);
 
   return (
-    <div className="rounded-2xl border border-border bg-surface-2 p-4 transition-colors hover:bg-surface-3">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
+    <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.07)", borderRadius: 14, padding: 16 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100 text-sm font-bold text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+            style={{ display: "flex", height: 28, width: 28, flexShrink: 0, alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "#fff5d6", fontSize: 13, fontWeight: 700, color: "#8a5e00" }}
             aria-label={`Rank ${entry.rank}`}
           >
             {entry.rank}
           </span>
-          <Badge
-            className="border-transparent bg-teks-rc2 text-white"
+          <span
+            style={{ background: "#003d2e", color: "white", borderRadius: 999, padding: "2px 8px", fontSize: 11, fontWeight: 600 }}
             aria-label={`TEKS ${entry.teks}`}
           >
             {entry.teks}
-          </Badge>
-          <span className="text-xs text-text-muted">{entry.unitTitle}</span>
+          </span>
+          <span style={{ fontSize: 12, color: "#8aada0" }}>{entry.unitTitle}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-text-muted">
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 12, color: "#8aada0" }}>
             {entry.selectionCount} selections
           </span>
           <span
-            className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-300"
+            style={{ borderRadius: 999, background: "#fef2f2", padding: "2px 8px", fontSize: 11, fontWeight: 600, color: "#b91c1c" }}
             aria-label={`${entry.selectionPct}% of wrong attempts chose this answer`}
           >
             {entry.selectionPct}% chose it
@@ -64,19 +74,19 @@ function EntryRow({ entry }: { entry: DigestEntry }) {
         </div>
       </div>
 
-      <p className="mt-3 text-sm font-medium text-text">{entry.questionText}</p>
-      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-        <span className="font-semibold">Wrong answer: </span>
+      <p style={{ marginTop: 12, fontSize: 14, fontWeight: 500, color: "#0a1a14" }}>{entry.questionText}</p>
+      <p style={{ marginTop: 4, fontSize: 14, color: "#dc2626" }}>
+        <span style={{ fontWeight: 600 }}>Wrong answer: </span>
         {entry.wrongAnswer}
       </p>
 
-      <p className="mt-2 text-sm text-text-muted">
+      <p style={{ marginTop: 8, fontSize: 14, color: "#8aada0" }}>
         {entry.misconceptionDescription}
       </p>
 
       <button
         type="button"
-        className="mt-2 text-xs font-semibold text-brand-purple underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple"
+        style={{ marginTop: 8, fontSize: 12, fontWeight: 600, color: "#7c5cfc", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 2 }}
         onClick={() => setExpanded((v) => !v)}
         aria-expanded={expanded}
       >
@@ -85,7 +95,7 @@ function EntryRow({ entry }: { entry: DigestEntry }) {
 
       {expanded && (
         <div
-          className="mt-2 rounded-bs border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200"
+          style={{ marginTop: 8, border: "1px solid #fde68a", background: "#fffbeb", borderRadius: 8, padding: 12, fontSize: 14, color: "#92400e" }}
           role="note"
           aria-label="Suggested talking point"
         >
@@ -154,139 +164,128 @@ export default function WeeklyDigestPage() {
     : null;
 
   return (
-    <main className="mx-auto w-full max-w-4xl p-6 text-bs-text dark:text-slate-100">
-      <BackLink href="/teacher/learning-analytics" label="Back to analytics" />
-      {/* Page header */}
-      <section className="rounded-3xl border border-border bg-surface-1 p-5 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-bold">Weekly Teaching Moments</h1>
-          <p className="mt-1 text-sm text-text-muted">
-            The misconceptions most worth addressing this week — top 10, filterable by
-            period and TEKS.
+    <div style={{ minHeight: "100vh", background: C.pageBg, fontFamily: "var(--font-dm-sans), sans-serif" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto", padding: "32px 20px 60px" }}>
+        <BackLink href="/teacher/learning-analytics" label="Back to analytics" />
+
+        <div style={{ background: C.tealDeep, borderRadius: 16, padding: "28px 30px 24px", marginBottom: 24, marginTop: 12 }}>
+          <h1 style={{ fontFamily: "var(--font-fraunces), Georgia, serif", fontSize: 28, fontWeight: 800, fontStyle: "italic", color: "white", marginBottom: 4 }}>
+            Weekly Teaching Moments ✦
+          </h1>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>
+            The misconceptions most worth addressing this week — top 10, filterable by period and TEKS.
           </p>
         </div>
-      </section>
 
-      {/* Filters */}
-      <section className="mt-4 flex flex-wrap items-end gap-4 rounded-2xl border border-border bg-surface-1 p-4 shadow-sm">
-        {/* Week picker */}
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="weekOf"
-            className="text-xs font-semibold text-text-muted"
-          >
-            Week of (Monday)
-          </label>
-          <input
-            id="weekOf"
-            type="date"
-            value={weekOf}
-            onChange={(e) => setWeekOf(e.target.value)}
-            className="rounded-bs border border-border bg-surface-2 px-3 py-1.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-brand-purple"
-            aria-label="Select week starting date"
-          />
+        {/* Filters */}
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16, marginBottom: 16, display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label htmlFor="weekOf" style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>
+              Week of (Monday)
+            </label>
+            <input
+              id="weekOf"
+              type="date"
+              value={weekOf}
+              onChange={(e) => setWeekOf(e.target.value)}
+              style={{ border: `1px solid ${C.border}`, background: C.surface, borderRadius: 8, padding: "6px 12px", fontSize: 13, color: C.ink }}
+              aria-label="Select week starting date"
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label htmlFor="periodId" style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>
+              Class period
+            </label>
+            <select
+              id="periodId"
+              value={periodId}
+              onChange={(e) => setPeriodId(e.target.value)}
+              style={{ border: `1px solid ${C.border}`, background: C.surface, borderRadius: 8, padding: "6px 12px", fontSize: 13, color: C.ink }}
+              aria-label="Filter by class period"
+            >
+              {PERIOD_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label htmlFor="teksFilter" style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>
+              TEKS
+            </label>
+            <select
+              id="teksFilter"
+              value={teksFilter}
+              onChange={(e) => setTeksFilter(e.target.value)}
+              style={{ border: `1px solid ${C.border}`, background: C.surface, borderRadius: 8, padding: "6px 12px", fontSize: 13, color: C.ink }}
+              aria-label="Filter by TEKS standard"
+            >
+              {TEKS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {formattedLastUpdated && (
+            <p style={{ marginLeft: "auto", fontSize: 11, color: C.muted, alignSelf: "flex-end" }}>
+              Last updated {formattedLastUpdated}
+            </p>
+          )}
         </div>
 
-        {/* Period filter */}
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="periodId"
-            className="text-xs font-semibold text-text-muted"
-          >
-            Class period
-          </label>
-          <select
-            id="periodId"
-            value={periodId}
-            onChange={(e) => setPeriodId(e.target.value)}
-            className="rounded-bs border border-border bg-surface-2 px-3 py-1.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-brand-purple"
-            aria-label="Filter by class period"
-          >
-            {PERIOD_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
+        {/* Summary stats */}
+        {digest && !loading && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+            <div style={{ flex: 1, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16 }}>
+              <div style={{ fontSize: 12, color: C.muted }}>Total wrong attempts</div>
+              <div style={{ marginTop: 4, fontSize: 28, fontWeight: 700, color: C.ink }}>
+                {digest.totalWrongAttempts}
+              </div>
+            </div>
+            <div style={{ flex: 1, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 16 }}>
+              <div style={{ fontSize: 12, color: C.muted }}>
+                Misconceptions surfaced
+              </div>
+              <div style={{ marginTop: 4, fontSize: 28, fontWeight: 700, color: C.ink }}>
+                {filteredEntries.length}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Entry list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {loading && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 20, fontSize: 14, color: C.muted }}>
+              <span style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid #7c5cfc", borderTopColor: "transparent", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
+              Loading digest…
+            </div>
+          )}
+
+          {!loading && fetchError && (
+            <div style={{ background: "#fef2f2", borderRadius: 14, padding: 16, fontSize: 14, color: "#b91c1c" }}>
+              {fetchError}
+            </div>
+          )}
+
+          {!loading && !fetchError && filteredEntries.length === 0 && (
+            <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: 20, fontSize: 14, color: C.muted }}>
+              No misconceptions found for the selected filters.
+            </div>
+          )}
+
+          {!loading &&
+            !fetchError &&
+            filteredEntries.map((entry) => (
+              <EntryRow key={entry.questionId} entry={entry} />
             ))}
-          </select>
         </div>
-
-        {/* TEKS filter */}
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="teksFilter"
-            className="text-xs font-semibold text-text-muted"
-          >
-            TEKS
-          </label>
-          <select
-            id="teksFilter"
-            value={teksFilter}
-            onChange={(e) => setTeksFilter(e.target.value)}
-            className="rounded-bs border border-border bg-surface-2 px-3 py-1.5 text-sm text-text focus:outline-none focus:ring-2 focus:ring-brand-purple"
-            aria-label="Filter by TEKS standard"
-          >
-            {TEKS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {formattedLastUpdated && (
-          <p className="ml-auto self-end text-xs text-text-muted">
-            Last updated {formattedLastUpdated}
-          </p>
-        )}
-      </section>
-
-      {/* Summary stat */}
-      {digest && !loading && (
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Card className="flex-1 p-4">
-            <div className="text-xs text-text-muted">Total wrong attempts</div>
-            <div className="mt-1 text-2xl font-bold">
-              {digest.totalWrongAttempts}
-            </div>
-          </Card>
-          <Card className="flex-1 p-4">
-            <div className="text-xs text-text-muted">
-              Misconceptions surfaced
-            </div>
-            <div className="mt-1 text-2xl font-bold">
-              {filteredEntries.length}
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Entry list */}
-      <section className="mt-4 flex flex-col gap-3">
-        {loading && (
-          <div className="flex items-center gap-2 rounded-2xl border border-border bg-surface-1 p-5 text-sm text-text-muted">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
-            Loading digest…
-          </div>
-        )}
-
-        {!loading && fetchError && (
-          <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300">
-            {fetchError}
-          </div>
-        )}
-
-        {!loading && !fetchError && filteredEntries.length === 0 && (
-          <div className="rounded-2xl border border-border bg-surface-1 p-5 text-sm text-text-muted">
-            No misconceptions found for the selected filters.
-          </div>
-        )}
-
-        {!loading &&
-          !fetchError &&
-          filteredEntries.map((entry) => (
-            <EntryRow key={entry.questionId} entry={entry} />
-          ))}
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

@@ -722,22 +722,22 @@ export default function PunnettMakerPage() {
   const [tab, setTab] = useState<Tab>("monohybrid");
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div style={{ minHeight: "100vh", background: "#f0f4f2", color: "#0a1a14" }}>
       {/* Header */}
-      <div className="border-b border-slate-800 bg-slate-900/80 px-6 py-5">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-3 mb-1">
-            <span className="text-2xl" role="img" aria-label="DNA">
+      <div style={{ borderBottom: "1px solid rgba(0,0,0,0.07)", background: "#003d2e", padding: "20px 24px" }}>
+        <div style={{ maxWidth: 1152, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
+            <span style={{ fontSize: 24 }} role="img" aria-label="DNA">
               🧬
             </span>
-            <h1 className="text-xl font-bold text-white">
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: "white" }}>
               Punnett Square Question Maker
             </h1>
-            <span className="rounded-full bg-indigo-900/60 border border-indigo-700 px-2.5 py-0.5 text-xs text-indigo-300 font-mono">
+            <span style={{ borderRadius: 999, background: "rgba(124,92,252,0.25)", border: "1px solid rgba(124,92,252,0.4)", padding: "2px 10px", fontSize: 12, color: "#c4b5fd", fontFamily: "monospace" }}>
               B.7A / B.7C
             </span>
           </div>
-          <p className="text-sm text-slate-400">
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)" }}>
             Build monohybrid or dihybrid cross questions for the item bank.
             The grid preview updates live as you type.
           </p>
@@ -745,18 +745,25 @@ export default function PunnettMakerPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="border-b border-slate-800 bg-slate-900/50 px-6">
-        <div className="max-w-6xl mx-auto flex gap-0">
+      <div style={{ borderBottom: "1px solid rgba(0,0,0,0.07)", background: "white", padding: "0 24px" }}>
+        <div style={{ maxWidth: 1152, margin: "0 auto", display: "flex" }}>
           {(["monohybrid", "dihybrid"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               aria-selected={tab === t}
-              className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
-                tab === t
-                  ? "border-indigo-500 text-indigo-300"
-                  : "border-transparent text-slate-400 hover:text-slate-200"
-              }`}
+              style={{
+                padding: "12px 20px",
+                fontSize: 14,
+                fontWeight: 500,
+                borderBottom: tab === t ? "2px solid #7c5cfc" : "2px solid transparent",
+                color: tab === t ? "#7c5cfc" : "#8aada0",
+                background: "none",
+                border: "none",
+                borderBottom: tab === t ? "2px solid #7c5cfc" : "2px solid transparent",
+                cursor: "pointer",
+                transition: "color 0.15s",
+              }}
             >
               {t === "monohybrid" ? "Monohybrid (2x2)" : "Dihybrid (4x4)"}
             </button>
@@ -765,7 +772,7 @@ export default function PunnettMakerPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div style={{ maxWidth: 1152, margin: "0 auto", padding: "32px 24px" }}>
         {tab === "monohybrid" ? <MonohybridForm /> : <DihybridForm />}
       </div>
     </div>
