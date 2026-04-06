@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 
 export default function DevPage() {
   if (
-    process.env.NODE_ENV === "production" ||
-    process.env.NEXT_PUBLIC_DEV_BYPASS !== "true"
+    process.env.NEXT_PUBLIC_DEV_BYPASS !== "true" ||
+    process.env.NODE_ENV === "production"
   ) {
     redirect("/");
   }

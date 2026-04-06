@@ -7,8 +7,8 @@ import { useTeacherAuth } from "@/lib/teacherAuth";
 import type { Teacher } from "@/lib/teacherAuth";
 
 const IS_DEV_BYPASS =
-  process.env.NODE_ENV !== "production" &&
-  process.env.NEXT_PUBLIC_DEV_BYPASS === "true";
+  process.env.NEXT_PUBLIC_DEV_BYPASS === "true" &&
+  process.env.NODE_ENV !== "production";
 
 // Matches the StudentProfile interface in studentAuth.ts
 const DEV_STUDENT: StudentProfile = {
