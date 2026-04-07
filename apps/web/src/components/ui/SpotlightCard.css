@@ -4,7 +4,6 @@
   border: 1px solid #222;
   background-color: #111;
   padding: 2rem;
-  overflow: hidden;
   --mouse-x: 0px;
   --mouse-y: 0px;
   --spotlight-color: rgba(255, 255, 255, 0.05);
