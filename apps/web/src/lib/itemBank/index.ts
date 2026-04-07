@@ -1,6 +1,7 @@
 // Client-side utilities for the private teacher item bank (localStorage-based).
 // Server-side loading lives in ./load.ts (Node fs); do NOT import it here.
 
+export * from "../itemBank";
 export type { Item, ItemBank, ItemType, Difficulty } from "./schema";
 
 // ─── Private Bank Types ──────────────────────────────────────────────────────
