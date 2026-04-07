@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { TutorChatRequest, TutorChatResponse } from "@/types/tutor";
 import { LEARNING_UNITS } from "@/lib/learningHubContent";
-import { buildTutorSystemPrompt } from "@/lib/tutor";
+import {
+  buildTutorSystemPrompt,
+  buildGlobalTutorSystemPrompt,
+} from "@/lib/tutor";
 import {
   computeInterventionTier,
   deriveLearningLevel,
@@ -25,6 +28,36 @@ function findLessonBySlug(lessonSlug: string) {
   return undefined;
 }
 
+/**
+ * Fetch the student's mastery records and format them as a human-readable
+ * context string for the system prompt.
+ * Returns null if the fetch fails or no records exist.
+ */
+async function fetchMasteryContext(
+  studentId: string,
+  baseUrl: string,
+): Promise<string | null> {
+  try {
+    const url = new URL("/api/mastery", baseUrl);
+    url.searchParams.set("studentId", studentId);
+    const res = await fetch(url.toString());
+    if (!res.ok) return null;
+    const data = (await res.json()) as Record<string, number>;
+    const entries = Object.entries(data);
+    if (entries.length === 0) return null;
+    return entries
+      .map(([teks, score]) => {
+        const pct = Math.round(score * 100);
+        const level =
+          pct >= 80 ? "Proficient" : pct >= 60 ? "Progressing" : "Developing";
+        return `${teks}: ${pct}% (${level})`;
+      })
+      .join(", ");
+  } catch {
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // POST /api/tutor/chat
 // ---------------------------------------------------------------------------
@@ -32,10 +65,6 @@ function findLessonBySlug(lessonSlug: string) {
 export async function POST(req: NextRequest) {
   // ------------------------------------------------------------------
   // 1. Auth check — student role required.
-  //    The platform does not yet have a server-side session layer; the
-  //    convention (matching /api/teacher/* routes) is to require a
-  //    non-empty x-student-id header as a lightweight role indicator.
-  //    Replace with a real session check once auth is wired up.
   // ------------------------------------------------------------------
   const studentIdHeader = req.headers.get("x-student-id")?.trim();
   if (!studentIdHeader) {
@@ -62,11 +91,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { message, lessonSlug, studentId, conversationHistory, triggeredBy } =
+  const { message, lessonSlug, studentId, conversationHistory, triggeredBy, unitId } =
     body;
 
   // Ensure the authenticated header identity matches the request body identity
-  // to prevent one student from querying mastery data on behalf of another.
   if (studentId !== studentIdHeader) {
     return NextResponse.json(
       {
@@ -93,13 +121,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!lessonSlug || lessonSlug.trim() === "") {
-    return NextResponse.json(
-      { error: "invalid_lesson", message: "lessonSlug is required." },
-      { status: 400 },
-    );
-  }
-
   if (!Array.isArray(conversationHistory)) {
     return NextResponse.json(
       {
@@ -121,76 +142,77 @@ export async function POST(req: NextRequest) {
   }
 
   // ------------------------------------------------------------------
-  // 3. Load the lesson from curriculum data
+  // 3. Resolve lesson context vs. global context
   // ------------------------------------------------------------------
-  const found = findLessonBySlug(lessonSlug);
-  if (!found) {
-    return NextResponse.json(
-      {
-        error: "lesson_not_found",
-        message: `No lesson found with slug "${lessonSlug}".`,
-      },
-      { status: 400 },
-    );
-  }
-  const { lesson } = found;
+  const isGeneralMode = !lessonSlug || lessonSlug.trim() === "" || lessonSlug === "general";
 
-  // ------------------------------------------------------------------
-  // 4. Derive learningLevel and interventionTier from mastery data.
-  //    The mastery API returns a mock deterministic value today; this
-  //    will be replaced with real persistence once the data layer is wired.
-  // ------------------------------------------------------------------
-  let learningLevel: "developing" | "progressing" | "proficient" | "advanced" =
-    "developing";
+  const baseUrl = `${req.nextUrl.protocol}//${req.nextUrl.host}`;
+  const masteryContext = await fetchMasteryContext(studentIdHeader, baseUrl);
+
+  let systemPrompt: string;
+  let responseTeks: string[] = [];
   let interventionTier: 2 | 3 | null = null;
 
-  try {
-    const masteryUrl = new URL(
-      "/api/mastery",
-      `${req.nextUrl.protocol}//${req.nextUrl.host}`,
+  if (isGeneralMode) {
+    // Global Tutor mode: use full curriculum roadmap as context
+    systemPrompt = buildGlobalTutorSystemPrompt(
+      LEARNING_UNITS,
+      unitId,
+      masteryContext ?? undefined,
     );
-    masteryUrl.searchParams.set("userId", studentIdHeader);
-    masteryUrl.searchParams.set(
-      "itemIds",
-      (lesson.teks ?? []).join(",") || lessonSlug,
-    );
+    responseTeks = [];
+  } else {
+    // Lesson-specific mode: resolve the lesson and build a targeted prompt
+    const found = findLessonBySlug(lessonSlug);
+    if (!found) {
+      return NextResponse.json(
+        {
+          error: "lesson_not_found",
+          message: `No lesson found with slug "${lessonSlug}".`,
+        },
+        { status: 400 },
+      );
+    }
+    const { lesson } = found;
+    responseTeks = lesson.teks ?? [];
 
-    const masteryRes = await fetch(masteryUrl.toString());
-    if (masteryRes.ok) {
-      const masteryData = (await masteryRes.json()) as {
-        items: Record<string, { masteryPct: number; total: number }>;
-      };
+    // ------------------------------------------------------------------
+    // 4. Derive learningLevel and interventionTier from mastery data
+    // ------------------------------------------------------------------
+    let learningLevel: "developing" | "progressing" | "proficient" | "advanced" =
+      "developing";
 
-      const teks = lesson.teks ?? [];
-      if (teks.length > 0 && masteryData.items) {
-        const firstTeksData = masteryData.items[teks[0]];
-        if (firstTeksData) {
-          learningLevel = deriveLearningLevel(firstTeksData.masteryPct);
-          // Use masteryPct as a 0-1 score and assume 0 failed attempts for the
-          // initial request since detailed attempt history is not yet persisted.
-          interventionTier = computeInterventionTier(
-            firstTeksData.masteryPct / 100,
-            0,
-          );
+    try {
+      const masteryUrl = new URL("/api/mastery", baseUrl);
+      masteryUrl.searchParams.set("studentId", studentIdHeader);
+      const masteryRes = await fetch(masteryUrl.toString());
+      if (masteryRes.ok) {
+        const masteryData = (await masteryRes.json()) as Record<string, number>;
+
+        const teks = lesson.teks ?? [];
+        if (teks.length > 0 && masteryData) {
+          const firstTeksScore = masteryData[teks[0]];
+          if (firstTeksScore !== undefined) {
+            learningLevel = deriveLearningLevel(firstTeksScore * 100);
+            interventionTier = computeInterventionTier(firstTeksScore, 0);
+          }
         }
       }
+    } catch {
+      // Mastery fetch failure is non-fatal; fall back to defaults.
     }
-  } catch {
-    // Mastery fetch failure is non-fatal; fall back to defaults.
+
+    systemPrompt = buildTutorSystemPrompt(
+      lesson,
+      learningLevel,
+      interventionTier,
+      triggeredBy,
+      masteryContext ?? undefined,
+    );
   }
 
   // ------------------------------------------------------------------
-  // 5. Build the system prompt
-  // ------------------------------------------------------------------
-  const systemPrompt = buildTutorSystemPrompt(
-    lesson,
-    learningLevel,
-    interventionTier,
-    triggeredBy,
-  );
-
-  // ------------------------------------------------------------------
-  // 6. Stream the Gemini response back to the client
+  // 5. Stream the Gemini response back to the client
   // ------------------------------------------------------------------
   const messagesForAI: Array<{ role: "user" | "assistant"; content: string }> =
     [
@@ -206,7 +228,7 @@ export async function POST(req: NextRequest) {
     textStream = await generateBioResponse({
       system: systemPrompt,
       messages: messagesForAI,
-      maxOutputTokens: 300,
+      maxOutputTokens: 350,
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Configuration error.";
@@ -220,23 +242,21 @@ export async function POST(req: NextRequest) {
 
   const metadata: TutorChatResponse = {
     interventionTier,
-    lessonSlug,
-    teks: lesson.teks ?? [],
+    lessonSlug: lessonSlug ?? "general",
+    teks: responseTeks,
   };
 
   const stream = new ReadableStream({
     async start(controller) {
       try {
         for await (const chunk of textStream) {
-          // Strip any em dashes (U+2014) that the model emits despite the
-          // system-prompt instruction — replace with " - " so the sentence
-          // still reads naturally.
+          // Strip any em dashes that the model emits despite the system-prompt instruction
           const sanitised = chunk.replace(/\u2014/g, " - ");
           controller.enqueue(encoder.encode(sanitised));
         }
 
         // ------------------------------------------------------------------
-        // 7. Append JSON metadata footer after the streamed text
+        // 6. Append JSON metadata footer after the streamed text
         // ------------------------------------------------------------------
         const footer = `\n\n${JSON.stringify(metadata)}`;
         controller.enqueue(encoder.encode(footer));

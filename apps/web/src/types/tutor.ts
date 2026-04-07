@@ -40,10 +40,21 @@ export type TutorTrigger =
 /** Shape of the request body for POST /api/tutor/chat */
 export type TutorChatRequest = {
   message: string;
-  lessonSlug: string;
+  /**
+   * Lesson slug for the active lesson context.
+   * Pass `"general"` or omit to invoke the Global Tutor mode, which loads
+   * the full FBISD Biology curriculum roadmap as context.
+   */
+  lessonSlug?: string;
   studentId: string;
   conversationHistory: TutorMessage[];
   triggeredBy?: TutorTrigger;
+  /**
+   * Optional unit ID for the Curriculum Picker on the standalone tutor page.
+   * When provided together with `lessonSlug === "general"`, the global context
+   * is scoped to just that unit.
+   */
+  unitId?: string;
 };
 
 /**
