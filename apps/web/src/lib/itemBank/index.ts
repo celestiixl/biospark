@@ -78,4 +78,10 @@ export function submitForReview(
   }
   queue.push({ question, teacherId, submittedAt: new Date().toISOString() });
   localStorage.setItem(REVIEW_QUEUE_KEY, JSON.stringify(queue));
+
+  const privateBankEntries = getPrivateBank(teacherId);
+  const updatedPrivateBankEntries = privateBankEntries.filter(
+    (entry) => entry.question.id !== question.id,
+  );
+  saveItemBank(updatedPrivateBankEntries, teacherId);
 }
