@@ -85,7 +85,7 @@ export const VISUAL_CONCEPTS: Record<string, string> = {
  * @param learningLevel   The student's current qualitative mastery level.
  * @param interventionTier The active intervention tier for this student.
  * @param triggeredBy     Optional. What caused the tutor to open.
- * @param masteryContext  Optional. Formatted string of mastery data to personalise the tutor.
+ * @param masteryContext  Optional. Formatted string of mastery data to personalize the tutor.
  * @returns A complete system prompt string.
  */
 export function buildTutorSystemPrompt(
@@ -107,7 +107,7 @@ export function buildTutorSystemPrompt(
   const triggerInstructions = buildTriggerInstructions(triggeredBy);
 
   const masterySection = masteryContext
-    ? `\nSTUDENT MASTERY SNAPSHOT:\n${masteryContext}\nUse this data to personalise your responses. If a student is still developing on a key TEKS, acknowledge it warmly, e.g. "I see you are still working on B.5A. Let us make sure we nail it together!"`
+    ? `\nSTUDENT MASTERY SNAPSHOT:\n${masteryContext}\nUse this data to personalize your responses. If a student is still developing on a key TEKS, acknowledge it warmly, e.g. "I see you are still working on B.5A. Let us make sure we nail it together!"`
     : "";
 
   const interventionNote =
@@ -162,7 +162,7 @@ export function buildGlobalTutorSystemPrompt(
     .join("\n\n");
 
   const masterySection = masteryContext
-    ? `\nSTUDENT MASTERY SNAPSHOT:\n${masteryContext}\nUse this data to personalise your responses. Reference specific TEKS the student is still developing, e.g. "I see you are still working on B.5A. Let us focus there!"`
+    ? `\nSTUDENT MASTERY SNAPSHOT:\n${masteryContext}\nUse this data to personalize your responses. Reference specific TEKS the student is still developing, e.g. "I see you are still working on B.5A. Let us focus there!"`
     : "";
 
   return `You are BioSpark Global Tutor, a friendly and knowledgeable biology guide for 9th grade students at Willowridge High School in Houston, TX (FBISD).

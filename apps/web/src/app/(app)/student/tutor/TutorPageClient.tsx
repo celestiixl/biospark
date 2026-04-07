@@ -46,7 +46,9 @@ function stripMetadataFooter(text: string): string {
   return text.slice(0, sep).trimEnd();
 }
 
-// ── Color tokens (dark tutor palette) ─────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const MAX_MESSAGE_LENGTH = 500;
 
 const C = {
   bg: "#0d1e2c",
@@ -555,7 +557,7 @@ export default function TutorPageClient({ units }: Props) {
                   : "Ask anything about FBISD Biology..."
               }
               rows={2}
-              maxLength={500}
+              maxLength={MAX_MESSAGE_LENGTH}
               disabled={streaming}
               aria-label="Message input"
               style={{
@@ -605,7 +607,7 @@ export default function TutorPageClient({ units }: Props) {
               textAlign: "right",
             }}
           >
-            {inputText.length}/500
+            {inputText.length}/{MAX_MESSAGE_LENGTH}
           </p>
         </div>
       </main>

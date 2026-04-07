@@ -29,23 +29,26 @@ function findLessonBySlug(lessonSlug: string) {
 }
 
 /**
- * Fetch the student's mastery records and format them as a human-readable
- * context string for the system prompt.
- * Returns null if the fetch fails or no records exist.
+ * Fetch the student's mastery records.
+ * Returns both:
+ * - `contextString`: human-readable TEKS summary for the system prompt
+ * - `rawMap`: raw score map for deriving learningLevel / interventionTier
+ *
+ * Returns null values if the fetch fails or no records exist.
  */
-async function fetchMasteryContext(
+async function fetchMasteryData(
   studentId: string,
   baseUrl: string,
-): Promise<string | null> {
+): Promise<{ contextString: string | null; rawMap: Record<string, number> | null }> {
   try {
     const url = new URL("/api/mastery", baseUrl);
     url.searchParams.set("studentId", studentId);
     const res = await fetch(url.toString());
-    if (!res.ok) return null;
+    if (!res.ok) return { contextString: null, rawMap: null };
     const data = (await res.json()) as Record<string, number>;
     const entries = Object.entries(data);
-    if (entries.length === 0) return null;
-    return entries
+    if (entries.length === 0) return { contextString: null, rawMap: null };
+    const contextString = entries
       .map(([teks, score]) => {
         const pct = Math.round(score * 100);
         const level =
@@ -53,8 +56,9 @@ async function fetchMasteryContext(
         return `${teks}: ${pct}% (${level})`;
       })
       .join(", ");
+    return { contextString, rawMap: data };
   } catch {
-    return null;
+    return { contextString: null, rawMap: null };
   }
 }
 
@@ -147,7 +151,8 @@ export async function POST(req: NextRequest) {
   const isGeneralMode = !lessonSlug || lessonSlug.trim() === "" || lessonSlug === "general";
 
   const baseUrl = `${req.nextUrl.protocol}//${req.nextUrl.host}`;
-  const masteryContext = await fetchMasteryContext(studentIdHeader, baseUrl);
+  const { contextString: masteryContext, rawMap: masteryRaw } =
+    await fetchMasteryData(studentIdHeader, baseUrl);
 
   let systemPrompt: string;
   let responseTeks: string[] = [];
@@ -177,29 +182,20 @@ export async function POST(req: NextRequest) {
     responseTeks = lesson.teks ?? [];
 
     // ------------------------------------------------------------------
-    // 4. Derive learningLevel and interventionTier from mastery data
+    // 4. Derive learningLevel and interventionTier from already-fetched mastery data
     // ------------------------------------------------------------------
     let learningLevel: "developing" | "progressing" | "proficient" | "advanced" =
       "developing";
 
-    try {
-      const masteryUrl = new URL("/api/mastery", baseUrl);
-      masteryUrl.searchParams.set("studentId", studentIdHeader);
-      const masteryRes = await fetch(masteryUrl.toString());
-      if (masteryRes.ok) {
-        const masteryData = (await masteryRes.json()) as Record<string, number>;
-
-        const teks = lesson.teks ?? [];
-        if (teks.length > 0 && masteryData) {
-          const firstTeksScore = masteryData[teks[0]];
-          if (firstTeksScore !== undefined) {
-            learningLevel = deriveLearningLevel(firstTeksScore * 100);
-            interventionTier = computeInterventionTier(firstTeksScore, 0);
-          }
+    if (masteryRaw) {
+      const teks = lesson.teks ?? [];
+      if (teks.length > 0) {
+        const firstTeksScore = masteryRaw[teks[0]];
+        if (firstTeksScore !== undefined) {
+          learningLevel = deriveLearningLevel(firstTeksScore * 100);
+          interventionTier = computeInterventionTier(firstTeksScore, 0);
         }
       }
-    } catch {
-      // Mastery fetch failure is non-fatal; fall back to defaults.
     }
 
     systemPrompt = buildTutorSystemPrompt(
