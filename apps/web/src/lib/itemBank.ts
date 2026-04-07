@@ -128,8 +128,8 @@ function writeRaw(entries: ItemBankEntry[], key: string = STORAGE_KEY): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(key, JSON.stringify(entries));
-  } catch {
-    // storage unavailable - silently ignore
+  } catch (err) {
+    console.warn("[itemBank] Failed to write to localStorage:", err);
   }
 }
 
@@ -148,8 +148,8 @@ function writePendingRaw(entries: PendingQuestion[], key: string): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(key, JSON.stringify(entries));
-  } catch {
-    // storage unavailable - silently ignore
+  } catch (err) {
+    console.warn("[itemBank] Failed to write pending queue to localStorage:", err);
   }
 }
 

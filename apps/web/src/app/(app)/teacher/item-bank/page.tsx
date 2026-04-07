@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { loadBank } from "@/lib/itemBank/load";
+import { searchPublicBank } from "@/lib/itemBank";
 import ItemBankTabsClient from "./ItemBankTabsClient";
 
 export const dynamic = "force-dynamic";
@@ -14,8 +14,7 @@ const C = {
 } as const;
 
 export default async function TeacherItemBankPage() {
-  const bank = loadBank();
-  const items = bank?.items ?? [];
+  const items = searchPublicBank();
 
   return (
     <div style={{ minHeight: "100vh", background: C.pageBg, fontFamily: "var(--font-dm-sans), sans-serif" }}>
