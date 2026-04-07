@@ -652,14 +652,12 @@ export default function DashboardClient(props: DashboardClientProps) {
             </div>
 
             {/* AI Tutor */}
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent("biospark:open-tutor"))}
+            <Link
+              href="/student/tutor"
               style={{
                 background: C.ink, borderRadius: 16,
                 padding: "16px 22px", display: "flex", alignItems: "center", gap: 14,
-                cursor: "pointer", textDecoration: "none", border: "none", width: "100%",
-                textAlign: "left",
+                cursor: "pointer", textDecoration: "none", width: "100%",
               }}
               aria-label="Open AI tutor"
             >
@@ -686,7 +684,7 @@ export default function DashboardClient(props: DashboardClientProps) {
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
               </div>
-            </button>
+            </Link>
 
           </div>
         </div>

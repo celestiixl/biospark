@@ -8,6 +8,7 @@ import {
   IconFlask2,
   IconLayoutDashboard,
   IconListCheck,
+  IconRobot,
   IconUserCircle,
 } from "@tabler/icons-react";
 
@@ -44,6 +45,11 @@ export default function StudentFloatingDock() {
       title: "Assessment Lab",
       icon: <IconBook2 className="h-full w-full text-neutral-600 dark:text-neutral-300" />,
       href: "/student/assessment",
+    },
+    {
+      title: "AI Tutor",
+      icon: <IconRobot className="h-full w-full text-neutral-600 dark:text-neutral-300" />,
+      href: "/student/tutor",
     },
     {
       title: "My Profile",
