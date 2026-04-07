@@ -20,6 +20,22 @@ export default function TeacherLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  const labelStyles = { color: "#0a1a14", fontWeight: 600, mb: 0.5 } as const;
+  const inputStyles = {
+    borderRadius: "14px",
+    backgroundColor: "#fff",
+    color: "#0a1a14",
+    border: "1.5px solid rgba(0,0,0,0.18)",
+    "& input": { color: "#0a1a14" },
+    "& input::placeholder": { color: "#8aada0", opacity: 1 },
+    "--Input-focusedHighlight": "#006e55",
+    "&:focus-within": {
+      borderColor: "#006e55",
+      outline: "2px solid rgba(0,110,85,0.25)",
+      outlineOffset: "2px",
+    },
+  } as const;
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -71,16 +87,18 @@ export default function TeacherLoginPage() {
             </p>
           </div>
 
-          <div style={{ background: "white", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 16, overflow: "hidden" }}>
           <SpotlightCard
             className="rounded-2xl p-8 shadow-sm"
             spotlightColor="rgba(0,196,154,0.10)"
+            style={{
+              background: "white",
+              border: "1px solid rgba(0,0,0,0.06)",
+              borderRadius: 16,
+            }}
           >
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <FormControl error={!!error}>
-                <FormLabel
-                  sx={{ color: "#0a1a14", fontWeight: 600 }}
-                >
+                <FormLabel sx={labelStyles}>
                   Email address
                 </FormLabel>
                 <Input
@@ -91,14 +109,12 @@ export default function TeacherLoginPage() {
                   autoComplete="email"
                   required
                   size="md"
-                  sx={{ borderRadius: "14px" }}
+                  sx={inputStyles}
                 />
               </FormControl>
 
               <FormControl error={!!error}>
-                <FormLabel
-                  sx={{ color: "#0a1a14", fontWeight: 600 }}
-                >
+                <FormLabel sx={labelStyles}>
                   Password
                 </FormLabel>
                 <Input
@@ -109,7 +125,7 @@ export default function TeacherLoginPage() {
                   autoComplete="current-password"
                   required
                   size="md"
-                  sx={{ borderRadius: "14px" }}
+                  sx={inputStyles}
                 />
                 {error && (
                   <FormHelperText sx={{ color: "#b91c1c", fontWeight: 500 }}>
@@ -152,7 +168,6 @@ export default function TeacherLoginPage() {
               </div>
             </div>
           </SpotlightCard>
-          </div>
 
           <p className="mt-6 text-center text-sm" style={{ color: "#5a7d72" }}>
             Student?{" "}

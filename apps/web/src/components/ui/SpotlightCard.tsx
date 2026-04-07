@@ -7,12 +7,14 @@ export interface SpotlightCardProps {
   children: React.ReactNode;
   className?: string;
   spotlightColor?: string;
+  style?: React.CSSProperties;
 }
 
 const SpotlightCard = ({
   children,
   className = '',
-  spotlightColor = 'rgba(255, 255, 255, 0.25)'
+  spotlightColor = 'rgba(255, 255, 255, 0.25)',
+  style,
 }: SpotlightCardProps) => {
   const divRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +30,7 @@ const SpotlightCard = ({
   };
 
   return (
-    <div ref={divRef} onMouseMove={handleMouseMove} className={`card-spotlight ${className}`}>
+    <div ref={divRef} onMouseMove={handleMouseMove} className={`card-spotlight ${className}`} style={style}>
       {children}
     </div>
   );
