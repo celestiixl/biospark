@@ -241,6 +241,6 @@ TEKS codes are always formatted as `"B.5A"` and never `"b5a"` or `"B5A"`.
 
 ## Contributing
 
-This is an internal FBISD project. If you're a teacher or curriculum coordinator and want to contribute content or flag an issue, reach out directly.
+This is an internal personal project. If you're a teacher or curriculum coordinator and want to contribute content or flag an issue, reach out directly.
 
 For developers, read `.github/copilot-instructions.md` before touching the curriculum layer. It has the full TEKS reference, content generation rules, and TEA boundary constraints. Don't bypass lesson unlock logic or intervention thresholds, and run `pnpm --filter web build` before opening a pull request.
