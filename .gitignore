@@ -1,11 +1,13 @@
 node_modules
-package-lock.json
 .next
 dist
 .env
 .env.*
 .DS_Store
-package-lock.json
+
+# Root-level npm lock file — the monorepo root uses pnpm, so ignore any
+# accidental npm lock file generated at the repo root.
+/package-lock.json
 
 # Ignore ad-hoc shell scripts dropped in the repo root
 /*.sh

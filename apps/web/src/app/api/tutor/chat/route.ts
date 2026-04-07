@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
 import type { TutorChatRequest, TutorChatResponse } from "@/types/tutor";
 import { LEARNING_UNITS } from "@/lib/learningHubContent";
 import { buildTutorSystemPrompt } from "@/lib/tutor";
@@ -7,28 +6,12 @@ import {
   computeInterventionTier,
   deriveLearningLevel,
 } from "@/lib/intelligence";
+import { generateBioResponse } from "@/lib/ai/provider";
 
 export const runtime = "nodejs";
 
 const MAX_MESSAGE_CHARS = 500;
 const MAX_HISTORY_ENTRIES = 20;
-
-/**
- * Module-level singleton Anthropic client.
- * Initialised on first request and reused across warm invocations.
- * Throws at call time (not at module load) so missing env vars surface as
- * a proper HTTP 503 rather than a build-time crash.
- */
-let _anthropicClient: Anthropic | null = null;
-function getAnthropicClient(): Anthropic {
-  if (_anthropicClient) return _anthropicClient;
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error("ANTHROPIC_API_KEY environment variable is not set.");
-  }
-  _anthropicClient = new Anthropic({ apiKey });
-  return _anthropicClient;
-}
 
 /**
  * Find a lesson across all curriculum units by its slug.
@@ -207,19 +190,24 @@ export async function POST(req: NextRequest) {
   );
 
   // ------------------------------------------------------------------
-  // 6. Stream the Anthropic response back to the client
+  // 6. Stream the Gemini response back to the client
   // ------------------------------------------------------------------
-  const messagesForAnthropic: Anthropic.MessageParam[] = [
-    ...conversationHistory.map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content,
-    })),
-    { role: "user" as const, content: message },
-  ];
+  const messagesForAI: Array<{ role: "user" | "assistant"; content: string }> =
+    [
+      ...conversationHistory.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
+      { role: "user" as const, content: message },
+    ];
 
-  let anthropicClient: Anthropic;
+  let textStream: AsyncIterable<string>;
   try {
-    anthropicClient = getAnthropicClient();
+    textStream = await generateBioResponse({
+      system: systemPrompt,
+      messages: messagesForAI,
+      maxOutputTokens: 300,
+    });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Configuration error.";
     return NextResponse.json(
@@ -239,24 +227,12 @@ export async function POST(req: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const anthropicStream = await anthropicClient.messages.stream({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 300,
-          system: systemPrompt,
-          messages: messagesForAnthropic,
-        });
-
-        for await (const chunk of anthropicStream) {
-          if (
-            chunk.type === "content_block_delta" &&
-            chunk.delta.type === "text_delta"
-          ) {
-            // Strip any em dashes (U+2014) that the model emits despite the
-            // system-prompt instruction — replace with " - " so the sentence
-            // still reads naturally.
-            const sanitised = chunk.delta.text.replace(/\u2014/g, " - ");
-            controller.enqueue(encoder.encode(sanitised));
-          }
+        for await (const chunk of textStream) {
+          // Strip any em dashes (U+2014) that the model emits despite the
+          // system-prompt instruction — replace with " - " so the sentence
+          // still reads naturally.
+          const sanitised = chunk.replace(/\u2014/g, " - ");
+          controller.enqueue(encoder.encode(sanitised));
         }
 
         // ------------------------------------------------------------------
@@ -266,7 +242,7 @@ export async function POST(req: NextRequest) {
         controller.enqueue(encoder.encode(footer));
       } catch (err: unknown) {
         const msg =
-          err instanceof Error ? err.message : "Anthropic stream error.";
+          err instanceof Error ? err.message : "AI stream error.";
         controller.enqueue(
           encoder.encode(`\n\n${JSON.stringify({ error: msg })}`),
         );
