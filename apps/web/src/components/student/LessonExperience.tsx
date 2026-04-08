@@ -13,6 +13,7 @@ import type {
 import {
   interventionStrategyForTier,
   interventionTierFromCheck,
+  isPriorityTeks,
   type LearningLevel,
 } from "@/lib/curriculumPolicy";
 import {
@@ -29,10 +30,6 @@ import { useAccommodations } from "@/lib/useAccommodations";
 import TeksTag from "@/components/ui/TeksTag";
 
 const HOOK_DISMISSED_KEY = "biospark.hook.dismissed.v1";
-
-const PRIORITY_TEKS = new Set([
-  "B.5A","B.5B","B.11A","B.11B","B.7A","B.7B","B.7C","B.12B","B.8B",
-]);
 
 /** Returns a stable string key for any LessonSection variant. */
 function getSectionKey(section: LessonSection, index: number): string {
@@ -404,7 +401,7 @@ export default function LessonExperience({
               {lesson.teks && lesson.teks.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {lesson.teks.map((code) => (
-                    <TeksTag key={code} code={code} priority={PRIORITY_TEKS.has(code)} />
+                    <TeksTag key={code} code={code} priority={isPriorityTeks(code)} />
                   ))}
                 </div>
               )}
@@ -465,7 +462,7 @@ export default function LessonExperience({
 
           <div className="mt-3 rounded-2xl p-3" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)" }}>
             <div className="mb-1 flex items-center justify-between text-xs font-semibold" style={{ color: "#5a7a66" }}>
-              <span>Reading Progress — {lesson.sections.length > 0 ? `${Object.values(effectiveSectionChecks).filter(Boolean).length} of ${lesson.sections.length} sections` : "complete"}</span>
+              <span>Reading Progress — {Object.values(effectiveSectionChecks).filter(Boolean).length} of {lesson.sections.length} sections</span>
               <span>{readingProgress}%</span>
             </div>
             <div className="h-2 rounded-full" style={{ background: "rgba(10,60,30,0.08)" }}>
@@ -855,7 +852,7 @@ export default function LessonExperience({
                 style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", borderRadius: 12 }}
               >
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <TeksTag code={question.teks} priority={PRIORITY_TEKS.has(question.teks)} />
+                  <TeksTag code={question.teks} priority={isPriorityTeks(question.teks)} />
                   <span className="rounded-full px-2.5 py-1 text-[11px] font-semibold" style={{ background: "#ece8f8", color: "#5a3d9a", border: "1px solid rgba(90,61,154,0.12)" }}>
                     {question.learningLevel}
                   </span>
@@ -979,7 +976,7 @@ export default function LessonExperience({
         {/* ── Lesson Completion Celebration ── */}
         {readingProgress === 100 && submitted && (score ?? 0) >= 70 && (
           <section className="rounded-3xl border p-6 shadow-sm text-center" style={{ background: "#d6ede6", borderColor: "rgba(10,60,30,0.12)" }}>
-            <div className="text-3xl mb-2" aria-hidden>🎉</div>
+            <div className="text-3xl mb-2" aria-hidden="true">🎉</div>
             <h2 className="text-xl font-bold" style={{ color: "#0d4a2f" }}>Lesson Complete!</h2>
             <p className="mt-1 text-sm" style={{ color: "#4a8a6e" }}>
               You scored <span className="font-bold" style={{ color: "#1a7a4e" }}>{score}%</span> and read all {lesson.sections.length} sections.
