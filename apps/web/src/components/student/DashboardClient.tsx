@@ -9,7 +9,7 @@ import { getXP, getStreak } from "@/lib/xp";
 import { LEARNING_UNITS, type LearningLesson, type LearningUnit } from "@/lib/learningHubContent";
 import { MOCK_STUDENT_ASSIGNMENTS } from "@/lib/studentAssignments";
 import { useStudentAuth } from "@/lib/studentAuth";
-import BsTag, { type TagVariant } from "@/components/ui/BsTag";
+import TeksTag from "@/components/ui/TeksTag";
 
 // ---------------------------------------------------------------------------
 // Design token constants (hex values must stay in sync with globals.css :root)
@@ -17,26 +17,35 @@ import BsTag, { type TagVariant } from "@/components/ui/BsTag";
 // ---------------------------------------------------------------------------
 
 const C = {
-  pageBg:    "#f0f4f2",
-  tealDark:  "#006e55",
-  tealDeep:  "#003d2e",
-  teal:      "#00c49a",
-  tealSoft:  "#d6f5ed",
-  coral:     "#ff4f2b",
-  coralSoft: "#ffe8e3",
-  coralDark: "#8a1a05",
-  amber:     "#f5a800",
-  amberSoft: "#fff5d6",
-  amberText: "#8a5e00",
-  purple:    "#7c5cfc",
-  purpleSoft:"#eeebff",
-  purpleText:"#4a2fc0",
-  purpleDark:"#1a0060",
-  purpleMid: "#7060c0",
-  ink:       "#0a1a14",
-  inkAlt:    "#2d4d3f",
-  muted:     "#8aada0",
-  surface:   "#ffffff",
+  pageBg:       "#eef3ee",
+  tealDark:     "#006e55",
+  tealDeep:     "#003d2e",
+  teal:         "#00c49a",
+  tealSoft:     "#d6f5ed",
+  coral:        "#ff4f2b",
+  coralSoft:    "#ffe8e3",
+  coralDark:    "#8a1a05",
+  amber:        "#f5a800",
+  amberSoft:    "#fff5d6",
+  amberText:    "#8a5e00",
+  purple:       "#7c5cfc",
+  purpleSoft:   "#eeebff",
+  purpleText:   "#4a2fc0",
+  purpleDark:   "#1a0060",
+  purpleMid:    "#7060c0",
+  ink:          "#0a1a14",
+  inkAlt:       "#2d4d3f",
+  muted:        "#8aada0",
+  surface:      "#ffffff",
+  // AXO_TOKENS palette
+  mint:         "#d6ede6",
+  mintText:     "#0d4a2f",
+  mintSub:      "#4a8a6e",
+  cream:        "#fef3d6",
+  creamText:    "#b8860b",
+  salmon:       "#fde8e0",
+  salmonAccent: "#e05a2a",
+  salmonText:   "#c04a20",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -78,6 +87,12 @@ const DEFAULT_SEGMENTS: DonutSegment[] = [
   { key: "B.6C", label: "Cell cycle disruptions", value: 0.39, group: "B.6" },
   { key: "B.8A", label: "Meiosis and diversity", value: 0.43, group: "B.8" },
 ];
+
+// Priority TEKS codes that gate unit completion
+const PRIORITY_TEKS_CODES = ["B.5A", "B.5B", "B.11A", "B.11B", "B.7A", "B.7B", "B.7C"] as const;
+
+// Mastery threshold below which a student needs practice
+const NEEDS_PRACTICE_THRESHOLD_PCT = 70;
 
 // Day-of-week labels for streak display
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -334,11 +349,9 @@ export default function DashboardClient(props: DashboardClientProps) {
   });
 
   // Derive teksStatus from DEFAULT_SEGMENTS
-  const teksStatus = DEFAULT_SEGMENTS.slice(0, 8).map((seg) => {
-    const v = seg.value <= 1 ? seg.value * 100 : seg.value;
-    const variant: TagVariant = v >= 75 ? "teal" : v >= 50 ? "amber" : "coral";
-    return { code: seg.key, variant };
-  });
+  const teksStatus = DEFAULT_SEGMENTS.slice(0, 8).map((seg) => ({
+    code: seg.key,
+  }));
 
   // Assemble continueLesson data
   const continueLesson = {
@@ -479,7 +492,7 @@ export default function DashboardClient(props: DashboardClientProps) {
                 >
                   Resume lesson →
                 </Link>
-                <BsTag variant="teal-inv">{continueLesson.teks}</BsTag>
+                <TeksTag code={continueLesson.teks} priority={true} />
               </div>
             </div>
             {/* Progress ring */}
@@ -510,36 +523,36 @@ export default function DashboardClient(props: DashboardClientProps) {
             {/* 2-col: next lesson + needs practice */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
 
-              {/* Next lesson — TEAL */}
-              <div style={{ background: C.tealSoft, borderRadius: 16, border: "1px solid rgba(0,196,154,0.15)", padding: 20 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.tealDark, marginBottom: 7 }}>
+              {/* Next lesson — MINT */}
+              <div style={{ background: C.mint, borderRadius: 16, border: "1px solid rgba(0,196,154,0.15)", padding: 20 }}>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.mintText, marginBottom: 7 }}>
                   Unit {nextLessonData.unit} · Lesson {nextLessonData.lesson}
                 </p>
                 <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 16, fontWeight: 700, color: C.ink, marginBottom: 3, lineHeight: 1.3 }}>
                   {nextLessonData.title}
                 </h3>
-                <p style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Next up in your playlist</p>
+                <p style={{ fontSize: 12, color: C.mintSub, marginBottom: 14 }}>Next up in your playlist</p>
                 <Link
                   href={nextLessonData.href}
-                  style={{ background: C.tealDark, color: "white", borderRadius: 10, padding: "8px 16px", fontSize: 12, fontWeight: 600, textDecoration: "none", display: "inline-block" }}
+                  style={{ background: C.mintText, color: "white", borderRadius: 10, padding: "8px 16px", fontSize: 12, fontWeight: 600, textDecoration: "none", display: "inline-block" }}
                   aria-label={`View lesson: ${nextLessonData.title}`}
                 >
                   View lesson →
                 </Link>
               </div>
 
-              {/* Needs practice — CORAL */}
-              <div style={{ background: C.coralSoft, borderRadius: 16, border: "1px solid rgba(255,79,43,0.12)", padding: 20 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.coral, marginBottom: 7 }}>
+              {/* Needs practice — SALMON */}
+              <div style={{ background: C.salmon, borderRadius: 16, border: "1px solid rgba(224,90,42,0.12)", padding: 20 }}>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.salmonAccent, marginBottom: 7 }}>
                   Needs practice · {weakestTeks}
                 </p>
-                <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 16, fontWeight: 700, color: C.coralDark, marginBottom: 3, lineHeight: 1.3 }}>
+                <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 16, fontWeight: 700, color: C.salmonText, marginBottom: 3, lineHeight: 1.3 }}>
                   {weakestTeksTitle}
                 </h3>
-                <p style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Low mastery detected</p>
+                <p style={{ fontSize: 12, color: C.salmonText, marginBottom: 14, opacity: 0.8 }}>You scored below {NEEDS_PRACTICE_THRESHOLD_PCT}% here. Review this concept to level up!</p>
                 <Link
                   href="/student/learn/standards"
-                  style={{ background: C.coral, color: "white", borderRadius: 10, padding: "8px 16px", fontSize: 12, fontWeight: 600, textDecoration: "none", display: "inline-block" }}
+                  style={{ background: C.salmonAccent, color: "white", borderRadius: 10, padding: "8px 16px", fontSize: 12, fontWeight: 600, textDecoration: "none", display: "inline-block" }}
                   aria-label={`Practice ${weakestTeks}`}
                 >
                   Practice now →
@@ -550,23 +563,23 @@ export default function DashboardClient(props: DashboardClientProps) {
             {/* 3-col: streak + assignment + challenge */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
 
-              {/* Streak — AMBER */}
-              <div style={{ background: C.amberSoft, borderRadius: 16, border: "1px solid rgba(245,168,0,0.15)", padding: 20 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.amberText, marginBottom: 7 }}>Your streak</p>
+              {/* Streak — CREAM */}
+              <div style={{ background: C.cream, borderRadius: 16, border: "1px solid rgba(184,134,11,0.15)", padding: 20 }}>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.creamText, marginBottom: 7 }}>Your streak</p>
                 <span style={{
                   fontFamily: "var(--font-fraunces), serif",
                   fontSize: 44, fontWeight: 800, fontStyle: "italic",
-                  color: C.amber, lineHeight: 1, display: "block",
+                  color: C.creamText, lineHeight: 1, display: "block",
                 }}>
                   {streakDays}
                 </span>
-                <p style={{ fontSize: 12, color: C.amberText, marginTop: 2, marginBottom: 10 }}>
+                <p style={{ fontSize: 12, color: C.creamText, marginTop: 2, marginBottom: 10 }}>
                   {streakDays === 0 ? "days — start one today!" : `day${streakDays !== 1 ? "s" : ""} and counting`}
                 </p>
                 <div style={{ height: 6, background: "rgba(0,0,0,0.08)", borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${Math.min((xp / 50) * 100, 100)}%`, background: C.amber, borderRadius: 3 }} />
+                  <div style={{ height: "100%", width: `${Math.min((xp / 50) * 100, 100)}%`, background: C.creamText, borderRadius: 3 }} />
                 </div>
-                <p style={{ fontSize: 10, color: C.amberText, fontWeight: 500, marginTop: 4 }}>{xp} / 50 XP to next level</p>
+                <p style={{ fontSize: 10, color: C.creamText, fontWeight: 500, marginTop: 4 }}>{xp} XP · {streakDays}-day streak</p>
               </div>
 
               {/* Assignment — WHITE */}
@@ -581,6 +594,13 @@ export default function DashboardClient(props: DashboardClientProps) {
                     <span style={{ background: "rgba(255,79,43,0.13)", color: "#c02a10", fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20 }}>
                       Due {assignmentData.dueLabel}
                     </span>
+                    <Link
+                      href="/student/assignments"
+                      style={{ display: "block", marginTop: 10, fontSize: 12, fontWeight: 600, color: C.mintText, textDecoration: "none" }}
+                      aria-label={`Start assignment: ${assignmentData.title}`}
+                    >
+                      Start assignment →
+                    </Link>
                   </>
                 ) : (
                   <p style={{ fontSize: 12, color: C.muted, fontStyle: "italic", marginTop: 4 }}>No assignments due</p>
@@ -625,7 +645,7 @@ export default function DashboardClient(props: DashboardClientProps) {
               <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.muted, marginBottom: 8 }}>TEKS status</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {teksStatus.map((t) => (
-                  <BsTag key={t.code} variant={t.variant}>{t.code}</BsTag>
+                  <TeksTag key={t.code} code={t.code} priority={PRIORITY_TEKS_CODES.includes(t.code as typeof PRIORITY_TEKS_CODES[number])} />
                 ))}
               </div>
               <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.muted, marginTop: 14, marginBottom: 8 }}>This week</p>

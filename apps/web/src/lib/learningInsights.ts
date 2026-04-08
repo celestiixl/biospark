@@ -3,6 +3,7 @@ import {
   interventionStrategyForTier,
   interventionTierFromCheck,
   isPriorityTeks,
+  MASTERY_THRESHOLD,
   type InterventionTier,
 } from "@/lib/curriculumPolicy";
 import type { LearningProgressMap } from "@/lib/learningProgress";
@@ -97,7 +98,7 @@ export function buildInterventionQueue(
               ? "Quick-check score below 50%"
               : "Two or more failed quick-check attempts"
             : tier === 2
-              ? "Quick-check score below 70%"
+              ? `Quick-check score below ${MASTERY_THRESHOLD}%`
               : "Progress stalled before completion";
 
         queue.push({
@@ -224,7 +225,7 @@ export function isLessonUnlocked(
   const currentLesson = unit.lessons[lessonIndex];
   const prevProgress = progress[prev.id];
   const prevMastered =
-    Boolean(prevProgress?.completed) && (prevProgress?.checkScore ?? 0) >= 70;
+    Boolean(prevProgress?.completed) && (prevProgress?.checkScore ?? 0) >= MASTERY_THRESHOLD;
 
   const currentHasPriority = (currentLesson?.teks ?? []).some((teks) =>
     isPriorityTeks(teks),

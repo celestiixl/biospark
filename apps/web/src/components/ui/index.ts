@@ -24,3 +24,8 @@ export { default as BsTag }       from "./BsTag";
 export { default as BsBtn }       from "./BsBtn";
 export { default as BsCardLabel } from "./BsCardLabel";
 export { default as BsCardTitle } from "./BsCardTitle";
+// AXO design tokens + shared primitives (Step 0)
+// Note: TeksTag is not re-exported here to avoid conflict with Badge's TeksTag; import from "./TeksTag" directly.
+export { default as VocabTerm }    from "./VocabTerm";
+export { default as EmptyState }   from "./EmptyState";
+export { default as LoadingState } from "./LoadingState";
