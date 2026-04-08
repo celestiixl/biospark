@@ -14,6 +14,7 @@ import {
   interventionStrategyForTier,
   interventionTierFromCheck,
   isPriorityTeks,
+  MASTERY_THRESHOLD,
   type LearningLevel,
 } from "@/lib/curriculumPolicy";
 import {
@@ -974,7 +975,7 @@ export default function LessonExperience({
         </section>
 
         {/* ── Lesson Completion Celebration ── */}
-        {readingProgress === 100 && submitted && (score ?? 0) >= 70 && (
+        {readingProgress === 100 && submitted && (score ?? 0) >= MASTERY_THRESHOLD && (
           <section className="rounded-3xl border p-6 shadow-sm text-center" style={{ background: "#d6ede6", borderColor: "rgba(10,60,30,0.12)" }}>
             <div className="text-3xl mb-2" aria-hidden="true">🎉</div>
             <h2 className="text-xl font-bold" style={{ color: "#0d4a2f" }}>Lesson Complete!</h2>
