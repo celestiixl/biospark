@@ -796,7 +796,8 @@ function PanelHeader({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close tutor chat"
+          aria-label="Minimize to bubble"
+          title="Minimize to bubble"
           style={{
             width: "28px",
             height: "28px",
@@ -808,10 +809,11 @@ function PanelHeader({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "12px",
+            fontSize: "16px",
+            lineHeight: 1,
           }}
         >
-          ✕
+          −
         </button>
       </div>
     </div>
