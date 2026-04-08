@@ -13,6 +13,7 @@ import { isLessonUnlocked } from "@/lib/learningInsights";
 import {
   interventionTierFromCheck,
   isPriorityTeks,
+  MASTERY_THRESHOLD,
 } from "@/lib/curriculumPolicy";
 
 interface Props {
@@ -742,7 +743,7 @@ export default function UnitPageClient({ unit }: Props) {
                             fontStyle: "italic",
                           }}
                         >
-                          Complete &ldquo;{prevLesson.title}&rdquo; with ≥ 70%
+                          Complete &ldquo;{prevLesson.title}&rdquo; with ≥{MASTERY_THRESHOLD}%
                           to unlock.
                         </div>
                       )}

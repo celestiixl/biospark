@@ -41,6 +41,9 @@ export function isPriorityTeks(teksId: string): boolean {
 
 export type InterventionTier = 2 | 3 | null;
 
+/** Minimum quick-check score to count a lesson as mastered for unlock gating. */
+export const MASTERY_THRESHOLD = 70;
+
 export function interventionTierFromCheck(
   score: number | null | undefined,
   attempts: number | null | undefined,
@@ -49,7 +52,7 @@ export function interventionTierFromCheck(
   const safeAttempts = typeof attempts === "number" ? attempts : 0;
 
   if (safeScore < 50 || safeAttempts >= 2) return 3;
-  if (safeScore < 70) return 2;
+  if (safeScore < MASTERY_THRESHOLD) return 2;
   return null;
 }
 

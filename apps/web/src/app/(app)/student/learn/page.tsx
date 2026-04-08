@@ -14,11 +14,10 @@ import {
   buildTeksHeatmap,
   isLessonUnlocked,
 } from "@/lib/learningInsights";
-import { isPriorityTeks } from "@/lib/curriculumPolicy";
+import { isPriorityTeks, MASTERY_THRESHOLD } from "@/lib/curriculumPolicy";
 import TeksTag from "@/components/ui/TeksTag";
 
-export default function StudentLearningHubPage() {
-  const [gradingPeriodFilter, setGradingPeriodFilter] = useState<
+export default function StudentLearningHubPage() {  const [gradingPeriodFilter, setGradingPeriodFilter] = useState<
     0 | 1 | 2 | 3 | 4
   >(0);
   const [progress, setProgress] = useState<LearningProgressMap>({});
@@ -691,7 +690,8 @@ export default function StudentLearningHubPage() {
                             }}
                           >
                             🔒 Locked lessons unlock when you complete the
-                            previous lesson with a ≥ 70% check score.
+                            previous lesson with a ≥{MASTERY_THRESHOLD}% check
+                            score.
                           </div>
                         )}
                       </article>
