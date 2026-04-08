@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { BackLink } from "@/components/nav/BackLink";
 import { PageContent, PageBanner, Card, Badge } from "@/components/ui";
+import TeksTag from "@/components/ui/TeksTag";
+import EmptyState from "@/components/ui/EmptyState";
+import { isPriorityTeks } from "@/lib/curriculumPolicy";
 import {
   type AssignmentKind,
   type AssignmentStatus,
@@ -18,28 +21,12 @@ import {
 
 const STATUS_CONFIG: Record<
   AssignmentStatus,
-  { label: string; color: string; dot: string }
+  { label: string; bg: string; text: string; dotColor: string }
 > = {
-  not_started: {
-    label: "Not Started",
-    color: "text-bs-ink-2 bg-bs-teal-soft border-bs-teal-soft",
-    dot: "bg-bs-text-muted",
-  },
-  in_progress: {
-    label: "In Progress",
-    color: "text-amber-800 bg-amber-50 border-amber-200",
-    dot: "bg-amber-400",
-  },
-  submitted: {
-    label: "Submitted",
-    color: "text-blue-800 bg-blue-50 border-blue-200",
-    dot: "bg-blue-400",
-  },
-  graded: {
-    label: "Graded",
-    color: "text-green-800 bg-green-50 border-green-200",
-    dot: "bg-green-500",
-  },
+  not_started: { label: "Not Started", bg: "#fef3d6", text: "#b8860b",  dotColor: "#b8860b" },
+  in_progress:  { label: "In Progress",  bg: "#fef3d6", text: "#b8860b",  dotColor: "#e05a2a" },
+  submitted:    { label: "Submitted",    bg: "#d6ede6", text: "#0d4a2f",  dotColor: "#4a8a6e" },
+  graded:       { label: "Graded",       bg: "#ece8f8", text: "#5a3d9a",  dotColor: "#5a3d9a" },
 };
 
 function formatDate(iso: string | null): string {
@@ -62,9 +49,9 @@ function progressPercent(a: StudentAssignment): number {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 80) return "text-green-700";
-  if (score >= 60) return "text-amber-700";
-  return "text-red-600";
+  if (score >= 80) return "#1a7a4e";
+  if (score >= 60) return "#b8860b";
+  return "#c04a20";
 }
 
 function practiceHref(a: StudentAssignment): string {
@@ -77,99 +64,225 @@ function practiceHref(a: StudentAssignment): string {
 function AssignmentCard({ a }: { a: StudentAssignment }) {
   const cfg = STATUS_CONFIG[a.status];
   const pct = progressPercent(a);
-  const isDue = a.dueDate && new Date(a.dueDate).getTime() < Date.now();
-  const isPastDue = isDue && a.status !== "submitted" && a.status !== "graded";
+  const nowMs = Date.now();
+  const dueMs = a.dueDate ? new Date(a.dueDate).getTime() - nowMs : null;
+  const isPastDue =
+    dueMs !== null &&
+    dueMs < 0 &&
+    a.status !== "submitted" &&
+    a.status !== "graded";
+  const isDueToday =
+    dueMs !== null &&
+    dueMs >= 0 &&
+    dueMs < 24 * 60 * 60 * 1000 &&
+    a.status !== "submitted" &&
+    a.status !== "graded";
 
   return (
-    <div className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-4 shadow-sm transition hover:shadow-md">
+    <div
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid rgba(10,60,30,0.10)",
+        borderRadius: "12px",
+        padding: "16px",
+        boxShadow: "0 1px 4px rgba(10,60,30,0.06)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+      }}
+    >
       {/* Header row */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          {/* Badge row */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px" }}>
             <span
-              className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                a.kind === "assessment"
-                  ? "border-purple-200 bg-purple-50 text-purple-700"
-                  : "border-teal-200 bg-teal-50 text-teal-700"
-              }`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                backgroundColor: a.kind === "assessment" ? "#ece8f8" : "#d6ede6",
+                color: a.kind === "assessment" ? "#5a3d9a" : "#0d4a2f",
+                fontSize: "10px",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                borderRadius: "20px",
+                padding: "3px 8px",
+              }}
             >
               {a.kind === "assessment" ? "Assessment" : "Assignment"}
             </span>
             <span
-              className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${cfg.color}`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                backgroundColor: cfg.bg,
+                color: cfg.text,
+                fontSize: "10px",
+                fontWeight: 600,
+                borderRadius: "20px",
+                padding: "3px 8px",
+              }}
             >
-              <span className={`size-1.5 rounded-full ${cfg.dot}`} />
+              <span
+                style={{
+                  width: "6px",
+                  height: "6px",
+                  borderRadius: "50%",
+                  backgroundColor: cfg.dotColor,
+                  display: "inline-block",
+                  flexShrink: 0,
+                }}
+              />
               {cfg.label}
             </span>
+            {isDueToday && (
+              <span
+                style={{
+                  backgroundColor: "#fef3d6",
+                  color: "#b8860b",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  borderRadius: "20px",
+                  padding: "3px 8px",
+                }}
+              >
+                ⏰ Due Today
+              </span>
+            )}
             {isPastDue && (
-              <span className="rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-700">
-                Past Due
+              <span
+                style={{
+                  backgroundColor: "#fde8e0",
+                  color: "#c04a20",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  borderRadius: "20px",
+                  padding: "3px 8px",
+                  border: "1px solid #e05a2a",
+                }}
+              >
+                ⚠ Overdue
               </span>
             )}
           </div>
-          <div className="mt-2 text-sm font-semibold text-bs-ink">
+          {/* Title */}
+          <div
+            style={{
+              marginTop: "8px",
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#1a2e22",
+              lineHeight: 1.4,
+            }}
+          >
             {a.title}
           </div>
-          <div className="mt-0.5 text-xs text-bs-text-sub">{a.subject}</div>
+          {/* Subject + points */}
+          <div style={{ marginTop: "3px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "12px", color: "#5a7a66" }}>{a.subject}</span>
+            <span
+              style={{
+                fontSize: "11px",
+                color: "#4a8a6e",
+                fontWeight: 600,
+                backgroundColor: "#d6ede6",
+                borderRadius: "20px",
+                padding: "1px 7px",
+              }}
+            >
+              {a.totalItems} pts
+            </span>
+          </div>
         </div>
 
         {/* Score */}
         {a.score !== null && (
-          <div className="shrink-0 text-right">
+          <div style={{ flexShrink: 0, textAlign: "right" }}>
             <div
-              className={`text-2xl font-bold tabular-nums ${scoreColor(a.score)}`}
+              style={{
+                fontSize: "24px",
+                fontWeight: 700,
+                fontVariantNumeric: "tabular-nums",
+                color: scoreColor(a.score),
+              }}
             >
               {a.score}%
             </div>
-            <div className="text-xs text-bs-text-sub">Score</div>
+            <div style={{ fontSize: "11px", color: "#5a7a66" }}>Score</div>
           </div>
         )}
       </div>
 
       {/* TEKS tags */}
-      <div className="mt-2.5 flex flex-wrap gap-1.5">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
         {a.teks.map((t) => (
-          <span
-            key={t}
-            className="rounded-full border border-[var(--bs-border)] bg-bs-surface px-2 py-0.5 text-[10px] font-mono text-bs-text-sub"
-          >
-            {t}
-          </span>
+          <TeksTag key={t} code={t} priority={isPriorityTeks(t)} />
         ))}
       </div>
 
-      {/* Progress bar (for in-progress) */}
+      {/* Progress bar */}
       {(a.status === "in_progress" || a.status === "submitted") && (
-        <div className="mt-2.5">
-          <div className="mb-1 flex items-center justify-between text-[10px] text-bs-text-sub">
-            <span>
-              {a.completedItems}/{a.totalItems} items
-            </span>
+        <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "10px",
+              color: "#5a7a66",
+              marginBottom: "4px",
+            }}
+          >
+            <span>{a.completedItems}/{a.totalItems} items</span>
             <span>{pct}%</span>
           </div>
-          <div className="h-1.5 w-full rounded-full bg-[rgba(0,0,0,0.08)]">
+          <div
+            style={{
+              height: "6px",
+              width: "100%",
+              borderRadius: "999px",
+              backgroundColor: "rgba(10,60,30,0.08)",
+            }}
+          >
             <div
-              className="h-1.5 rounded-full bg-amber-400 transition-all"
-              style={{ width: `${pct}%` }}
+              style={{
+                height: "6px",
+                borderRadius: "999px",
+                backgroundColor: "#1a7a4e",
+                width: `${pct}%`,
+                transition: "width 0.3s",
+              }}
             />
           </div>
         </div>
       )}
 
-      {/* Footer row */}
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="text-xs text-bs-text-sub">
+      {/* Footer */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", marginTop: "2px" }}>
+        <div style={{ fontSize: "12px", color: "#5a7a66" }}>
           {a.status === "graded" || a.status === "submitted"
             ? `Submitted ${formatDate(a.submittedAt)}`
             : a.dueDate
               ? `Due ${formatDate(a.dueDate)}`
               : "No due date"}
         </div>
-        <div className="flex gap-2">
+        <div style={{ display: "flex", gap: "8px" }}>
           {(a.status === "graded" || a.status === "submitted") && (
             <Link
               href={practiceHref(a)}
-              className="rounded-bs border border-[var(--bs-border)] bg-bs-surface px-3 py-1.5 text-xs font-semibold text-bs-text-sub hover:bg-bs-raised"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                border: "1px solid rgba(10,60,30,0.10)",
+                backgroundColor: "#ffffff",
+                color: "#5a7a66",
+                fontSize: "12px",
+                fontWeight: 600,
+                borderRadius: "8px",
+                padding: "6px 12px",
+                textDecoration: "none",
+              }}
             >
               Review topics
             </Link>
@@ -177,7 +290,17 @@ function AssignmentCard({ a }: { a: StudentAssignment }) {
           {a.status === "in_progress" && (
             <Link
               href={`/practice?focus=${encodeURIComponent(a.teks[0] ?? "")}`}
-              className="rounded-bs bg-amber-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-amber-600"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                backgroundColor: "#b8860b",
+                color: "#ffffff",
+                fontSize: "12px",
+                fontWeight: 600,
+                borderRadius: "8px",
+                padding: "6px 16px",
+                textDecoration: "none",
+              }}
             >
               Continue →
             </Link>
@@ -185,7 +308,17 @@ function AssignmentCard({ a }: { a: StudentAssignment }) {
           {a.status === "not_started" && (
             <Link
               href={`/practice?focus=${encodeURIComponent(a.teks[0] ?? "")}`}
-              className="rounded-bs bg-bs-teal-dark px-4 py-1.5 text-xs font-semibold text-white hover:bg-bs-teal-deep"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                backgroundColor: "#0d4a2f",
+                color: "#d6f0e4",
+                fontSize: "12px",
+                fontWeight: 600,
+                borderRadius: "8px",
+                padding: "6px 16px",
+                textDecoration: "none",
+              }}
             >
               Start →
             </Link>
@@ -269,8 +402,14 @@ function StudentAssignmentsPageContent() {
         )
       : null;
 
+  const sortedDisplayed = [...displayed].sort((a, b) => {
+    const aPast = isPastDue(a) ? -1 : 0;
+    const bPast = isPastDue(b) ? -1 : 0;
+    return aPast - bPast;
+  });
+
   return (
-    <main className="ia-vh-page flex h-dvh flex-col overflow-hidden bg-bs-page text-bs-ink">
+    <main className="ia-vh-page flex h-dvh flex-col overflow-hidden text-bs-ink" style={{ backgroundColor: "#eef3ee" }}>
       <BackLink href="/student/dashboard" label="Back to dashboard" />
       <PageBanner
         title="My Assignments"
@@ -279,13 +418,13 @@ function StudentAssignmentsPageContent() {
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/student/learn"
-            className="rounded-2xl bg-bs-teal-dark px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-bs-teal-deep"
+            style={{ backgroundColor: "#0d4a2f", color: "#d6f0e4", borderRadius: "16px", padding: "12px 20px", fontSize: "14px", fontWeight: 600, textDecoration: "none", boxShadow: "0 1px 3px rgba(0,0,0,0.12)" }}
           >
             Learning Hub
           </Link>
           <Link
             href="/student/profile"
-            className="rounded-2xl bg-bs-teal-dark px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-bs-teal-deep"
+            style={{ backgroundColor: "#0d4a2f", color: "#d6f0e4", borderRadius: "16px", padding: "12px 20px", fontSize: "14px", fontWeight: 600, textDecoration: "none", boxShadow: "0 1px 3px rgba(0,0,0,0.12)" }}
           >
             My Profile
           </Link>
@@ -297,35 +436,17 @@ function StudentAssignmentsPageContent() {
           {/* Stat row */}
           <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              {
-                label: "Active",
-                value: active.length,
-                color: "text-bs-ink",
-              },
-              {
-                label: "Due Today",
-                value: dueToday,
-                color: dueToday > 0 ? "text-amber-600" : "text-bs-ink",
-              },
-              {
-                label: "Past Due",
-                value: pastDue,
-                color: pastDue > 0 ? "text-red-600" : "text-bs-ink",
-              },
-              {
-                label: "Coming Up",
-                value: comingUp,
-                color: "text-blue-700",
-              },
+              { label: "Active",     value: active.length, color: "#1a2e22" },
+              { label: "Due Today",  value: dueToday,      color: dueToday > 0 ? "#b8860b" : "#1a2e22" },
+              { label: "Past Due",   value: pastDue,       color: pastDue > 0  ? "#c04a20" : "#1a2e22" },
+              { label: "Coming Up",  value: comingUp,      color: "#1a7a4e" },
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface p-4 text-center shadow-sm"
+                style={{ backgroundColor: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", borderRadius: "12px", padding: "16px", textAlign: "center", boxShadow: "0 1px 3px rgba(10,60,30,0.06)" }}
               >
-                <div className={`text-2xl font-bold tabular-nums ${s.color}`}>
-                  {s.value}
-                </div>
-                <div className="mt-1 text-xs text-bs-text-sub">{s.label}</div>
+                <div style={{ fontSize: "24px", fontWeight: 700, fontVariantNumeric: "tabular-nums", color: s.color }}>{s.value}</div>
+                <div style={{ marginTop: "4px", fontSize: "12px", color: "#5a7a66" }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -337,11 +458,17 @@ function StudentAssignmentsPageContent() {
                 key={t}
                 type="button"
                 onClick={() => setTab(t)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                  tab === t
-                    ? "bg-bs-teal-dark text-white"
-                    : "bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
-                }`}
+                style={{
+                  borderRadius: "999px",
+                  border: "1px solid rgba(10,60,30,0.10)",
+                  padding: "8px 16px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "background 0.15s",
+                  backgroundColor: tab === t ? "#0d4a2f" : "#ffffff",
+                  color: tab === t ? "#d6f0e4" : "#5a7a66",
+                }}
               >
                 {t === "active"
                   ? `Active (${active.length})`
@@ -351,117 +478,91 @@ function StudentAssignmentsPageContent() {
           </div>
 
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <Link
-              href="/student/assignments?kind=assignment"
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                kindFilter === "assignment"
-                  ? "border-[var(--bs-border)] bg-bs-teal-dark text-white"
-                  : "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
-              }`}
-            >
-              Assignments
-            </Link>
-            <Link
-              href="/student/assignments?kind=assessment"
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                kindFilter === "assessment"
-                  ? "border-[var(--bs-border)] bg-bs-teal-dark text-white"
-                  : "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
-              }`}
-            >
-              Quizzes
-            </Link>
+            {(["all", "assignment", "assessment"] as const).map((k) => {
+              const label = k === "all" ? "All types" : k === "assignment" ? "Assignments" : "Quizzes";
+              const href = k === "all" ? "/student/assignments" : `/student/assignments?kind=${k}`;
+              const isActive = kindFilter === k;
+              return (
+                <Link
+                  key={k}
+                  href={href}
+                  style={{
+                    borderRadius: "999px",
+                    border: "1px solid rgba(10,60,30,0.10)",
+                    padding: "6px 12px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    transition: "background 0.15s",
+                    backgroundColor: isActive ? "#0d4a2f" : "#ffffff",
+                    color: isActive ? "#d6f0e4" : "#5a7a66",
+                  }}
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </div>
 
           {tab === "active" ? (
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setDueFilter("all")}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                  dueFilter === "all"
-                    ? "border-[var(--bs-border)] bg-bs-teal-dark text-white"
-                    : "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
-                }`}
-              >
-                All active
-              </button>
-              <button
-                type="button"
-                onClick={() => setDueFilter("due")}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                  dueFilter === "due"
-                    ? "border-[var(--bs-border)] bg-bs-teal-dark text-white"
-                    : "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
-                }`}
-              >
-                Due today ({dueToday})
-              </button>
-              <button
-                type="button"
-                onClick={() => setDueFilter("past_due")}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                  dueFilter === "past_due"
-                    ? "border-[var(--bs-border)] bg-bs-teal-dark text-white"
-                    : "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
-                }`}
-              >
-                Past due ({pastDue})
-              </button>
-              <button
-                type="button"
-                onClick={() => setDueFilter("coming_up")}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                  dueFilter === "coming_up"
-                    ? "border-[var(--bs-border)] bg-bs-teal-dark text-white"
-                    : "border-[var(--bs-border)] bg-bs-surface text-bs-text-sub hover:bg-bs-raised"
-                }`}
-              >
-                Coming up ({comingUp})
-              </button>
+              {([
+                { key: "all",      label: "All active" },
+                { key: "due",      label: `Due today (${dueToday})` },
+                { key: "past_due", label: `Past due (${pastDue})` },
+                { key: "coming_up",label: `Coming up (${comingUp})` },
+              ] as const).map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setDueFilter(key as typeof dueFilter)}
+                  style={{
+                    borderRadius: "999px",
+                    border: "1px solid rgba(10,60,30,0.10)",
+                    padding: "6px 12px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "background 0.15s",
+                    backgroundColor: dueFilter === key ? "#0d4a2f" : "#ffffff",
+                    color: dueFilter === key ? "#d6f0e4" : "#5a7a66",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
           ) : null}
 
           {/* Assignment list */}
-          {displayed.length === 0 ? (
-            <div className="rounded-2xl border border-[var(--bs-border)] bg-bs-surface px-6 py-12 text-center">
-              <div className="text-bs-text-sub">
-                {tab === "active"
-                  ? "No active assignments right now. 🎉"
-                  : "No completed assignments yet."}
-              </div>
-              {tab === "active" && (
-                <Link
-                  href="/student/learn"
-                  className="mt-4 inline-block rounded-bs bg-bs-teal-dark px-4 py-2 text-sm font-semibold text-white"
-                >
-                  Go to Learning Hub →
-                </Link>
-              )}
-            </div>
+          {sortedDisplayed.length === 0 ? (
+            <EmptyState
+              icon="📚"
+              title="No assignments yet"
+              subtitle="Your teacher hasn't assigned anything yet. Check back soon!"
+            />
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {displayed.map((a) => (
+              {sortedDisplayed.map((a) => (
                 <AssignmentCard key={a.id} a={a} />
               ))}
             </div>
           )}
 
           {/* Quick practice CTA */}
-          <div className="mt-5 rounded-2xl border border-teal-100 bg-teal-50 p-4">
+          <div style={{ marginTop: "20px", backgroundColor: "#d6ede6", border: "1px solid rgba(10,60,30,0.10)", borderRadius: "12px", padding: "16px" }}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <div className="text-sm font-semibold text-teal-900">
+                <div style={{ fontSize: "14px", fontWeight: 600, color: "#0d4a2f" }}>
                   Need to review? Jump into the Learning Hub
                 </div>
-                <div className="mt-1 text-xs text-teal-700">
-                  Personalized spaced-repetition review sessions based on your
-                  proficiency level.
+                <div style={{ marginTop: "4px", fontSize: "12px", color: "#4a8a6e" }}>
+                  Personalized spaced-repetition review sessions based on your proficiency level.
                 </div>
               </div>
               <Link
                 href="/student/learn"
-                className="rounded-2xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800"
+                style={{ backgroundColor: "#0d4a2f", color: "#d6f0e4", borderRadius: "12px", padding: "10px 20px", fontSize: "14px", fontWeight: 600, textDecoration: "none" }}
               >
                 Open Learning Hub →
               </Link>

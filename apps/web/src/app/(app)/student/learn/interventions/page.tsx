@@ -5,59 +5,114 @@ import { useMemo } from "react";
 import { buildInterventionQueue } from "@/lib/learningInsights";
 import { loadLearningProgress } from "@/lib/learningProgress";
 import { BackLink } from "@/components/nav/BackLink";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function InterventionQueuePage() {
   const progress = useMemo(() => loadLearningProgress(), []);
   const queue = useMemo(() => buildInterventionQueue(progress), [progress]);
 
+  const tier3 = queue.filter((item) => item.tier === 3);
+  const tier2 = queue.filter((item) => item.tier === 2);
+  const sorted = [...tier3, ...tier2];
+
   return (
-    <main className="mx-auto min-h-screen w-full max-w-5xl bg-bs-page p-6 text-bs-ink">
+    <main
+      style={{ backgroundColor: "#eef3ee", minHeight: "100vh" }}
+      className="mx-auto w-full max-w-5xl p-6"
+    >
       <BackLink href="/student/learn" label="Back to hub" />
-      <section className="rounded-3xl border border-[var(--bs-border)] bg-bs-surface p-5 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-bold">Intervention Queue</h1>
-          <p className="mt-1 text-sm text-bs-text-sub">
-            Priority lessons that need re-teach or targeted support.
-          </p>
-        </div>
+
+      <section
+        style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid rgba(10,60,30,0.10)",
+          borderRadius: 12,
+        }}
+        className="p-5 shadow-sm"
+      >
+        <h1 className="text-2xl font-bold" style={{ color: "#1a2e22" }}>
+          Your personalized study guide
+        </h1>
+        <p className="mt-1 text-sm" style={{ color: "#5a7a66" }}>
+          These topics showed up in your recent work. Here's your personalized
+          plan to get back on track.
+        </p>
       </section>
 
       <section className="mt-4 space-y-3">
-        {queue.length === 0 ? (
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
-            Great work — no intervention items at the moment.
-          </div>
+        {sorted.length === 0 ? (
+          <EmptyState
+            icon="🌱"
+            message="You're on track! Nothing needs attention right now."
+          />
         ) : (
-          queue.map((item) => (
-            <article
-              key={item.lessonId}
-              className="rounded-2xl border border-amber-200 bg-amber-50 p-4"
-            >
-              <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-                {item.unitTitle}
-              </div>
-              <h2 className="mt-1 text-base font-semibold text-amber-950">
-                {item.lessonTitle}
-              </h2>
-              <div className="mt-1 inline-flex rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                Tier {item.tier} Intervention
-              </div>
-              <div className="mt-1 text-sm text-amber-900">
-                Reason: {item.reason}
-              </div>
-              <div className="text-sm text-amber-900">
-                Recommendation: {item.recommendation}
-              </div>
-              <div className="mt-3">
-                <Link
-                  href={item.href}
-                  className="rounded-bs bg-bs-teal-dark px-3 py-2 text-xs font-semibold text-white hover:bg-bs-teal-deep"
-                >
-                  Open Lesson
-                </Link>
-              </div>
-            </article>
-          ))
+          sorted.map((item) => {
+            const isUrgent = item.tier === 3;
+            return (
+              <article
+                key={item.lessonId}
+                style={{
+                  backgroundColor: isUrgent ? "#fde8e0" : "#fef3d6",
+                  border: `1px solid ${isUrgent ? "#e05a2a" : "rgba(10,60,30,0.10)"}`,
+                  borderRadius: 12,
+                  padding: isUrgent ? "20px" : "16px",
+                  boxShadow: isUrgent
+                    ? "0 2px 8px rgba(224,90,42,0.15)"
+                    : undefined,
+                }}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div
+                      className="text-xs font-semibold uppercase tracking-wide"
+                      style={{ color: isUrgent ? "#c04a20" : "#b8860b" }}
+                    >
+                      {item.unitTitle}
+                    </div>
+                    <h2
+                      className="mt-1 font-semibold"
+                      style={{
+                        color: "#1a2e22",
+                        fontSize: isUrgent ? "1.05rem" : "0.95rem",
+                      }}
+                    >
+                      {item.lessonTitle}
+                    </h2>
+                  </div>
+                  <span
+                    className="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                    style={{
+                      backgroundColor: isUrgent ? "#e05a2a" : "#b8860b",
+                      color: "#ffffff",
+                    }}
+                  >
+                    {isUrgent ? "Needs urgent review" : "Needs practice"}
+                  </span>
+                </div>
+
+                <p className="mt-2 text-sm" style={{ color: "#1a2e22" }}>
+                  <span className="font-medium">Why: </span>
+                  {item.reason}
+                </p>
+                <p className="mt-1 text-sm" style={{ color: "#1a2e22" }}>
+                  <span className="font-medium">Next step: </span>
+                  {item.recommendation}
+                </p>
+
+                <div className="mt-3">
+                  <Link
+                    href={item.href}
+                    className="inline-block rounded-lg px-4 py-2 text-sm font-semibold text-white"
+                    style={{
+                      backgroundColor: isUrgent ? "#e05a2a" : "#1a7a4e",
+                    }}
+                  >
+                    {isUrgent ? "Review now →" : "Practice this →"}
+                  </Link>
+                </div>
+              </article>
+            );
+          })
         )}
       </section>
     </main>
