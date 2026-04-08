@@ -210,7 +210,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const isGeneralMode = !lessonSlug || lessonSlug.trim() === "" || lessonSlug === "general";
+  const isGeneralMode = !lessonSlug?.trim() || lessonSlug === "general";
 
   const baseUrl = `${req.nextUrl.protocol}//${req.nextUrl.host}`;
   const { contextString: masteryContext, rawMap: masteryRaw } =
@@ -230,7 +230,8 @@ export async function POST(req: NextRequest) {
     responseTeks = [];
   } else {
     // Lesson-specific mode: resolve the lesson and build a targeted prompt
-    const found = findLessonBySlug(lessonSlug);
+    // (lessonSlug must be a non-empty string to reach this branch)
+    const found = findLessonBySlug(lessonSlug!);
     if (!found) {
       return NextResponse.json(
         {

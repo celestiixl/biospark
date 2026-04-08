@@ -31,13 +31,6 @@ const AXO = {
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-interface UnitOption {
-  id: string;
-  unitNumber: number;
-  title: string;
-  teks: string[];
-}
-
 interface ChatEntry {
   role: "user" | "assistant";
   content: string;
@@ -48,10 +41,6 @@ interface Conversation {
   id: string;
   messages: ChatEntry[];
   createdAt: Date;
-}
-
-interface Props {
-  units: UnitOption[];
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -119,7 +108,7 @@ const MAX_MESSAGE_LENGTH = 500;
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
-export default function AxoPageClient(_props: Props) {
+export default function AxoPageClient() {
 
   const { student } = useStudentAuth();
   const studentId = student?.id ?? "student";
