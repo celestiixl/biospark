@@ -26,8 +26,13 @@ import LessonNotebook from "@/components/student/LessonNotebook";
 import { useStudentAuth } from "@/lib/studentAuth";
 import { speakText, stopSpeaking } from "@/lib/accommodations";
 import { useAccommodations } from "@/lib/useAccommodations";
+import TeksTag from "@/components/ui/TeksTag";
 
 const HOOK_DISMISSED_KEY = "biospark.hook.dismissed.v1";
+
+const PRIORITY_TEKS = new Set([
+  "B.5A","B.5B","B.11A","B.11B","B.7A","B.7B","B.7C","B.12B","B.8B",
+]);
 
 /** Returns a stable string key for any LessonSection variant. */
 function getSectionKey(section: LessonSection, index: number): string {
@@ -385,17 +390,24 @@ export default function LessonExperience({
   const phenomenon = getPhenomenonForLesson(lesson.id);
 
   return (
-    <main className="ia-vh-page relative min-h-dvh px-4 py-3 md:px-9 md:py-4" style={{ background: "#f0f4f2", color: "#0a1a14" }}>
+    <main className="ia-vh-page relative min-h-dvh px-4 py-3 md:px-9 md:py-4" style={{ background: "#eef3ee", color: "#1a2e22" }}>
       <div className="mx-auto grid w-full max-w-4xl gap-3">
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
+        <section className="rounded-3xl border p-5 shadow-sm" style={{ background: "#ffffff", borderColor: "rgba(10,60,30,0.10)" }}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+              <div className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#4a8a6e" }}>
                 Grading Period {unit.gradingPeriod} • Unit {unit.unitNumber}
               </div>
-              <h1 className="mt-1 text-2xl font-bold" style={{ color: "#0a1a14" }}>
+              <h1 className="mt-1 text-2xl font-bold" style={{ color: "#0d4a2f" }}>
                 {lesson.title}
               </h1>
+              {lesson.teks && lesson.teks.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {lesson.teks.map((code) => (
+                    <TeksTag key={code} code={code} priority={PRIORITY_TEKS.has(code)} />
+                  ))}
+                </div>
+              )}
               {(lesson.vocabularyTiers?.contentSpecific?.length ?? 0) > 0 && (
                 <Link
                   href={`/student/learn/${unit.id}/${lesson.slug}/flashcards`}
@@ -405,7 +417,7 @@ export default function LessonExperience({
                   {lesson.vocabularyTiers?.contentSpecific?.length ?? 0} terms)
                 </Link>
               )}
-              <div className="mt-2 text-sm text-bs-text-sub">
+              <div className="mt-2 text-sm" style={{ color: "#5a7a66" }}>
                 {lesson.type} • {lesson.minutes} min
               </div>
             </div>
@@ -420,11 +432,11 @@ export default function LessonExperience({
                     ? "Read this lesson aloud"
                     : "Enable Read aloud in Supports to use this"
                 }
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold"
+                className="rounded-xl px-3 py-2 text-xs font-semibold"
                 style={
                   acc.tts
-                    ? { background: "white", color: "#0a1a14" }
-                    : { background: "white", color: "rgba(10,26,20,0.4)", cursor: "not-allowed" }
+                    ? { background: "#ffffff", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }
+                    : { background: "#ffffff", color: "rgba(13,74,47,0.4)", border: "1px solid rgba(10,60,30,0.10)", cursor: "not-allowed" }
                 }
               >
                 Read Aloud
@@ -432,7 +444,7 @@ export default function LessonExperience({
               <button
                 type="button"
                 onClick={() => setDyslexiaMode((value) => !value)}
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
               >
                 {dyslexiaMode ? "Standard Font" : "Dyslexia Friendly"}
               </button>
@@ -441,24 +453,24 @@ export default function LessonExperience({
                 onClick={() =>
                   setLanguage((prev) => (prev === "en" ? "es" : "en"))
                 }
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
               >
                 {language === "en" ? "ES Support" : "EN Support"}
               </button>
             </div>
           </div>
-          <p className="mt-3 text-sm leading-6 text-bs-text-sub">
+          <p className="mt-3 text-sm leading-6" style={{ color: "#5a7a66" }}>
             {lesson.summary}
           </p>
 
-          <div className="mt-3 rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-3">
-            <div className="mb-1 flex items-center justify-between text-xs font-semibold text-bs-text-sub">
-              <span>Reading Progress</span>
+          <div className="mt-3 rounded-2xl p-3" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)" }}>
+            <div className="mb-1 flex items-center justify-between text-xs font-semibold" style={{ color: "#5a7a66" }}>
+              <span>Reading Progress — {lesson.sections.length > 0 ? `${Object.values(effectiveSectionChecks).filter(Boolean).length} of ${lesson.sections.length} sections` : "complete"}</span>
               <span>{readingProgress}%</span>
             </div>
-            <div className="h-2 rounded-full bg-[rgba(0,0,0,0.08)]">
+            <div className="h-2 rounded-full" style={{ background: "rgba(10,60,30,0.08)" }}>
               <div
-                style={{ height: "100%", background: "#006e55", borderRadius: 3, width: `${readingProgress}%`, transition: "width 0.3s" }}
+                style={{ height: "100%", background: "#1a7a4e", borderRadius: 3, width: `${readingProgress}%`, transition: "width 0.3s" }}
               />
             </div>
           </div>
@@ -467,7 +479,7 @@ export default function LessonExperience({
             {lesson.keyTerms.map((term) => (
               <span
                 key={term}
-                className="rounded-full border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
+                className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "#d6ede6", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
               >
                 {term}
               </span>
@@ -475,20 +487,20 @@ export default function LessonExperience({
           </div>
 
           {lesson.vocabularyTiers ? (
-            <div className="mt-4 rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-3">
+            <div className="mt-4 rounded-2xl p-3" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)" }}>
               <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
                 Vocabulary: Everyday to Academic to Content Specific
               </div>
               <div className="mt-2 grid gap-3 md:grid-cols-3">
                 <div>
-                  <div className="text-xs font-semibold text-bs-text-sub">
+                  <div className="text-xs font-semibold" style={{ color: "#5a7a66" }}>
                     Everyday
                   </div>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {lesson.vocabularyTiers.everyday.map((word) => (
                       <span
                         key={`v-e-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
+                        className="rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(10,60,30,0.06)", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
                       >
                         {word}
                       </span>
@@ -497,14 +509,14 @@ export default function LessonExperience({
                 </div>
 
                 <div>
-                  <div className="text-xs font-semibold text-bs-text-sub">
+                  <div className="text-xs font-semibold" style={{ color: "#5a7a66" }}>
                     Academic
                   </div>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {lesson.vocabularyTiers.academic.map((word) => (
                       <span
                         key={`v-a-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
+                        className="rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(10,60,30,0.06)", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
                       >
                         {word}
                       </span>
@@ -513,14 +525,14 @@ export default function LessonExperience({
                 </div>
 
                 <div>
-                  <div className="text-xs font-semibold text-bs-text-sub">
+                  <div className="text-xs font-semibold" style={{ color: "#5a7a66" }}>
                     Content Specific
                   </div>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {lesson.vocabularyTiers.contentSpecific.map((word) => (
                       <span
                         key={`v-c-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
+                        className="rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: "#d6ede6", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.12)" }}
                       >
                         {word}
                       </span>
@@ -534,7 +546,23 @@ export default function LessonExperience({
 
         {phenomenon ? <PhenomenonBanner phenomenon={phenomenon} /> : null}
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
+        <section className="rounded-3xl border p-5 shadow-sm" style={{ background: "#ffffff", borderColor: "rgba(10,60,30,0.10)" }}>
+          {/* Learning intention block — shown before first section */}
+          {lesson.learningIntentions && lesson.learningIntentions.length > 0 && (
+            <div className="mb-5 rounded-xl p-4" style={{ background: "#d6ede6", border: "1px solid rgba(10,60,30,0.10)" }}>
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wide" style={{ color: "#4a8a6e" }}>
+                Learning Intentions
+              </div>
+              <ul className="space-y-1.5">
+                {lesson.learningIntentions.map((intent, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "#0d4a2f" }}>
+                    <span style={{ color: "#1a7a4e", marginTop: 3, flexShrink: 0 }}>→</span>
+                    <span>{intent}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="space-y-5">
             {lesson.sections.map((section, idx) => {
               const sectionKey = getSectionKey(section, idx);
@@ -544,16 +572,25 @@ export default function LessonExperience({
                   ref={(el) => {
                     sectionRefs.current[sectionKey] = el;
                   }}
-                  className="rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-4"
+                  className="rounded-xl p-4" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)" }}
                 >
+                  {/* Section X of Y badge */}
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide" style={{ background: "#d6ede6", color: "#4a8a6e" }}>
+                      Section {idx + 1} of {lesson.sections.length}
+                    </span>
+                    {effectiveSectionChecks[sectionKey] && (
+                      <span style={{ color: "#1a7a4e", fontSize: 13, fontWeight: 700 }} aria-label="Section complete">✓</span>
+                    )}
+                  </div>
                   {/* ── Explanation (default) ── */}
                   {(!section.type || section.type === "explanation") && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="text-lg font-semibold" style={{ color: "#0a1a14" }}>
+                        <h2 className="text-lg font-semibold" style={{ color: "#0d4a2f" }}>
                           {(section as ExplanationSection).heading}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#4a8a6e" }}>
                           <input
                             type="checkbox"
                             checked={Boolean(effectiveSectionChecks[sectionKey])}
@@ -566,14 +603,15 @@ export default function LessonExperience({
                               if (checked) markSectionComplete(sectionKey);
                             }}
                           />
-                          Mark read
+                          {effectiveSectionChecks[sectionKey] ? "✓ Read" : "Mark read"}
                         </label>
                       </div>
                       <div className="mt-2 space-y-3">
                         {(section as ExplanationSection).body.map((paragraph, pIdx) => (
                           <p
                             key={pIdx}
-                            className={`text-sm leading-7 text-bs-text-sub ${dyslexiaMode ? "tracking-wide" : ""}`}
+                            className={`text-sm leading-7 ${dyslexiaMode ? "tracking-wide" : ""}`}
+                            style={{ color: "#5a7a66" }}
                           >
                             {paragraph}
                           </p>
@@ -598,7 +636,7 @@ export default function LessonExperience({
                           </span>
                           {section.heading}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#4a8a6e" }}>
                           <input
                             type="checkbox"
                             checked={Boolean(effectiveSectionChecks[sectionKey])}
@@ -608,7 +646,7 @@ export default function LessonExperience({
                               if (checked) markSectionComplete(sectionKey);
                             }}
                           />
-                          Mark read
+                          {effectiveSectionChecks[sectionKey] ? "✓ Read" : "Mark read"}
                         </label>
                       </div>
                       <p className={`mb-3 rounded-lg bg-indigo-50 p-3 text-sm text-indigo-900 ${dyslexiaMode ? "tracking-wide" : ""}`}>
@@ -617,7 +655,7 @@ export default function LessonExperience({
                       </p>
                       <ol className="list-decimal space-y-2 pl-5">
                         {section.steps.map((step, i) => (
-                          <li key={i} className={`text-sm leading-7 text-bs-text-sub ${dyslexiaMode ? "tracking-wide" : ""}`}>
+                          <li key={i} className={`text-sm leading-7 ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ color: "#5a7a66" }}>
                             {step}
                           </li>
                         ))}
@@ -635,12 +673,12 @@ export default function LessonExperience({
                   {section.type === "misconception-spotlight" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-base font-semibold text-amber-800">
-                          <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-amber-700">
+                        <h2 className="flex items-center gap-2 text-base font-semibold" style={{ color: "#b8860b" }}>
+                          <span className="rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wide" style={{ background: "#fef3d6", color: "#b8860b" }}>
                             ⚠ Misconception Spotlight
                           </span>
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#4a8a6e" }}>
                           <input
                             type="checkbox"
                             checked={Boolean(effectiveSectionChecks[sectionKey])}
@@ -650,19 +688,19 @@ export default function LessonExperience({
                               if (checked) markSectionComplete(sectionKey);
                             }}
                           />
-                          Mark read
+                          {effectiveSectionChecks[sectionKey] ? "✓ Read" : "Mark read"}
                         </label>
                       </div>
-                      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-                        <p className={`mb-1 text-sm font-semibold text-amber-900 ${dyslexiaMode ? "tracking-wide" : ""}`}>
+                      <div className="rounded-lg p-3" style={{ background: "#fef3d6", border: "1px solid rgba(184,134,11,0.2)" }}>
+                        <p className={`mb-1 text-sm font-semibold ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ color: "#b8860b" }}>
                           ✗ Common misconception: &ldquo;{section.misconception}&rdquo;
                         </p>
-                        <p className={`text-sm text-amber-900 ${dyslexiaMode ? "tracking-wide" : ""}`}>
-                          <span className="font-semibold text-green-700">✓ Correction: </span>
+                        <p className={`text-sm ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ color: "#b8860b" }}>
+                          <span className="font-semibold" style={{ color: "#1a7a4e" }}>✓ Correction: </span>
                           {section.correction}
                         </p>
                         {section.teks ? (
-                          <span className="mt-2 inline-block rounded bg-[rgba(0,0,0,0.06)] px-2 py-0.5 text-xs text-bs-text-sub">
+                          <span className="mt-2 inline-block rounded px-2 py-0.5 text-xs" style={{ background: "rgba(10,60,30,0.06)", color: "#5a7a66" }}>
                             {section.teks}
                           </span>
                         ) : null}
@@ -674,13 +712,13 @@ export default function LessonExperience({
                   {section.type === "visual-diagram" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-lg font-semibold text-teal-800">
-                          <span className="rounded-md bg-teal-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-teal-600">
+                        <h2 className="flex items-center gap-2 text-lg font-semibold" style={{ color: "#0d4a2f" }}>
+                          <span className="rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wide" style={{ background: "#d6ede6", color: "#1a7a4e" }}>
                             Visual Diagram
                           </span>
                           {section.heading}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#4a8a6e" }}>
                           <input
                             type="checkbox"
                             checked={Boolean(effectiveSectionChecks[sectionKey])}
@@ -690,19 +728,19 @@ export default function LessonExperience({
                               if (checked) markSectionComplete(sectionKey);
                             }}
                           />
-                          Mark read
+                          {effectiveSectionChecks[sectionKey] ? "✓ Read" : "Mark read"}
                         </label>
                       </div>
-                      <p className={`mb-3 text-sm text-bs-text-sub ${dyslexiaMode ? "tracking-wide" : ""}`}>
+                      <p className={`mb-3 text-sm ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ color: "#5a7a66" }}>
                         {section.description}
                       </p>
                       <dl className="space-y-2">
                         {section.elements.map((el) => (
-                          <div key={el.label} className="rounded-lg border border-teal-100 bg-teal-50 px-3 py-2">
-                            <dt className="text-xs font-bold uppercase tracking-wide text-teal-700">
+                          <div key={el.label} className="rounded-lg px-3 py-2" style={{ background: "#d6ede6", border: "1px solid rgba(10,60,30,0.10)" }}>
+                            <dt className="text-xs font-bold uppercase tracking-wide" style={{ color: "#1a7a4e" }}>
                               {el.label}
                             </dt>
-                            <dd className={`mt-0.5 text-sm text-teal-900 ${dyslexiaMode ? "tracking-wide" : ""}`}>
+                            <dd className={`mt-0.5 text-sm ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ color: "#0d4a2f" }}>
                               {el.detail}
                             </dd>
                           </div>
@@ -715,12 +753,12 @@ export default function LessonExperience({
                   {section.type === "vocabulary-spotlight" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-base font-semibold text-purple-800">
-                          <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-purple-600">
+                        <h2 className="flex items-center gap-2 text-base font-semibold" style={{ color: "#5a3d9a" }}>
+                          <span className="rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wide" style={{ background: "#ece8f8", color: "#5a3d9a" }}>
                             Vocabulary Spotlight
                           </span>
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#4a8a6e" }}>
                           <input
                             type="checkbox"
                             checked={Boolean(effectiveSectionChecks[sectionKey])}
@@ -730,18 +768,18 @@ export default function LessonExperience({
                               if (checked) markSectionComplete(sectionKey);
                             }}
                           />
-                          Mark read
+                          {effectiveSectionChecks[sectionKey] ? "✓ Read" : "Mark read"}
                         </label>
                       </div>
                       <dl className="space-y-3">
                         {section.terms.map((term) => (
-                          <div key={term.term} className="rounded-lg border border-purple-100 bg-purple-50 px-3 py-2">
-                            <dt className="text-sm font-bold text-purple-900">{term.term}</dt>
-                            <dd className={`mt-0.5 text-sm text-purple-900 ${dyslexiaMode ? "tracking-wide" : ""}`}>
+                          <div key={term.term} className="rounded-lg px-3 py-2" style={{ background: "#ece8f8", border: "1px solid rgba(90,61,154,0.12)" }}>
+                            <dt className="text-sm font-bold" style={{ color: "#5a3d9a" }}>{term.term}</dt>
+                            <dd className={`mt-0.5 text-sm ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ color: "#5a3d9a" }}>
                               {term.definition}
                             </dd>
                             {term.example ? (
-                              <p className={`mt-1 rounded bg-white/70 px-2 py-1 text-xs italic text-gray-700 ${dyslexiaMode ? "tracking-wide" : ""}` }>
+                              <p className={`mt-1 rounded px-2 py-1 text-xs italic ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ background: "rgba(255,255,255,0.7)", color: "#5a7a66" }}>
                                 Example: {term.example}
                               </p>
                             ) : null}
@@ -755,13 +793,13 @@ export default function LessonExperience({
                   {section.type === "activity" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-lg font-semibold text-green-800">
-                          <span className="rounded-md bg-green-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-green-600">
+                        <h2 className="flex items-center gap-2 text-lg font-semibold" style={{ color: "#0d4a2f" }}>
+                          <span className="rounded-md px-2 py-0.5 text-xs font-bold uppercase tracking-wide" style={{ background: "#d6ede6", color: "#1a7a4e" }}>
                             Activity
                           </span>
                           {section.heading}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#4a8a6e" }}>
                           <input
                             type="checkbox"
                             checked={Boolean(effectiveSectionChecks[sectionKey])}
@@ -771,20 +809,20 @@ export default function LessonExperience({
                               if (checked) markSectionComplete(sectionKey);
                             }}
                           />
-                          Mark read
+                          {effectiveSectionChecks[sectionKey] ? "✓ Read" : "Mark read"}
                         </label>
                       </div>
-                      <p className={`mb-3 text-sm leading-7 text-bs-text-sub ${dyslexiaMode ? "tracking-wide" : ""}`}>
+                      <p className={`mb-3 text-sm leading-7 ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ color: "#5a7a66" }}>
                         {section.prompt}
                       </p>
                       {section.sentenceFrames && section.sentenceFrames.length > 0 ? (
-                        <div className="mt-2 rounded-lg border border-green-200 bg-green-50 p-3">
-                          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-green-700">
+                        <div className="mt-2 rounded-lg p-3" style={{ background: "#d6ede6", border: "1px solid rgba(10,60,30,0.10)" }}>
+                          <p className="mb-2 text-xs font-semibold uppercase tracking-wide" style={{ color: "#1a7a4e" }}>
                             Sentence Frames
                           </p>
                           <ul className="space-y-2">
                             {section.sentenceFrames.map((frame, i) => (
-                              <li key={i} className={`rounded bg-white/80 px-3 py-1.5 text-sm italic text-gray-700 ${dyslexiaMode ? "tracking-wide" : ""}`}>
+                              <li key={i} className={`rounded px-3 py-1.5 text-sm italic ${dyslexiaMode ? "tracking-wide" : ""}`} style={{ background: "rgba(255,255,255,0.8)", color: "#0d4a2f" }}>
                                 {frame}
                               </li>
                             ))}
@@ -802,35 +840,43 @@ export default function LessonExperience({
         {/* Lab Notebook — between lesson content and quick-checks */}
         <LessonNotebook lessonSlug={lesson.slug} studentId={student?.id ?? "anonymous"} />
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
-          <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
+        <section className="rounded-3xl border p-5 shadow-sm" style={{ background: "#ffffff", borderColor: "rgba(10,60,30,0.10)" }}>
+          <div className="text-sm font-semibold" style={{ color: "#0d4a2f" }}>
             Quick Check
           </div>
-          <p className="mt-1 text-xs text-bs-text-sub">
+          <p className="mt-1 text-xs" style={{ color: "#5a7a66" }}>
             Score at least 70% to unlock the next lesson on the mastery path.
           </p>
           <div className="mt-3 space-y-4">
             {questions.map((question, index) => (
               <div
                 key={question.id}
-                className="rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-4"
+                className="rounded-xl p-4"
+                style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", borderRadius: 12 }}
               >
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-[rgba(0,0,0,0.08)] px-2.5 py-1 text-[11px] font-semibold" style={{ background: "white", color: "#5a7d72" }}>
-                    TEKS {question.teks}
-                  </span>
-                  <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-900">
+                  <TeksTag code={question.teks} priority={PRIORITY_TEKS.has(question.teks)} />
+                  <span className="rounded-full px-2.5 py-1 text-[11px] font-semibold" style={{ background: "#ece8f8", color: "#5a3d9a", border: "1px solid rgba(90,61,154,0.12)" }}>
                     {question.learningLevel}
                   </span>
                 </div>
-                <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
+                <div className="text-sm font-semibold" style={{ color: "#0d4a2f" }}>
                   {index + 1}. {question.question}
                 </div>
                 <div className="mt-2 space-y-2">
                   {question.options.map((choice, optionIndex) => (
                     <label
                       key={choice}
-                      className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-transparent px-3 py-2 text-sm text-bs-text-sub transition-colors hover:border-[rgba(0,0,0,0.12)] hover:bg-[rgba(0,0,0,0.04)]"
+                      className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors"
+                      style={{
+                        color: "#5a7a66",
+                        border: answers[question.id] === optionIndex
+                          ? "1px solid rgba(10,60,30,0.25)"
+                          : "1px solid transparent",
+                        background: answers[question.id] === optionIndex
+                          ? "rgba(10,60,30,0.04)"
+                          : "transparent",
+                      }}
                     >
                       <input
                         type="radio"
@@ -848,20 +894,25 @@ export default function LessonExperience({
                     </label>
                   ))}
                 </div>
-                {submitted && !questionResults[question.id]?.correct ? (
-                  <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                    <div className="font-semibold">Not quite.</div>
+                {/* Correct feedback — mint */}
+                {submitted && questionResults[question.id]?.correct ? (
+                  <div className="mt-3 rounded-xl px-3 py-2 text-xs" style={{ background: "#d6ede6", border: "1px solid rgba(13,74,47,0.12)", color: "#0d4a2f" }}>
+                    <div className="font-semibold">✓ Correct!</div>
+                    {question.misconceptionTarget && question.misconceptionDescription ? (
+                      <div className="mt-1">{question.misconceptionDescription}</div>
+                    ) : null}
+                  </div>
+                ) : null}
+                {/* Incorrect feedback — salmon */}
+                {submitted && questionResults[question.id] !== undefined && !questionResults[question.id]?.correct ? (
+                  <div className="mt-3 rounded-xl px-3 py-2 text-xs" style={{ background: "#fde8e0", border: "1px solid rgba(224,90,42,0.2)", color: "#c04a20" }}>
+                    <div className="font-semibold">✗ Not quite.</div>
                     <div className="mt-1">
-                      Correct answer:{" "}
-                      <span className="font-semibold">
-                        {question.correctAnswer}
-                      </span>
+                      The correct answer is:{" "}
+                      <span className="font-semibold">{question.correctAnswer}</span>
                     </div>
-                    {question.misconceptionTarget &&
-                    question.misconceptionDescription ? (
-                      <div className="mt-1">
-                        {question.misconceptionDescription}
-                      </div>
+                    {question.misconceptionTarget && question.misconceptionDescription ? (
+                      <div className="mt-1" style={{ color: "#c04a20" }}>{question.misconceptionDescription}</div>
                     ) : null}
                   </div>
                 ) : null}
@@ -874,7 +925,7 @@ export default function LessonExperience({
               type="button"
               onClick={handleSubmitCheck}
               aria-label="Submit quick check"
-              className="rounded-xl px-4 py-2 text-sm font-semibold" style={{ background: "#006e55", color: "white" }}
+              className="rounded-xl px-4 py-2 text-sm font-semibold" style={{ background: "#1a7a4e", color: "#ffffff" }}
             >
               Submit Check
             </button>
@@ -882,21 +933,21 @@ export default function LessonExperience({
               type="button"
               onClick={markComplete}
               aria-label="Mark lesson complete"
-              className="rounded-xl border border-[rgba(0,0,0,0.08)] px-4 py-2 text-sm font-semibold" style={{ background: "white", color: "#0a1a14" }}
+              className="rounded-xl px-4 py-2 text-sm font-semibold" style={{ background: "#ffffff", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
             >
               Mark Lesson Complete
             </button>
             {submitted && score !== null ? (
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">
+              <div className="rounded-xl px-3 py-2 text-sm font-semibold" style={{ background: "#d6ede6", color: "#0d4a2f", border: "1px solid rgba(13,74,47,0.12)" }}>
                 Score: {score}%
               </div>
             ) : null}
             {submitted && interventionTier ? (
               <div
-                className={
+                style={
                   interventionTier === 3
-                    ? "rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-800"
-                    : "rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800"
+                    ? { background: "#fde8e0", border: "1px solid rgba(224,90,42,0.2)", color: "#c04a20", borderRadius: 12, padding: "8px 12px", fontSize: 14, fontWeight: 600 }
+                    : { background: "#fef3d6", border: "1px solid rgba(184,134,11,0.2)", color: "#b8860b", borderRadius: 12, padding: "8px 12px", fontSize: 14, fontWeight: 600 }
                 }
               >
                 Tier {interventionTier} intervention triggered:{" "}
@@ -906,18 +957,18 @@ export default function LessonExperience({
           </div>
 
           {submitted && lesson.hook ? (
-            <div className="mt-5 rounded-2xl border-y border-r border-amber-200 border-l-4 border-l-amber-400 bg-amber-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+            <div className="mt-5 rounded-2xl p-4" style={{ background: "#fef3d6", borderLeft: "4px solid #b8860b", border: "1px solid rgba(184,134,11,0.2)" }}>
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#b8860b" }}>
                 Remember why this mattered
               </p>
-              <p className="mt-1 text-sm font-semibold text-amber-900">
+              <p className="mt-1 text-sm font-semibold" style={{ color: "#b8860b" }}>
                 {lesson.hook.headline}
               </p>
-              <p className="mt-1 text-sm leading-6 text-amber-800">
+              <p className="mt-1 text-sm leading-6" style={{ color: "#b8860b" }}>
                 {lesson.hook.body}
               </p>
               {lesson.hook.source ? (
-                <p className="mt-2 text-xs text-amber-600">
+                <p className="mt-2 text-xs" style={{ color: "#b8860b" }}>
                   — {lesson.hook.source}
                 </p>
               ) : null}
@@ -925,18 +976,54 @@ export default function LessonExperience({
           ) : null}
         </section>
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-4 shadow-sm" style={{ background: "white" }}>
+        {/* ── Lesson Completion Celebration ── */}
+        {readingProgress === 100 && submitted && (score ?? 0) >= 70 && (
+          <section className="rounded-3xl border p-6 shadow-sm text-center" style={{ background: "#d6ede6", borderColor: "rgba(10,60,30,0.12)" }}>
+            <div className="text-3xl mb-2" aria-hidden>🎉</div>
+            <h2 className="text-xl font-bold" style={{ color: "#0d4a2f" }}>Lesson Complete!</h2>
+            <p className="mt-1 text-sm" style={{ color: "#4a8a6e" }}>
+              You scored <span className="font-bold" style={{ color: "#1a7a4e" }}>{score}%</span> and read all {lesson.sections.length} sections.
+            </p>
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold" style={{ background: "#0d4a2f", color: "#d6f0e4" }}>
+              +{Math.round(50 + (score ?? 0) / 2)} XP earned
+            </div>
+            {nextLesson ? (
+              <div className="mt-4">
+                <Link
+                  href={`/student/learn/${unit.id}/${nextLesson.slug}`}
+                  className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+                  style={{ background: "#1a7a4e", color: "#ffffff" }}
+                  aria-label={`Continue to next lesson: ${nextLesson.title}`}
+                >
+                  Next: {nextLesson.title} →
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-4">
+                <Link
+                  href={`/student/learn/${unit.id}`}
+                  className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
+                  style={{ background: "#1a7a4e", color: "#ffffff" }}
+                >
+                  Back to Unit →
+                </Link>
+              </div>
+            )}
+          </section>
+        )}
+
+        <section className="rounded-3xl border p-4 shadow-sm" style={{ background: "#ffffff", borderColor: "rgba(10,60,30,0.10)" }}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-2">
               <Link
                 href="/student/learn"
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
               >
                 Hub
               </Link>
               <Link
                 href={`/student/learn/${unit.id}`}
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
               >
                 Unit
               </Link>
@@ -946,7 +1033,7 @@ export default function LessonExperience({
               {previousLesson ? (
                 <Link
                   href={`/student/learn/${unit.id}/${previousLesson.slug}`}
-                  className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                  className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", color: "#0d4a2f", border: "1px solid rgba(10,60,30,0.10)" }}
                 >
                   ← Previous
                 </Link>
@@ -954,7 +1041,7 @@ export default function LessonExperience({
               {nextLesson ? (
                 <Link
                   href={`/student/learn/${unit.id}/${nextLesson.slug}`}
-                  className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#006e55", color: "white" }}
+                  className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#1a7a4e", color: "#ffffff" }}
                 >
                   Next →
                 </Link>
