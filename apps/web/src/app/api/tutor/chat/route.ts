@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { message, lessonSlug, studentId, conversationHistory, triggeredBy, unitId } =
+  const { message, lessonSlug, studentId, conversationHistory, triggeredBy, unitId, systemPrompt: clientSystemPrompt } =
     body;
 
   // Ensure the authenticated header identity matches the request body identity
@@ -148,6 +148,68 @@ export async function POST(req: NextRequest) {
   // ------------------------------------------------------------------
   // 3. Resolve lesson context vs. global context
   // ------------------------------------------------------------------
+
+  // If the client provides its own system prompt, use it directly
+  // and skip server-side prompt building entirely (used by the Axo page).
+  if (clientSystemPrompt) {
+    const messagesForAI: Array<{ role: "user" | "assistant"; content: string }> = [
+      ...conversationHistory.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
+      { role: "user" as const, content: message },
+    ];
+
+    let textStream: AsyncIterable<string>;
+    try {
+      textStream = await generateBioResponse({
+        system: clientSystemPrompt,
+        messages: messagesForAI,
+        maxOutputTokens: 350,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Configuration error.";
+      return NextResponse.json(
+        { error: "service_unavailable", message: msg },
+        { status: 503 },
+      );
+    }
+
+    const encoder = new TextEncoder();
+    const metadata: TutorChatResponse = {
+      interventionTier: null,
+      lessonSlug: "general",
+      teks: [],
+    };
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of textStream) {
+            const sanitised = chunk.replace(/\u2014/g, " - ");
+            controller.enqueue(encoder.encode(sanitised));
+          }
+          const footer = `\n\n${JSON.stringify(metadata)}`;
+          controller.enqueue(encoder.encode(footer));
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : "AI stream error.";
+          controller.enqueue(encoder.encode(`\n\n${JSON.stringify({ error: msg })}`));
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  }
+
   const isGeneralMode = !lessonSlug || lessonSlug.trim() === "" || lessonSlug === "general";
 
   const baseUrl = `${req.nextUrl.protocol}//${req.nextUrl.host}`;

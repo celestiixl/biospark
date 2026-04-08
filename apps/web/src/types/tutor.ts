@@ -55,6 +55,12 @@ export type TutorChatRequest = {
    * is scoped to just that unit.
    */
   unitId?: string;
+  /**
+   * Optional custom system prompt supplied by the client.
+   * When provided, overrides the server-built prompt entirely.
+   * Used by the Axo standalone chat page to inject the Axo persona.
+   */
+  systemPrompt?: string;
 };
 
 /**

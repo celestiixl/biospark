@@ -1,9 +1,9 @@
 import { LEARNING_UNITS } from "@/lib/learningHubContent";
-import TutorPageClient from "./TutorPageClient";
+import AxoPageClient from "./AxoPageClient";
 
-export const metadata = { title: "BioSpark Global Tutor" };
+export const metadata = { title: "Ask Axo" };
 
-export default function StudentTutorPage() {
+export default function StudentAiPage() {
   const units = LEARNING_UNITS.map((u) => ({
     id: u.id,
     unitNumber: u.unitNumber,
@@ -11,5 +11,5 @@ export default function StudentTutorPage() {
     teks: u.priorityTeks,
   }));
 
-  return <TutorPageClient units={units} />;
+  return <AxoPageClient units={units} />;
 }

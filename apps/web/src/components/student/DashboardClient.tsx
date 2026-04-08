@@ -653,7 +653,7 @@ export default function DashboardClient(props: DashboardClientProps) {
 
             {/* AI Tutor */}
             <Link
-              href="/student/tutor"
+              href="/student/ai"
               style={{
                 background: C.ink, borderRadius: 16,
                 padding: "16px 22px", display: "flex", alignItems: "center", gap: 14,
