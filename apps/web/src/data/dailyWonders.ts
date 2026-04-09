@@ -210,7 +210,7 @@ export const dailyWonders: DailyWonder[] = [
         "Most human cells are far too small to see without a microscope. The egg cell is the exception. At about 0.1 millimeters across it sits right at the edge of human vision, roughly the width of a strand of fine silk. Its size comes from what it has to carry: a full set of genetic material, mitochondria to power early development, and enough nutrients and cellular machinery to sustain a fertilized egg through its first several days before it can access nutrients from the uterus.",
         "Sperm cells are the opposite extreme, among the smallest cells in the human body, stripped down to almost nothing but a nucleus and a tail. The contrast between egg and sperm is one of the starkest examples of how two cell types shaped by the same evolutionary process can end up radically different based on the specific job they need to do. The egg cell invests everything in quality and preparation. The sperm invests in quantity and speed."
       ],
-      teks: ["B.7C", "B.5A", "B.6A"]
+      teks: ["B.8A", "B.5A", "B.6A"]
     }
   },
   {

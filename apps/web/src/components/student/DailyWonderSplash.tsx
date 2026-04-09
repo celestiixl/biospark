@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { type DailyWonder } from "@/data/dailyWonders";
 
@@ -26,12 +26,12 @@ export default function DailyWonderSplash({
   const [visible, setVisible] = useState(true);
   const calledRef = useRef(false);
 
-  const handleComplete = () => {
+  const handleComplete = useCallback(() => {
     if (calledRef.current) return;
     calledRef.current = true;
     localStorage.setItem(LAST_WONDER_KEY, getTodayString());
     setVisible(false);
-  };
+  }, []);
 
   // Auto-advance after 3000ms
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function DailyWonderSplash({
       handleComplete();
     }, 3000);
     return () => clearTimeout(timer);
-  }, []); // handleComplete is stable (wrapped with ref guard)
+  }, [handleComplete]);
 
   return (
     <AnimatePresence onExitComplete={onComplete}>
