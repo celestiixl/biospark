@@ -54,17 +54,14 @@ export default function DailyWonderSplash({
             scale: { duration: 0.35 },
           }}
           style={{
-            position: "absolute",
+            position: "fixed",
             inset: 0,
-            minHeight: "100vh",
-            width: "100%",
             background: "#0d4a2f",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 50,
-            paddingBottom: 3,
           }}
           aria-modal="true"
           role="dialog"
