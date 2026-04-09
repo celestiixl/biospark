@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Fraunces, DM_Sans } from "next/font/google";
+import { Fraunces, DM_Sans, Lora, DM_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import OfflineSupport from "@/components/common/OfflineSupport";
 import DevBypassProvider from "@/components/common/DevBypassProvider";
@@ -19,6 +19,19 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+const lora = Lora({
+  subsets: ["latin"],
+  variable: "--font-lora",
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  variable: "--font-dm-mono",
+  display: "swap",
+  weight: ["300", "400", "500"],
+});
+
 export const metadata: Metadata = {
   title: { default: "BioSpark", template: "%s | BioSpark" },
   description:
@@ -27,7 +40,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${dmSans.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${fraunces.variable} ${dmSans.variable} ${lora.variable} ${dmMono.variable}`} suppressHydrationWarning>
       <head />
       <body className="min-h-dvh antialiased">
         <div className="ambient" aria-hidden="true" />
