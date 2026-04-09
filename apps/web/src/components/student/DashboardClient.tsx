@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type DonutSegment } from "@/components/student/MasteryDonut";
 import MasteryRadial, { type RadialSegment } from "@/components/student/MasteryRadial";
 import { loadLearningProgress, getMostRecentLessonId } from "@/lib/learningProgress";
@@ -10,6 +11,23 @@ import { LEARNING_UNITS, type LearningLesson, type LearningUnit } from "@/lib/le
 import { MOCK_STUDENT_ASSIGNMENTS } from "@/lib/studentAssignments";
 import { useStudentAuth } from "@/lib/studentAuth";
 import BsTag, { type TagVariant } from "@/components/ui/BsTag";
+import { getDailyWonder } from "@/lib/getDailyWonder";
+import DailyWonderSplash from "@/components/student/DailyWonderSplash";
+import DailyWonderWidget from "@/components/student/DailyWonderWidget";
+
+// ---------------------------------------------------------------------------
+// Daily Wonder helpers
+// ---------------------------------------------------------------------------
+
+const LAST_WONDER_KEY = "biospark:lastWonderDate";
+
+function getTodayString(): string {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 // ---------------------------------------------------------------------------
 // Design token constants (hex values must stay in sync with globals.css :root)
@@ -184,6 +202,27 @@ function buildRadialSegments(masteryMap: Record<string, number>): RadialSegment[
 
 export default function DashboardClient(props: DashboardClientProps) {
   const student = useStudentAuth((s) => s.student);
+  const router = useRouter();
+
+  // Daily Wonder state
+  const wonder = getDailyWonder();
+  const [showSplash, setShowSplash] = useState(false);
+  const [wonderReady, setWonderReady] = useState(false);
+
+  useEffect(() => {
+    const today = getTodayString();
+    const stored = localStorage.getItem(LAST_WONDER_KEY);
+    if (stored !== today) {
+      setShowSplash(true);
+    } else {
+      setWonderReady(true);
+    }
+  }, []);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+    setWonderReady(true);
+  };
 
   const [state, setState] = useState<DashState>({
     studentName: props.studentName,
@@ -398,8 +437,13 @@ export default function DashboardClient(props: DashboardClientProps) {
   return (
     <div
       className="min-h-screen font-body"
-      style={{ background: C.pageBg }}
+      style={{ background: C.pageBg, position: "relative" }}
     >
+      {/* ── DAILY WONDER SPLASH ── */}
+      {showSplash && (
+        <DailyWonderSplash wonder={wonder} onComplete={handleSplashComplete} />
+      )}
+
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px 60px" }}>
 
         {/* ── TOPBAR ── */}
@@ -434,7 +478,13 @@ export default function DashboardClient(props: DashboardClientProps) {
           </div>
         </div>
 
-        {/* ── HERO CARD ── */}
+        {/* ── DAILY WONDER WIDGET ── */}
+        {wonderReady && (
+          <DailyWonderWidget
+            wonder={wonder}
+            onLearnMore={() => router.push("/student/daily-wonder")}
+          />
+        )}
         <div style={{
           background: C.tealDeep,
           borderRadius: 16,
