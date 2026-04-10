@@ -446,38 +446,6 @@ export default function DashboardClient(props: DashboardClientProps) {
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px 60px" }}>
 
-        {/* ── TOPBAR ── */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-          <div>
-            <p style={{ fontSize: 13, color: C.muted, marginBottom: 2 }}>Good {timeOfDay}</p>
-            <h1 style={{
-              fontFamily: "var(--font-fraunces), Georgia, serif",
-              fontSize: 40,
-              fontWeight: 800,
-              fontStyle: "italic",
-              color: C.tealDark,
-              lineHeight: 1,
-              letterSpacing: "-0.02em",
-              margin: 0,
-            }}>
-              {student?.displayName ?? studentName} ✦
-            </h1>
-            <p style={{ fontSize: 12, color: C.muted, marginTop: 5 }}>
-              Period {period} · {currentUnit} · {todayLabel}
-            </p>
-          </div>
-          <div style={{ display: "flex", gap: 8, paddingTop: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 20, background: C.surface, border: "1px solid rgba(0,0,0,0.07)", fontSize: 12, fontWeight: 500, color: C.inkAlt }}>
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.amber, display: "inline-block" }} />
-              {streakDays}-day streak
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 20, background: C.surface, border: "1px solid rgba(0,0,0,0.07)", fontSize: 12, fontWeight: 500, color: C.inkAlt }}>
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.teal, display: "inline-block" }} />
-              {xp} XP
-            </div>
-          </div>
-        </div>
-
         {/* ── DAILY WONDER WIDGET ── */}
         {wonderReady && (
           <DailyWonderWidget
@@ -485,77 +453,156 @@ export default function DashboardClient(props: DashboardClientProps) {
             onLearnMore={() => router.push("/student/daily-wonder")}
           />
         )}
+
+        {/* ── THREE COLUMN GRID ── */}
         <div style={{
-          background: C.tealDeep,
-          borderRadius: 16,
-          padding: "28px 30px 24px",
-          marginBottom: 12,
-          position: "relative",
-          overflow: "hidden",
+          display: "grid",
+          gridTemplateColumns: "1fr 1.6fr 1fr",
+          gap: 16,
+          alignItems: "flex-start",
         }}>
-          {/* decorative orb */}
-          <div style={{
-            position: "absolute", top: -80, right: -60,
-            width: 260, height: 260, borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(0,196,154,0.22) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }} />
-          <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: C.teal, marginBottom: 8 }}>
-                Continue where you left off
-              </p>
-              <h2 style={{
+
+          {/* ── LEFT COLUMN — Profile & Stats ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+
+            {/* Profile block */}
+            <div style={{ background: C.surface, borderRadius: 16, border: "1px solid rgba(0,0,0,0.06)", padding: 20 }}>
+              <p style={{ fontSize: 13, color: C.muted, marginBottom: 2 }}>Good {timeOfDay}</p>
+              <h1 style={{
                 fontFamily: "var(--font-fraunces), Georgia, serif",
-                fontSize: 26, fontWeight: 700, fontStyle: "italic",
-                color: "white", lineHeight: 1.15, marginBottom: 4,
+                fontSize: 28,
+                fontWeight: 800,
+                fontStyle: "italic",
+                color: C.tealDark,
+                lineHeight: 1.1,
+                letterSpacing: "-0.02em",
+                margin: 0,
+                marginBottom: 4,
               }}>
-                {continueLesson.title}
-              </h2>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 20 }}>
-                {continueLesson.unitLabel} · {continueLesson.readTime}
+                {student?.displayName ?? studentName} ✦
+              </h1>
+              <p style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>
+                Period {period} · {currentUnit} · {todayLabel}
               </p>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <Link
-                  href={continueLesson.href}
-                  style={{
-                    background: C.teal, color: C.tealDeep,
-                    border: "none", borderRadius: 10,
-                    padding: "10px 20px", fontSize: 13, fontWeight: 700,
-                    cursor: "pointer", textDecoration: "none",
-                    display: "inline-block",
-                  }}
-                  aria-label={`Resume lesson: ${continueLesson.title}`}
-                >
-                  Resume lesson →
-                </Link>
-                <BsTag variant="teal-inv">{continueLesson.teks}</BsTag>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 20, background: C.amberSoft, border: "1px solid rgba(245,168,0,0.2)", fontSize: 12, fontWeight: 500, color: C.amberText }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.amber, display: "inline-block" }} />
+                  {streakDays}-day streak
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 20, background: C.tealSoft, border: "1px solid rgba(0,196,154,0.2)", fontSize: 12, fontWeight: 500, color: C.tealDark }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.teal, display: "inline-block" }} />
+                  {xp} XP
+                </div>
               </div>
             </div>
-            {/* Progress ring */}
-            <div style={{ flexShrink: 0, textAlign: "right" }}>
-              <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.35)", marginBottom: 6 }}>Progress</p>
-              <svg width="72" height="72" viewBox="0 0 72 72">
-                <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="7"/>
-                <circle cx="36" cy="36" r="28" fill="none" stroke={C.teal} strokeWidth="7"
-                  strokeDasharray={`${((continueLesson.progress ?? 0) / 100) * 175.9} 175.9`}
-                  strokeLinecap="round" transform="rotate(-90 36 36)"/>
-                <text x="36" y="33" textAnchor="middle" fontSize="13" fontWeight="700"
-                  fill="white" fontFamily="var(--font-fraunces),serif" fontStyle="italic">
-                  {continueLesson.progress ?? 0}%
-                </text>
-                <text x="36" y="45" textAnchor="middle" fontSize="8"
-                  fill="rgba(255,255,255,0.4)" fontFamily="sans-serif">done</text>
-              </svg>
+
+            {/* Streak — AMBER */}
+            <div style={{ background: C.amberSoft, borderRadius: 16, border: "1px solid rgba(245,168,0,0.15)", padding: 20 }}>
+              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.amberText, marginBottom: 7 }}>Your streak</p>
+              <span style={{
+                fontFamily: "var(--font-fraunces), serif",
+                fontSize: 44, fontWeight: 800, fontStyle: "italic",
+                color: C.amber, lineHeight: 1, display: "block",
+              }}>
+                {streakDays}
+              </span>
+              <p style={{ fontSize: 12, color: C.amberText, marginTop: 2, marginBottom: 10 }}>
+                {streakDays === 0 ? "days — start one today!" : `day${streakDays !== 1 ? "s" : ""} and counting`}
+              </p>
+              <div style={{ height: 6, background: "rgba(0,0,0,0.08)", borderRadius: 3, overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${Math.min((xp / 50) * 100, 100)}%`, background: C.amber, borderRadius: 3 }} />
+              </div>
+              <p style={{ fontSize: 10, color: C.amberText, fontWeight: 500, marginTop: 4 }}>{xp} / 50 XP to next level</p>
             </div>
+
+            {/* Assignment — WHITE */}
+            <div style={{ background: C.surface, borderRadius: 16, border: "1px solid rgba(0,0,0,0.06)", padding: 20 }}>
+              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.muted, marginBottom: 7 }}>Assignment</p>
+              {dueAssignment ? (
+                <>
+                  <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 15, fontWeight: 700, color: C.ink, marginBottom: 4 }}>
+                    {assignmentData.title}
+                  </h3>
+                  <p style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>{assignmentData.questionCount} questions</p>
+                  <span style={{ background: "rgba(255,79,43,0.13)", color: "#c02a10", fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20 }}>
+                    Due {assignmentData.dueLabel}
+                  </span>
+                </>
+              ) : (
+                <p style={{ fontSize: 12, color: C.muted, fontStyle: "italic", marginTop: 4 }}>No assignments due</p>
+              )}
+            </div>
+
           </div>
-        </div>
 
-        {/* ── TWO COLUMN LAYOUT ── */}
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+          {/* ── MIDDLE COLUMN — Main Content ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
-          {/* LEFT COLUMN */}
-          <div style={{ flex: "0 0 58%", minWidth: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+            {/* Hero: Continue lesson */}
+            <div style={{
+              background: C.tealDeep,
+              borderRadius: 16,
+              padding: "28px 30px 24px",
+              position: "relative",
+              overflow: "hidden",
+            }}>
+              {/* decorative orb */}
+              <div style={{
+                position: "absolute", top: -80, right: -60,
+                width: 260, height: 260, borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(0,196,154,0.22) 0%, transparent 70%)",
+                pointerEvents: "none",
+              }} />
+              <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: C.teal, marginBottom: 8 }}>
+                    Continue where you left off
+                  </p>
+                  <h2 style={{
+                    fontFamily: "var(--font-fraunces), Georgia, serif",
+                    fontSize: 26, fontWeight: 700, fontStyle: "italic",
+                    color: "white", lineHeight: 1.15, marginBottom: 4,
+                  }}>
+                    {continueLesson.title}
+                  </h2>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 20 }}>
+                    {continueLesson.unitLabel} · {continueLesson.readTime}
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Link
+                      href={continueLesson.href}
+                      style={{
+                        background: C.teal, color: C.tealDeep,
+                        border: "none", borderRadius: 10,
+                        padding: "10px 20px", fontSize: 13, fontWeight: 700,
+                        cursor: "pointer", textDecoration: "none",
+                        display: "inline-block",
+                      }}
+                      aria-label={`Resume lesson: ${continueLesson.title}`}
+                    >
+                      Resume lesson →
+                    </Link>
+                    <BsTag variant="teal-inv">{continueLesson.teks}</BsTag>
+                  </div>
+                </div>
+                {/* Progress ring */}
+                <div style={{ flexShrink: 0, textAlign: "right" }}>
+                  <p style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.05em", color: "rgba(255,255,255,0.35)", marginBottom: 6 }}>Progress</p>
+                  <svg width="72" height="72" viewBox="0 0 72 72">
+                    <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="7"/>
+                    <circle cx="36" cy="36" r="28" fill="none" stroke={C.teal} strokeWidth="7"
+                      strokeDasharray={`${((continueLesson.progress ?? 0) / 100) * 175.9} 175.9`}
+                      strokeLinecap="round" transform="rotate(-90 36 36)"/>
+                    <text x="36" y="33" textAnchor="middle" fontSize="13" fontWeight="700"
+                      fill="white" fontFamily="var(--font-fraunces),serif" fontStyle="italic">
+                      {continueLesson.progress ?? 0}%
+                    </text>
+                    <text x="36" y="45" textAnchor="middle" fontSize="8"
+                      fill="rgba(255,255,255,0.4)" fontFamily="sans-serif">done</text>
+                  </svg>
+                </div>
+              </div>
+            </div>
 
             {/* 2-col: next lesson + needs practice */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -597,66 +644,26 @@ export default function DashboardClient(props: DashboardClientProps) {
               </div>
             </div>
 
-            {/* 3-col: streak + assignment + challenge */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-
-              {/* Streak — AMBER */}
-              <div style={{ background: C.amberSoft, borderRadius: 16, border: "1px solid rgba(245,168,0,0.15)", padding: 20 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.amberText, marginBottom: 7 }}>Your streak</p>
-                <span style={{
-                  fontFamily: "var(--font-fraunces), serif",
-                  fontSize: 44, fontWeight: 800, fontStyle: "italic",
-                  color: C.amber, lineHeight: 1, display: "block",
-                }}>
-                  {streakDays}
-                </span>
-                <p style={{ fontSize: 12, color: C.amberText, marginTop: 2, marginBottom: 10 }}>
-                  {streakDays === 0 ? "days — start one today!" : `day${streakDays !== 1 ? "s" : ""} and counting`}
-                </p>
-                <div style={{ height: 6, background: "rgba(0,0,0,0.08)", borderRadius: 3, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${Math.min((xp / 50) * 100, 100)}%`, background: C.amber, borderRadius: 3 }} />
-                </div>
-                <p style={{ fontSize: 10, color: C.amberText, fontWeight: 500, marginTop: 4 }}>{xp} / 50 XP to next level</p>
-              </div>
-
-              {/* Assignment — WHITE */}
-              <div style={{ background: C.surface, borderRadius: 16, border: "1px solid rgba(0,0,0,0.06)", padding: 20 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.muted, marginBottom: 7 }}>Assignment</p>
-                {dueAssignment ? (
-                  <>
-                    <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 15, fontWeight: 700, color: C.ink, marginBottom: 4 }}>
-                      {assignmentData.title}
-                    </h3>
-                    <p style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>{assignmentData.questionCount} questions</p>
-                    <span style={{ background: "rgba(255,79,43,0.13)", color: "#c02a10", fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20 }}>
-                      Due {assignmentData.dueLabel}
-                    </span>
-                  </>
-                ) : (
-                  <p style={{ fontSize: 12, color: C.muted, fontStyle: "italic", marginTop: 4 }}>No assignments due</p>
-                )}
-              </div>
-
-              {/* Challenge — PURPLE */}
-              <div style={{ background: C.purpleSoft, borderRadius: 16, border: "1px solid rgba(124,92,252,0.15)", padding: 20 }}>
-                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.purpleText, marginBottom: 7 }}>Daily challenge</p>
-                <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 15, fontWeight: 700, color: C.purpleDark, marginBottom: 4 }}>
-                  {challenge.title}
-                </h3>
-                <p style={{ fontSize: 12, color: C.purpleMid, marginBottom: 10 }}>{challenge.subject} · +{challenge.xp} XP</p>
-                <Link
-                  href="/student/assessment/items"
-                  style={{ background: "transparent", border: "1px solid rgba(124,92,252,0.25)", color: C.purpleText, borderRadius: 10, padding: "6px 12px", fontSize: 12, textDecoration: "none", display: "inline-block" }}
-                  aria-label="Take today's daily challenge"
-                >
-                  Go →
-                </Link>
-              </div>
+            {/* Daily challenge — PURPLE */}
+            <div style={{ background: C.purpleSoft, borderRadius: 16, border: "1px solid rgba(124,92,252,0.15)", padding: 20 }}>
+              <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: C.purpleText, marginBottom: 7 }}>Daily challenge</p>
+              <h3 style={{ fontFamily: "var(--font-fraunces), serif", fontSize: 15, fontWeight: 700, color: C.purpleDark, marginBottom: 4 }}>
+                {challenge.title}
+              </h3>
+              <p style={{ fontSize: 12, color: C.purpleMid, marginBottom: 10 }}>{challenge.subject} · +{challenge.xp} XP</p>
+              <Link
+                href="/student/assessment/items"
+                style={{ background: "transparent", border: "1px solid rgba(124,92,252,0.25)", color: C.purpleText, borderRadius: 10, padding: "6px 12px", fontSize: 12, textDecoration: "none", display: "inline-block" }}
+                aria-label="Take today's daily challenge"
+              >
+                Go →
+              </Link>
             </div>
+
           </div>
 
-          {/* RIGHT SIDEBAR */}
-          <div style={{ flex: "0 0 40%", minWidth: 0, display: "flex", flexDirection: "column", gap: 12, position: "sticky", top: 24 }}>
+          {/* ── RIGHT COLUMN — Mastery & Tutor ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, position: "sticky", top: 24 }}>
 
             {/* Mastery ring */}
             <div style={{ background: C.surface, borderRadius: 16, border: "1px solid rgba(0,0,0,0.06)", padding: 20 }}>
@@ -739,6 +746,7 @@ export default function DashboardClient(props: DashboardClientProps) {
             </button>
 
           </div>
+
         </div>
 
       </div>
