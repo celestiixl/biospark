@@ -18,6 +18,7 @@ export type TeksHeatmapRow = {
   avgCheck: number;
   completionPct: number;
   proficiency: "mastered" | "developing" | "needs-support";
+  hasAttempts: boolean;
 };
 
 function proficiencyFromScore(score: number): TeksHeatmapRow["proficiency"] {
@@ -37,6 +38,7 @@ export function buildTeksHeatmap(
       .map((row) => row?.checkScore)
       .filter((score): score is number => typeof score === "number");
 
+    const hasAttempts = checks.length > 0;
     const avgCheck = checks.length
       ? Math.round(checks.reduce((a, b) => a + b, 0) / checks.length)
       : 0;
@@ -45,8 +47,9 @@ export function buildTeksHeatmap(
       teks,
       lessons: lessonCount,
       avgCheck,
-      completionPct: Math.round((completionCount / lessonCount) * 100),
+      completionPct: lessonCount > 0 ? Math.round((completionCount / lessonCount) * 100) : 0,
       proficiency: proficiencyFromScore(avgCheck),
+      hasAttempts,
     }));
   })
     .flat()
