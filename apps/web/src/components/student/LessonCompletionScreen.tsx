@@ -40,10 +40,9 @@ function rand(min: number, max: number) {
 }
 
 function runCanvasAnimation(canvas: HTMLCanvasElement) {
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return () => {};
+  const context = canvas.getContext("2d");
+  if (!context) return () => {};
 
-  const context = ctx;
   const W = canvas.width;
   const H = canvas.height;
 

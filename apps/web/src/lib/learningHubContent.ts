@@ -1020,7 +1020,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
-        completionHook: "MRNA vaccines work by slipping a strand of messenger RNA into your cells and letting your own ribosomes build the protein that trains your immune system.",
+        completionHook: "mRNA vaccines work by slipping a strand of messenger RNA into your cells and letting your own ribosomes build the protein that trains your immune system.",
         keyTerms: ["central dogma", "transcription", "translation", "mRNA", "tRNA", "rRNA", "codon", "anticodon", "start codon AUG", "stop codon", "gene expression"],
         quickChecks: [
           {
