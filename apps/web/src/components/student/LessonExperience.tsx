@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useLessonProgress } from "@/hooks/useLessonProgress";
 import Link from "next/link";
 import type {
@@ -23,6 +24,7 @@ import {
 import PhenomenonBanner from "@/components/student/PhenomenonBanner";
 import { getPhenomenonForLesson } from "@/lib/texasPhenomena";
 import LessonNotebook from "@/components/student/LessonNotebook";
+import LessonCompletionScreen from "@/components/student/LessonCompletionScreen";
 import { useStudentAuth } from "@/lib/studentAuth";
 import { speakText, stopSpeaking } from "@/lib/accommodations";
 import { useAccommodations } from "@/lib/useAccommodations";
@@ -143,6 +145,7 @@ export default function LessonExperience({
   previousLesson,
   nextLesson,
 }: LessonExperienceProps) {
+  const router = useRouter();
   const { acc } = useAccommodations();
   const student = useStudentAuth((s) => s.student);
   const {
@@ -167,6 +170,7 @@ export default function LessonExperience({
     Record<string, { correct: boolean }>
   >({});
   const [interventionTier, setInterventionTier] = useState<2 | 3 | null>(null);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   useEffect(() => {
     const saved = getLessonProgress(lesson.id);
@@ -393,6 +397,7 @@ export default function LessonExperience({
       percent: readingProgress,
     });
     markLessonProgressComplete();
+    setShowCompletion(true);
   }
 
   /** Handle "Mark read" checkbox toggle with localStorage persistence (FIX 5). */
@@ -405,8 +410,31 @@ export default function LessonExperience({
 
   const phenomenon = getPhenomenonForLesson(lesson.id);
 
+  // Navigation handlers for the completion screen
+  function handleKeepGoing() {
+    if (nextLesson) {
+      router.push(`/student/learn/${unit.id}/${nextLesson.slug}`);
+    } else {
+      router.push("/student/learn");
+    }
+  }
+
+  function handleComeBackLater() {
+    router.push("/student/learn");
+  }
+
   return (
     <main className="ia-vh-page relative min-h-dvh" style={{ background: "#eef3ee", color: "#1a2e22" }}>
+      {showCompletion && (
+        <LessonCompletionScreen
+          lessonTitle={lesson.title}
+          teks={lesson.teks ?? unit.teks}
+          xpEarned={30}
+          completionHook={lesson.completionHook ?? "You just unlocked a foundational concept in modern biology."}
+          onKeepGoing={handleKeepGoing}
+          onComeBackLater={handleComeBackLater}
+        />
+      )}
       {/* FIX 7 — Sticky section progress indicator */}
       <div style={{
         position: "sticky",
