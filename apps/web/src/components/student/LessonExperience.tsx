@@ -173,6 +173,16 @@ export default function LessonExperience({
     const baseline: Record<string, boolean> = {};
     lesson.sections.forEach((section, idx) => {
       const key = getSectionKey(section, idx);
+      // FIX 5: load per-section read state from the new per-section key first
+      const perKey = `biospark:lesson:${lesson.slug}:section:${key}:read`;
+      try {
+        const storedVal = localStorage.getItem(perKey);
+        if (storedVal !== null) {
+          baseline[key] = storedVal === "true";
+          return;
+        }
+      } catch { /* ignore */ }
+      // Fall back to lesson-level progress
       baseline[key] = Boolean(saved?.percent === 100);
     });
     setSectionChecks(baseline);
@@ -186,6 +196,7 @@ export default function LessonExperience({
       const spent = Math.round((Date.now() - start) / 1000);
       addLessonTime(lesson.id, spent);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lesson.id]);
 
   // Scroll back to where the student left off once the hook has hydrated
@@ -245,13 +256,13 @@ export default function LessonExperience({
     return merged;
   }, [lesson.sections, sectionChecks, completedSections]);
 
-  const readingProgress = useMemo(() => {
+  const { readingProgress, doneCount } = useMemo(() => {
     const total = lesson.sections.length;
-    if (!total) return 100;
+    if (!total) return { readingProgress: 100, doneCount: 0 };
     const done = lesson.sections.filter(
       (section, idx) => effectiveSectionChecks[getSectionKey(section, idx)],
     ).length;
-    return Math.round((done / total) * 100);
+    return { readingProgress: Math.round((done / total) * 100), doneCount: done };
   }, [lesson.sections, effectiveSectionChecks]);
 
   useEffect(() => {
@@ -382,18 +393,63 @@ export default function LessonExperience({
     markLessonProgressComplete();
   }
 
+  /** Handle "Mark read" checkbox toggle with localStorage persistence (FIX 5). */
+  function handleSectionCheck(sectionKey: string, checked: boolean) {
+    setSectionChecks((prev) => ({ ...prev, [sectionKey]: checked }));
+    if (checked) markSectionComplete(sectionKey);
+    const perKey = `biospark:lesson:${lesson.slug}:section:${sectionKey}:read`;
+    try { localStorage.setItem(perKey, String(checked)); } catch { /* ignore */ }
+  }
+
   const phenomenon = getPhenomenonForLesson(lesson.id);
 
   return (
-    <main className="ia-vh-page relative min-h-dvh px-4 py-3 md:px-9 md:py-4" style={{ background: "#f0f4f2", color: "#0a1a14" }}>
+    <main className="ia-vh-page relative min-h-dvh" style={{ background: "#eef3ee", color: "#1a2e22" }}>
+      {/* FIX 7 — Sticky section progress indicator */}
+      <div style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        background: "#ffffff",
+        borderBottom: "1px solid rgba(10,60,30,0.10)",
+        padding: "10px 20px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <div style={{
+            fontFamily: "var(--font-dm-sans), sans-serif",
+            fontWeight: 500,
+            fontSize: 13,
+            color: "#0d4a2f",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            flex: 1,
+          }}>
+            {lesson.title}
+          </div>
+          <div style={{
+            fontFamily: "var(--font-dm-mono), monospace",
+            fontSize: 10,
+            color: "#6a9a82",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+          }}>
+            Section {Math.min(doneCount + 1, lesson.sections.length)} of {lesson.sections.length}
+          </div>
+        </div>
+        <div style={{ marginTop: 6, background: "rgba(10,60,30,0.08)", height: 3 }}>
+          <div style={{ background: "#1a7a4e", height: "100%", width: `${readingProgress}%`, transition: "width 0.3s" }} />
+        </div>
+      </div>
+      <div className="px-4 py-3 md:px-9 md:py-4">
       <div className="mx-auto grid w-full max-w-4xl gap-3">
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
+        <section className="rounded-3xl p-5 shadow-sm" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)" }}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
                 Grading Period {unit.gradingPeriod} • Unit {unit.unitNumber}
               </div>
-              <h1 className="mt-1 text-2xl font-bold" style={{ color: "#0a1a14" }}>
+              <h1 className="mt-1 text-2xl font-bold" style={{ color: "#1a2e22" }}>
                 {lesson.title}
               </h1>
               {(lesson.vocabularyTiers?.contentSpecific?.length ?? 0) > 0 && (
@@ -423,8 +479,8 @@ export default function LessonExperience({
                 className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold"
                 style={
                   acc.tts
-                    ? { background: "white", color: "#0a1a14" }
-                    : { background: "white", color: "rgba(10,26,20,0.4)", cursor: "not-allowed" }
+                    ? { background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", color: "#1a2e22" }
+                    : { background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", color: "rgba(26,46,34,0.4)", cursor: "not-allowed" }
                 }
               >
                 Read Aloud
@@ -432,7 +488,7 @@ export default function LessonExperience({
               <button
                 type="button"
                 onClick={() => setDyslexiaMode((value) => !value)}
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", color: "#1a2e22" }}
               >
                 {dyslexiaMode ? "Standard Font" : "Dyslexia Friendly"}
               </button>
@@ -441,7 +497,7 @@ export default function LessonExperience({
                 onClick={() =>
                   setLanguage((prev) => (prev === "en" ? "es" : "en"))
                 }
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", color: "#1a2e22" }}
               >
                 {language === "en" ? "ES Support" : "EN Support"}
               </button>
@@ -451,14 +507,15 @@ export default function LessonExperience({
             {lesson.summary}
           </p>
 
-          <div className="mt-3 rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-3">
-            <div className="mb-1 flex items-center justify-between text-xs font-semibold text-bs-text-sub">
+          {/* FIX 4 — Reading progress bar */}
+          <div className="mt-3 rounded-2xl p-3" style={{ border: "1px solid rgba(10,60,30,0.10)" }}>
+            <div className="mb-1 flex items-center justify-between" style={{ fontFamily: "var(--font-dm-mono), monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6a9a82" }}>
               <span>Reading Progress</span>
               <span>{readingProgress}%</span>
             </div>
-            <div className="h-2 rounded-full bg-[rgba(0,0,0,0.08)]">
+            <div style={{ height: 6, borderRadius: 20, background: "rgba(10,60,30,0.08)" }}>
               <div
-                style={{ height: "100%", background: "#006e55", borderRadius: 3, width: `${readingProgress}%`, transition: "width 0.3s" }}
+                style={{ height: "100%", background: "#1a7a4e", borderRadius: 20, width: `${readingProgress}%`, transition: "width 0.3s" }}
               />
             </div>
           </div>
@@ -467,28 +524,29 @@ export default function LessonExperience({
             {lesson.keyTerms.map((term) => (
               <span
                 key={term}
-                className="rounded-full border border-[rgba(0,0,0,0.08)] px-3 py-1 text-xs font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
+                style={{ background: "#d6ede6", color: "#0d4a2f", borderRadius: 20, fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 12, padding: "4px 12px", display: "inline-block" }}
               >
                 {term}
               </span>
             ))}
           </div>
 
+          {/* FIX 3 — Vocabulary three-tier card */}
           {lesson.vocabularyTiers ? (
-            <div className="mt-4 rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-3">
-              <div className="text-xs font-semibold uppercase tracking-wide text-bs-text-sub">
-                Vocabulary: Everyday to Academic to Content Specific
+            <div className="mt-4 rounded-2xl p-3" style={{ border: "1px solid rgba(10,60,30,0.10)" }}>
+              <div style={{ fontFamily: "var(--font-dm-mono), monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6a9a82" }}>
+                Vocabulary: Everyday · Academic · Content Specific
               </div>
               <div className="mt-2 grid gap-3 md:grid-cols-3">
                 <div>
-                  <div className="text-xs font-semibold text-bs-text-sub">
+                  <div style={{ fontFamily: "var(--font-dm-mono), monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6a9a82", marginBottom: 6 }}>
                     Everyday
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    {lesson.vocabularyTiers.everyday.map((word) => (
+                  <div className="flex flex-wrap gap-1.5">
+                    {(lesson.vocabularyTiers.everyday ?? []).map((word) => (
                       <span
                         key={`v-e-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
+                        style={{ background: "#d6ede6", color: "#0d4a2f", borderRadius: 20, fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 12, padding: "4px 12px", display: "inline-block" }}
                       >
                         {word}
                       </span>
@@ -497,14 +555,14 @@ export default function LessonExperience({
                 </div>
 
                 <div>
-                  <div className="text-xs font-semibold text-bs-text-sub">
+                  <div style={{ fontFamily: "var(--font-dm-mono), monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6a9a82", marginBottom: 6 }}>
                     Academic
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    {lesson.vocabularyTiers.academic.map((word) => (
+                  <div className="flex flex-wrap gap-1.5">
+                    {(lesson.vocabularyTiers.academic ?? []).map((word) => (
                       <span
                         key={`v-a-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
+                        style={{ background: "#d6ede6", color: "#0d4a2f", borderRadius: 20, fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 12, padding: "4px 12px", display: "inline-block" }}
                       >
                         {word}
                       </span>
@@ -513,14 +571,14 @@ export default function LessonExperience({
                 </div>
 
                 <div>
-                  <div className="text-xs font-semibold text-bs-text-sub">
+                  <div style={{ fontFamily: "var(--font-dm-mono), monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#6a9a82", marginBottom: 6 }}>
                     Content Specific
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    {lesson.vocabularyTiers.contentSpecific.map((word) => (
+                  <div className="flex flex-wrap gap-1.5">
+                    {(lesson.vocabularyTiers.contentSpecific ?? []).map((word) => (
                       <span
                         key={`v-c-${word}`}
-                        className="rounded-full border border-[rgba(0,0,0,0.08)] px-2 py-0.5 text-[11px] font-semibold" style={{ background: "rgba(0,0,0,0.06)", color: "#0a1a14", borderRadius: 20 }}
+                        style={{ background: "#d6ede6", color: "#0d4a2f", borderRadius: 20, fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 12, padding: "4px 12px", display: "inline-block" }}
                       >
                         {word}
                       </span>
@@ -534,37 +592,40 @@ export default function LessonExperience({
 
         {phenomenon ? <PhenomenonBanner phenomenon={phenomenon} /> : null}
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
+        <section className="rounded-3xl p-5 shadow-sm" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)" }}>
           <div className="space-y-5">
             {lesson.sections.map((section, idx) => {
               const sectionKey = getSectionKey(section, idx);
+              const isRead = Boolean(effectiveSectionChecks[sectionKey]);
               return (
                 <article
                   key={sectionKey}
                   ref={(el) => {
                     sectionRefs.current[sectionKey] = el;
                   }}
-                  className="rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-4"
+                  className="rounded-xl"
+                  style={{
+                    background: isRead ? "#d6ede6" : "#ffffff",
+                    border: "1px solid rgba(10,60,30,0.10)",
+                    borderRadius: 12,
+                    padding: 16,
+                    transition: "background 200ms ease-in-out",
+                  }}
                 >
                   {/* ── Explanation (default) ── */}
                   {(!section.type || section.type === "explanation") && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="text-lg font-semibold" style={{ color: "#0a1a14" }}>
+                        <h2 className="text-[16px] md:text-[18px]" style={{ fontFamily: "var(--font-lora), Georgia, serif", fontStyle: "italic", fontWeight: 700, color: isRead ? "#4a8a6e" : "#0d4a2f", transition: "color 200ms ease-in-out", display: "flex", alignItems: "center", gap: 6 }}>
+                          {isRead && <span aria-hidden="true">✓</span>}
                           {(section as ExplanationSection).heading}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#5a7a66" }}>
                           <input
                             type="checkbox"
-                            checked={Boolean(effectiveSectionChecks[sectionKey])}
-                            onChange={(event) => {
-                              const checked = event.target.checked;
-                              setSectionChecks((prev) => ({
-                                ...prev,
-                                [sectionKey]: checked,
-                              }));
-                              if (checked) markSectionComplete(sectionKey);
-                            }}
+                            checked={isRead}
+                            style={{ accentColor: "#1a7a4e" }}
+                            onChange={(event) => handleSectionCheck(sectionKey, event.target.checked)}
                           />
                           Mark read
                         </label>
@@ -573,7 +634,8 @@ export default function LessonExperience({
                         {(section as ExplanationSection).body.map((paragraph, pIdx) => (
                           <p
                             key={pIdx}
-                            className={`text-sm leading-7 text-bs-text-sub ${dyslexiaMode ? "tracking-wide" : ""}`}
+                            className={`text-sm leading-7 ${dyslexiaMode ? "tracking-wide" : ""}`}
+                            style={{ color: "#1a2e22" }}
                           >
                             {paragraph}
                           </p>
@@ -592,21 +654,19 @@ export default function LessonExperience({
                   {section.type === "worked-example" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-lg font-semibold text-indigo-800">
+                        <h2 className="flex items-center gap-2 text-[16px] md:text-[18px]" style={{ fontFamily: "var(--font-lora), Georgia, serif", fontStyle: "italic", fontWeight: 700, color: isRead ? "#4a8a6e" : "#0d4a2f", transition: "color 200ms ease-in-out" }}>
                           <span className="rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-indigo-600">
                             Worked Example
                           </span>
+                          {isRead && <span aria-hidden="true">✓</span>}
                           {section.heading}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#5a7a66" }}>
                           <input
                             type="checkbox"
-                            checked={Boolean(effectiveSectionChecks[sectionKey])}
-                            onChange={(event) => {
-                              const checked = event.target.checked;
-                              setSectionChecks((prev) => ({ ...prev, [sectionKey]: checked }));
-                              if (checked) markSectionComplete(sectionKey);
-                            }}
+                            checked={isRead}
+                            style={{ accentColor: "#1a7a4e" }}
+                            onChange={(event) => handleSectionCheck(sectionKey, event.target.checked)}
                           />
                           Mark read
                         </label>
@@ -635,20 +695,18 @@ export default function LessonExperience({
                   {section.type === "misconception-spotlight" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-base font-semibold text-amber-800">
+                        <h2 className="flex items-center gap-2 text-[16px] md:text-[18px]" style={{ fontFamily: "var(--font-lora), Georgia, serif", fontStyle: "italic", fontWeight: 700, color: isRead ? "#4a8a6e" : "#0d4a2f", transition: "color 200ms ease-in-out" }}>
                           <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-amber-700">
                             ⚠ Misconception Spotlight
                           </span>
+                          {isRead && <span aria-hidden="true">✓</span>}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#5a7a66" }}>
                           <input
                             type="checkbox"
-                            checked={Boolean(effectiveSectionChecks[sectionKey])}
-                            onChange={(event) => {
-                              const checked = event.target.checked;
-                              setSectionChecks((prev) => ({ ...prev, [sectionKey]: checked }));
-                              if (checked) markSectionComplete(sectionKey);
-                            }}
+                            checked={isRead}
+                            style={{ accentColor: "#1a7a4e" }}
+                            onChange={(event) => handleSectionCheck(sectionKey, event.target.checked)}
                           />
                           Mark read
                         </label>
@@ -674,21 +732,19 @@ export default function LessonExperience({
                   {section.type === "visual-diagram" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-lg font-semibold text-teal-800">
+                        <h2 className="flex items-center gap-2 text-[16px] md:text-[18px]" style={{ fontFamily: "var(--font-lora), Georgia, serif", fontStyle: "italic", fontWeight: 700, color: isRead ? "#4a8a6e" : "#0d4a2f", transition: "color 200ms ease-in-out" }}>
                           <span className="rounded-md bg-teal-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-teal-600">
                             Visual Diagram
                           </span>
+                          {isRead && <span aria-hidden="true">✓</span>}
                           {section.heading}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#5a7a66" }}>
                           <input
                             type="checkbox"
-                            checked={Boolean(effectiveSectionChecks[sectionKey])}
-                            onChange={(event) => {
-                              const checked = event.target.checked;
-                              setSectionChecks((prev) => ({ ...prev, [sectionKey]: checked }));
-                              if (checked) markSectionComplete(sectionKey);
-                            }}
+                            checked={isRead}
+                            style={{ accentColor: "#1a7a4e" }}
+                            onChange={(event) => handleSectionCheck(sectionKey, event.target.checked)}
                           />
                           Mark read
                         </label>
@@ -715,20 +771,18 @@ export default function LessonExperience({
                   {section.type === "vocabulary-spotlight" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-base font-semibold text-purple-800">
+                        <h2 className="flex items-center gap-2 text-[16px] md:text-[18px]" style={{ fontFamily: "var(--font-lora), Georgia, serif", fontStyle: "italic", fontWeight: 700, color: isRead ? "#4a8a6e" : "#0d4a2f", transition: "color 200ms ease-in-out" }}>
                           <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-purple-600">
                             Vocabulary Spotlight
                           </span>
+                          {isRead && <span aria-hidden="true">✓</span>}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#5a7a66" }}>
                           <input
                             type="checkbox"
-                            checked={Boolean(effectiveSectionChecks[sectionKey])}
-                            onChange={(event) => {
-                              const checked = event.target.checked;
-                              setSectionChecks((prev) => ({ ...prev, [sectionKey]: checked }));
-                              if (checked) markSectionComplete(sectionKey);
-                            }}
+                            checked={isRead}
+                            style={{ accentColor: "#1a7a4e" }}
+                            onChange={(event) => handleSectionCheck(sectionKey, event.target.checked)}
                           />
                           Mark read
                         </label>
@@ -755,21 +809,19 @@ export default function LessonExperience({
                   {section.type === "activity" && (
                     <>
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <h2 className="flex items-center gap-2 text-lg font-semibold text-green-800">
+                        <h2 className="flex items-center gap-2 text-[16px] md:text-[18px]" style={{ fontFamily: "var(--font-lora), Georgia, serif", fontStyle: "italic", fontWeight: 700, color: isRead ? "#4a8a6e" : "#0d4a2f", transition: "color 200ms ease-in-out" }}>
                           <span className="rounded-md bg-green-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-green-600">
                             Activity
                           </span>
+                          {isRead && <span aria-hidden="true">✓</span>}
                           {section.heading}
                         </h2>
-                        <label className="inline-flex items-center gap-2 text-xs font-semibold text-bs-text-sub">
+                        <label className="inline-flex items-center gap-2 text-xs font-semibold" style={{ color: "#5a7a66" }}>
                           <input
                             type="checkbox"
-                            checked={Boolean(effectiveSectionChecks[sectionKey])}
-                            onChange={(event) => {
-                              const checked = event.target.checked;
-                              setSectionChecks((prev) => ({ ...prev, [sectionKey]: checked }));
-                              if (checked) markSectionComplete(sectionKey);
-                            }}
+                            checked={isRead}
+                            style={{ accentColor: "#1a7a4e" }}
+                            onChange={(event) => handleSectionCheck(sectionKey, event.target.checked)}
                           />
                           Mark read
                         </label>
@@ -802,8 +854,8 @@ export default function LessonExperience({
         {/* Lab Notebook — between lesson content and quick-checks */}
         <LessonNotebook lessonSlug={lesson.slug} studentId={student?.id ?? "anonymous"} />
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-5 shadow-sm" style={{ background: "white" }}>
-          <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
+        <section className="rounded-3xl p-5 shadow-sm" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)" }}>
+          <div className="text-sm font-semibold" style={{ color: "#1a2e22" }}>
             Quick Check
           </div>
           <p className="mt-1 text-xs text-bs-text-sub">
@@ -813,29 +865,31 @@ export default function LessonExperience({
             {questions.map((question, index) => (
               <div
                 key={question.id}
-                className="rounded-2xl border border-[rgba(0,0,0,0.08)] bg-white p-4"
+                style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", borderRadius: 12, padding: 16 }}
               >
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-[rgba(0,0,0,0.08)] px-2.5 py-1 text-[11px] font-semibold" style={{ background: "white", color: "#5a7d72" }}>
+                  <span style={{ background: "#d6ede6", color: "#0d4a2f", borderRadius: 20, fontSize: 11, fontWeight: 600, padding: "3px 10px" }}>
                     TEKS {question.teks}
                   </span>
                   <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-900">
                     {question.learningLevel}
                   </span>
                 </div>
-                <div className="text-sm font-semibold" style={{ color: "#0a1a14" }}>
+                <div className="text-sm font-semibold" style={{ color: "#1a2e22" }}>
                   {index + 1}. {question.question}
                 </div>
                 <div className="mt-2 space-y-2">
                   {question.options.map((choice, optionIndex) => (
                     <label
                       key={choice}
-                      className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-transparent px-3 py-2 text-sm text-bs-text-sub transition-colors hover:border-[rgba(0,0,0,0.12)] hover:bg-[rgba(0,0,0,0.04)]"
+                      className="flex min-h-[44px] cursor-pointer items-center gap-2 rounded-xl border border-transparent px-3 py-2 text-sm transition-colors hover:border-[rgba(10,60,30,0.10)] hover:bg-[rgba(10,60,30,0.04)]"
+                      style={{ color: "#5a7a66" }}
                     >
                       <input
                         type="radio"
                         aria-label={`${question.id}-${choice}`}
                         name={question.id}
+                        style={{ accentColor: "#1a7a4e" }}
                         checked={answers[question.id] === optionIndex}
                         onChange={() =>
                           setAnswers((prev) => ({
@@ -874,7 +928,7 @@ export default function LessonExperience({
               type="button"
               onClick={handleSubmitCheck}
               aria-label="Submit quick check"
-              className="rounded-xl px-4 py-2 text-sm font-semibold" style={{ background: "#006e55", color: "white" }}
+              className="rounded-xl px-4 py-2 text-sm font-semibold" style={{ background: "#1a7a4e", color: "white" }}
             >
               Submit Check
             </button>
@@ -882,7 +936,7 @@ export default function LessonExperience({
               type="button"
               onClick={markComplete}
               aria-label="Mark lesson complete"
-              className="rounded-xl border border-[rgba(0,0,0,0.08)] px-4 py-2 text-sm font-semibold" style={{ background: "white", color: "#0a1a14" }}
+              className="rounded-xl px-4 py-2 text-sm font-semibold" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", color: "#1a2e22" }}
             >
               Mark Lesson Complete
             </button>
@@ -925,18 +979,18 @@ export default function LessonExperience({
           ) : null}
         </section>
 
-        <section className="rounded-3xl border border-[rgba(0,0,0,0.08)] p-4 shadow-sm" style={{ background: "white" }}>
+        <section className="rounded-3xl p-4 shadow-sm" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)" }}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-2">
               <Link
                 href="/student/learn"
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", color: "#1a2e22" }}
               >
                 Hub
               </Link>
               <Link
                 href={`/student/learn/${unit.id}`}
-                className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", color: "#1a2e22" }}
               >
                 Unit
               </Link>
@@ -946,7 +1000,7 @@ export default function LessonExperience({
               {previousLesson ? (
                 <Link
                   href={`/student/learn/${unit.id}/${previousLesson.slug}`}
-                  className="rounded-xl border border-[rgba(0,0,0,0.08)] px-3 py-2 text-xs font-semibold" style={{ background: "white", color: "#0a1a14" }}
+                  className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#ffffff", border: "1px solid rgba(10,60,30,0.10)", color: "#1a2e22" }}
                 >
                   ← Previous
                 </Link>
@@ -954,7 +1008,7 @@ export default function LessonExperience({
               {nextLesson ? (
                 <Link
                   href={`/student/learn/${unit.id}/${nextLesson.slug}`}
-                  className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#006e55", color: "white" }}
+                  className="rounded-xl px-3 py-2 text-xs font-semibold" style={{ background: "#1a7a4e", color: "white" }}
                 >
                   Next →
                 </Link>
@@ -962,6 +1016,7 @@ export default function LessonExperience({
             </div>
           </div>
         </section>
+      </div>
       </div>
     </main>
   );

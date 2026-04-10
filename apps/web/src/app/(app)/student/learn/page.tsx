@@ -327,8 +327,10 @@ export default function StudentLearningHubPage() {
                       {row.teks}
                     </div>
                     <div className="text-bs-text-sub">
-                      Avg check: {row.avgCheck}% • Completion:{" "}
-                      {row.completionPct}%
+                      {row.hasAttempts
+                        ? `Avg check: ${row.avgCheck}% • Completion: ${row.completionPct}%`
+                        : <span style={{ fontFamily: "var(--font-dm-sans), sans-serif", fontSize: 12, color: "#6a9a82" }}>No attempts yet</span>
+                      }
                     </div>
                   </div>
                 ))}

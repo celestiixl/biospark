@@ -39,7 +39,7 @@ export default function StandardsHeatmapPage() {
               className={`rounded-2xl border p-3 text-sm ${tone[row.proficiency]}`}
             >
               <div className="font-semibold">{row.teks}</div>
-              <div className="mt-1 text-xs">Avg check: {row.avgCheck}%</div>
+              <div className="mt-1 text-xs">Avg check: {row.hasAttempts ? `${row.avgCheck}%` : <span style={{ fontFamily: "var(--font-dm-sans), sans-serif", color: "#6a9a82" }}>No attempts yet</span>}</div>
               <div className="text-xs">Completion: {row.completionPct}%</div>
             </div>
           ))}
@@ -63,7 +63,7 @@ export default function StandardsHeatmapPage() {
                 <tr key={row.teks} className="border-b border-[var(--bs-border)]">
                   <td className="py-2 pr-3 font-semibold">{row.teks}</td>
                   <td className="py-2 pr-3">{row.lessons}</td>
-                  <td className="py-2 pr-3">{row.avgCheck}%</td>
+                  <td className="py-2 pr-3">{row.hasAttempts ? `${row.avgCheck}%` : <span style={{ color: "#6a9a82" }}>—</span>}</td>
                   <td className="py-2 pr-3">{row.completionPct}%</td>
                   <td className="py-2 pr-3">
                     <span
