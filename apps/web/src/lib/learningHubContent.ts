@@ -95,6 +95,7 @@ export type LearningLesson = {
   sections: LessonSection[];
   keyTerms: string[];
   quickChecks?: QuickCheck[];
+  completionHook?: string;
 };
 
 export type LearningProgression = {
@@ -306,6 +307,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "Scientists are currently engineering synthetic cell membranes that can deliver cancer-fighting drugs directly inside tumor cells without harming healthy tissue.",
         keyTerms: ["monomer", "polymer", "carbohydrate", "lipid", "protein", "nucleic acid", "prokaryote", "eukaryote", "endosymbiotic theory", "phospholipid bilayer"],
         quickChecks: [
           {
@@ -469,6 +471,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "Researchers studying cystic fibrosis are developing drugs that fix a single broken transport protein in lung cell membranes. One protein malfunction is enough to make breathing difficult for life.",
         keyTerms: ["diffusion", "facilitated diffusion", "osmosis", "active transport", "endocytosis", "exocytosis", "homeostasis", "hypertonic", "hypotonic", "isotonic"],
         quickChecks: [
           {
@@ -638,6 +641,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "A lab in Houston is engineering enzymes that can break down plastic bottles in hours instead of the centuries it would take naturally.",
         keyTerms: ["enzyme", "active site", "substrate", "activation energy", "denaturation", "photosynthesis", "cellular respiration", "ATP", "conservation of matter"],
         quickChecks: [
           {
@@ -851,6 +855,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "The entire human genome, 3 billion base pairs, can now be sequenced in under 24 hours for about $200. The same process took 13 years and $3 billion when scientists first attempted it in 1990.",
         keyTerms: ["deoxyribose", "phosphate", "nitrogenous base", "double helix", "antiparallel", "base pairing", "helicase", "DNA polymerase", "semi-conservative replication"],
         quickChecks: [
           {
@@ -1015,6 +1020,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "MRNA vaccines work by slipping a strand of messenger RNA into your cells and letting your own ribosomes build the protein that trains your immune system.",
         keyTerms: ["central dogma", "transcription", "translation", "mRNA", "tRNA", "rRNA", "codon", "anticodon", "start codon AUG", "stop codon", "gene expression"],
         quickChecks: [
           {
@@ -1173,6 +1179,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "A single point mutation, one wrong base pair out of 3 billion, is responsible for sickle cell disease, which affects approximately 100,000 people in the United States, with higher prevalence in Texas than most other states.",
         keyTerms: ["mutation", "mutagen", "point mutation", "silent mutation", "missense mutation", "nonsense mutation", "frameshift mutation", "insertion", "deletion", "reading frame"],
         quickChecks: [
           {
@@ -1383,14 +1390,8 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
-        keyTerms: [
-          "cell cycle",
-          "interphase",
-          "DNA replication",
-          "mitosis",
-          "cytokinesis",
-          "differentiation",
-        ],
+        completionHook: "Cancer is essentially a cell cycle problem. Tumor cells have mutations that disable the checkpoints that normally tell a cell when to stop dividing, which is why understanding cell growth is foundational to every cancer treatment being developed today.",
+        keyTerms: ["cell cycle", "interphase", "DNA replication", "mitosis", "cytokinesis", "differentiation"],
         quickChecks: [
           {
             id: "qc-u3c1-cell-cycle-stages-developing",
@@ -1528,15 +1529,8 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
-        keyTerms: [
-          "virus",
-          "capsid",
-          "mutation",
-          "cancer",
-          "meiosis",
-          "crossing-over",
-          "independent assortment",
-        ],
+        completionHook: "Chromosomal errors during meiosis are the leading cause of miscarriage and are responsible for conditions like Down syndrome. Scientists are now studying how to detect these errors before a single cell has divided more than a few times.",
+        keyTerms: ["virus", "capsid", "mutation", "cancer", "meiosis", "crossing-over", "independent assortment"],
         quickChecks: [
           {
             id: "qc-u3c2-virus-vs-cell-developing",
@@ -1847,6 +1841,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "Engineers studying xylem transport in trees are using the same cohesion-tension principles to design passive water collection systems for drought-stricken communities in West Texas and across the developing world.",
         keyTerms: ["xylem", "phloem", "transpiration", "cohesion-tension", "pressure-flow", "stomata", "source", "sink"],
         quickChecks: [
           {
@@ -2009,6 +2004,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "The Texas wildflower seed bank at the Ladybird Johnson Wildflower Center in Austin stores seeds from over 800 native Texas plant species, insurance against the extinction of plants whose pollination and dispersal systems are already being disrupted by climate shifts.",
         keyTerms: ["stamen", "carpel", "pollination", "fertilization", "double fertilization", "endosperm", "seed dispersal"],
         quickChecks: [
           {
@@ -2164,6 +2160,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "Auxins, the same hormones that make plants bend toward light, are being studied as a model for developing synthetic growth regulators that could help crops in South Texas survive drought conditions that are becoming more frequent and severe.",
         keyTerms: ["auxin", "gibberellin", "ethylene", "ABA", "phototropism", "gravitropism", "thigmotropism", "apical dominance"],
         quickChecks: [
           {
@@ -2317,6 +2314,7 @@ export const LEARNING_UNITS: LearningUnit[] = [
             ],
           },
         ],
+        completionHook: "The reason a stressed corn plant in the Texas Panhandle produces less grain during a drought involves all three plant systems at once: reduced water transport, impaired pollination, and hormonal stress responses that redirect energy away from reproduction.",
         keyTerms: ["systemic signaling", "source-sink", "hormone crosstalk", "adventitious roots", "cascade disruption"],
         quickChecks: [
           {
