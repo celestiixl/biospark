@@ -197,6 +197,8 @@ export default function LessonExperience({
       addLessonTime(lesson.id, spent);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // lesson.slug and lesson.sections are derived from lesson.id — intentionally
+  // excluded to prevent re-running when parent re-renders with the same lesson.
   }, [lesson.id]);
 
   // Scroll back to where the student left off once the hook has hydrated

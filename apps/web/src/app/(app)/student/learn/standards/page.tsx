@@ -39,7 +39,12 @@ export default function StandardsHeatmapPage() {
               className={`rounded-2xl border p-3 text-sm ${tone[row.proficiency]}`}
             >
               <div className="font-semibold">{row.teks}</div>
-              <div className="mt-1 text-xs">Avg check: {row.hasAttempts ? `${row.avgCheck}%` : <span style={{ fontFamily: "var(--font-dm-sans), sans-serif", color: "#6a9a82" }}>No attempts yet</span>}</div>
+              <div className="mt-1 text-xs">
+                {row.hasAttempts
+                  ? <span>Avg check: {row.avgCheck}%</span>
+                  : <span style={{ fontFamily: "var(--font-dm-sans), sans-serif", color: "#6a9a82" }}>No attempts yet</span>
+                }
+              </div>
               <div className="text-xs">Completion: {row.completionPct}%</div>
             </div>
           ))}
