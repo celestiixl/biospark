@@ -397,9 +397,7 @@ export default function LessonExperience({
       percent: readingProgress,
     });
     markLessonProgressComplete();
-    if ((score ?? 0) >= 70) {
-      setShowCompletion(true);
-    }
+    setShowCompletion(true);
   }
 
   /** Handle "Mark read" checkbox toggle with localStorage persistence (FIX 5). */
