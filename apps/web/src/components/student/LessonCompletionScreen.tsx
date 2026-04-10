@@ -42,6 +42,9 @@ function rand(min: number, max: number) {
 function runCanvasAnimation(canvas: HTMLCanvasElement) {
   const context = canvas.getContext("2d");
   if (!context) return () => {};
+  // Rebind as an explicitly non-null const so TypeScript carries the narrowed
+  // type into the draw() function declaration closure.
+  const ctx: CanvasRenderingContext2D = context;
 
   const W = canvas.width;
   const H = canvas.height;
@@ -71,23 +74,23 @@ function runCanvasAnimation(canvas: HTMLCanvasElement) {
   let rafId: number;
 
   function draw() {
-    context.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, W, H);
 
     // Draw blobs
     for (const blob of blobs) {
       const alpha =
         blob.baseAlpha +
         (blob.baseAlpha * 0.5) * Math.sin(t * blob.speed + blob.phase);
-      const gradient = context.createRadialGradient(
+      const gradient = ctx.createRadialGradient(
         blob.x, blob.y, 0,
         blob.x, blob.y, blob.radius,
       );
       gradient.addColorStop(0, `hsla(${blob.hue}, 70%, 55%, ${alpha})`);
       gradient.addColorStop(1, `hsla(${blob.hue}, 70%, 55%, 0)`);
-      context.beginPath();
-      context.arc(blob.x, blob.y, blob.radius, 0, Math.PI * 2);
-      context.fillStyle = gradient;
-      context.fill();
+      ctx.beginPath();
+      ctx.arc(blob.x, blob.y, blob.radius, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
     }
 
     // Draw particles
@@ -95,19 +98,19 @@ function runCanvasAnimation(canvas: HTMLCanvasElement) {
       const opacity = Math.abs(Math.sin(t * p.speed + p.phase));
 
       // Soft glow
-      const glow = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 5);
+      const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 5);
       glow.addColorStop(0, `hsla(${p.hue}, 80%, 70%, ${opacity * 0.3})`);
       glow.addColorStop(1, `hsla(${p.hue}, 80%, 70%, 0)`);
-      context.beginPath();
-      context.arc(p.x, p.y, p.radius * 5, 0, Math.PI * 2);
-      context.fillStyle = glow;
-      context.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius * 5, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
 
       // Core dot
-      context.beginPath();
-      context.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      context.fillStyle = `hsla(${p.hue}, 80%, 80%, ${opacity})`;
-      context.fill();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 80%, 80%, ${opacity})`;
+      ctx.fill();
 
       // Drift + wrap
       p.x += p.vx;
